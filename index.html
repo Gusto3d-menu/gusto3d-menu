@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gustó3D - Menú Profesional</title>
+    <title>Gustó3D - Menú Final</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     
@@ -14,19 +14,19 @@
             z-index: 9999; font-family: sans-serif; font-weight: bold;
         }
         #ui-overlay {
-            position: fixed; bottom: 30px; left: 0; width: 100%;
+            position: fixed; bottom: 40px; left: 0; width: 100%;
             display: flex; justify-content: center; gap: 20px; z-index: 9999;
         }
         .btn-gusto {
             padding: 15px 25px; background: #25D366; color: white;
             border: 2px solid white; border-radius: 12px; font-weight: bold;
-            cursor: pointer; box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
+            cursor: pointer;
         }
     </style>
 </head>
 
 <body>
-    <div id="info-plato">CARGANDO MENÚ...</div>
+    <div id="info-plato">CARGANDO...</div>
 
     <div id="ui-overlay">
         <button class="btn-gusto" id="btn-prev">Anterior</button>
@@ -34,7 +34,7 @@
     </div>
 
     <a-scene 
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no;" 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;" 
         embedded color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" 
         vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       
@@ -46,8 +46,8 @@
     </a-scene>
 
     <script>
-         const URL_BASE = "https://gusto3d-menu.github.io/gusto3d-assets/";
-
+        // ESTA ES LA URL QUE TE DIO GITHUB PAGES
+        const URL_BASE = "https://gusto3d-menu.github.io/gusto3d-assets/";
 
         const catalogo = [
             { nombre: "MENÚ: Sándwich", archivo: "food.glb", escala: "0.5 0.5 0.5" },
@@ -60,16 +60,19 @@
 
         function actualizarPlato() {
             const item = catalogo[index];
-            // Construimos la URL completa apuntando al otro repositorio
             const urlCompleta = URL_BASE + item.archivo;
             
+            // Actualizamos el modelo y la escala
             visor.setAttribute("src", urlCompleta);
             visor.setAttribute("scale", item.escala);
             texto.innerText = item.nombre;
+            console.log("Cargando:", urlCompleta);
         }
 
-        // Cargar el primero al iniciar
-        window.onload = actualizarPlato;
+        // Iniciar carga
+        window.onload = () => {
+            setTimeout(actualizarPlato, 500);
+        };
 
         document.querySelector("#btn-next").addEventListener('click', () => {
             index = (index + 1) % catalogo.length;
