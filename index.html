@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gustó3D - Visualizador Personalizado</title>
+    <title>Gustó3D - Realidad Aumentada Estática</title>
     
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
@@ -46,7 +46,7 @@
 </head>
 
 <body>
-    <div id="info-plato">INICIANDO EXPERIENCIA...</div>
+    <div id="info-plato">CARGANDO MENÚ...</div>
 
     <div id="ui-overlay">
         <button class="btn-gusto" id="btn-prev">← Anterior</button>
@@ -54,7 +54,7 @@
     </div>
 
     <a-scene 
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF:0.001; filterBeta: 0.01; missTolerance: 50" 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF:0.0001; filterBeta: 0.1; missTolerance: 100" 
         vr-mode-ui="enabled: false" 
         device-orientation-permission-ui="enabled: false"
         color-space="sRGB" 
@@ -73,21 +73,20 @@
     <script>
         const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
         
-        // CONFIGURACIÓN INDIVIDUAL POR ASSET
         const catalogo = [
             { 
                 nombre: "Sándwich Gourmet", 
                 archivo: "food.glb",
-                pos: "0 -0.4 0",      // Ajuste de altura
-                esc: "-0.5 -0.5 -0.5",   // Ajuste de tamaño
-                rot: "0 0 0"         // Rotación inicial (X Y Z)
+                pos: "0 -0.8 0",
+                esc: "1.2 1.2 1.2",
+                rot: "90 0 0" 
             },
             { 
                 nombre: "Postre Especial", 
                 archivo: "postre.glb",
-                pos: "0 -0.5 0",      // Ajuste de altura
-                esc: "8 8 8",   // Ajuste de tamaño
-                rot: "0 0 0"        // Rotación inicial (X Y Z)
+                pos: "0 -0.5 0",
+                esc: "1.6 1.6 1.6",
+                rot: "90 45 0" 
             }
         ];
 
@@ -97,33 +96,27 @@
 
         function actualizarPlato() {
             const item = catalogo[index];
-            const rutaCompleta = URL_BASE + item.archivo;
-
-            // 1. Actualizar el archivo
-            visor.setAttribute("src", rutaCompleta);
             
-            // 2. Aplicar transformación física única
+            // 1. Cargamos el modelo
+            visor.setAttribute("src", URL_BASE + item.archivo);
+            
+            // 2. Aplicamos posición y escala
             visor.setAttribute("position", item.pos);
             visor.setAttribute("scale", item.esc);
             
-            // 3. Reiniciar la animación con la rotación base del objeto
-            // 'from' es la rotación definida, 'to' es el giro completo de 360 grados
-            visor.setAttribute("animation", `property: rotation; from: ${item.rot}; to: 0 0 0; dur: 0; easing: linear; loop: true`);
+            // 3. Aplicamos rotación FIJA (sin animación)
+            visor.setAttribute("rotation", item.rot);
 
             texto.innerText = "ESTÁS VIENDO: " + item.nombre;
-            console.log("Cargado:", item.nombre, "| Pos:", item.pos);
         }
 
-        // Eventos de sistema
         document.querySelector('a-scene').addEventListener('arReady', () => {
-            texto.innerText = "APUNTA AL LOGO DE GUSTÓ3D";
+            texto.innerText = "APUNTA AL LOGO";
             document.body.style.backgroundColor = "transparent";
         });
 
-        // Inicialización
         actualizarPlato();
 
-        // Controles de usuario
         document.querySelector("#btn-next").addEventListener('click', () => {
             index = (index + 1) % catalogo.length;
             actualizarPlato();
