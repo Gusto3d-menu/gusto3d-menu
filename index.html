@@ -2,12 +2,11 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gustó3D - Fix Pantalla</title>
+    <title>Gustó3D - Fix Iluminación</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     
     <style>
-        /* Forzamos que la escena ocupe TODO el espacio */
         body { margin: 0; overflow: hidden; background: #000; width: 100vw; height: 100vh; }
         #info-plato {
             position: fixed; top: 0; width: 100%; text-align: center;
@@ -22,7 +21,6 @@
             padding: 15px 25px; background: #25D366; color: white;
             border: 2px solid white; border-radius: 12px; font-weight: bold;
         }
-        /* Esto elimina bordes blancos o negros extraños en móviles */
         .mindar-ui-overlay { z-index: 11000; }
     </style>
 </head>
@@ -36,33 +34,27 @@
     </div>
 
     <a-scene 
-        <a-light type="ambient" intensity="0.7"></a-light>
-
-        <a-light type="directional" position="1 2 1" intensity="0.5"></a-light>
-        
         mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no;" 
         embedded color-space="sRGB" 
         renderer="colorManagement: true, physicallyCorrectLights: true"
         vr-mode-ui="enabled: false" 
         device-orientation-permission-ui="enabled: false">
       
+        <a-light type="ambient" intensity="0.7"></a-light>
+        <a-light type="directional" position="1 2 1" intensity="0.5"></a-light>
+
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
         <a-entity mindar-image-target="targetIndex: 0">
-                <a-gltf-model 
-                    id="visor" 
-                    src="" 
-                    position="0 0 0" 
-                    rotation="0 0 0" 
-                    scale="1 1 1" 
-                    visible="true"
-                    /* Esto ayuda a que las texturas se vean más nítidas */
-                    shadow="receive: false; cast: true">
-                </a-gltf-model>
+            <a-gltf-model 
+                id="visor" 
+                src="" 
+                position="0 0 0" 
+                rotation="0 0 0" 
+                scale="1 1 1" 
+                visible="true">
+            </a-gltf-model>
         </a-entity>
-
-
-        
     </a-scene>
 
     <script>
@@ -80,18 +72,15 @@
             const item = catalogo[index];
             const ruta = URL_BASE + item.archivo;
             
-            // Log para ver en la consola del celular si falla
             console.log("Intentando cargar:", ruta);
             
             visor.setAttribute("src", ruta);
             texto.innerText = "Cargando: " + item.nombre;
 
-            // Escuchamos cuando el modelo termina de cargar
             visor.addEventListener('model-loaded', () => {
                 texto.innerText = "Viendo: " + item.nombre;
             });
 
-            // Si hay un error de carga, lo avisamos en pantalla
             visor.addEventListener('model-error', () => {
                 texto.innerText = "ERROR AL DESCARGAR ARCHIVO";
             });
