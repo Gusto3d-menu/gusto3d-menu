@@ -2,41 +2,35 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gustó3D - Vista Final</title>
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <title>Gustó3D - Cámara Final</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     
     <style>
-        /* Limpieza total de márgenes para evitar franjas negras */
         body { margin: 0; overflow: hidden; background-color: #000; }
-        
         #info-plato {
             position: fixed; top: 0; width: 100%; text-align: center;
-            color: white; background: rgba(0,0,0,0.7); padding: 15px 0;
-            z-index: 100; font-family: sans-serif; font-weight: bold;
+            color: white; background: rgba(0,0,0,0.8); padding: 15px 0;
+            z-index: 1000; font-family: sans-serif; font-weight: bold;
         }
-
         #ui-overlay {
             position: fixed; bottom: 30px; left: 0; width: 100%;
-            display: flex; justify-content: center; gap: 20px; z-index: 100;
+            display: flex; justify-content: center; gap: 20px; z-index: 1000;
         }
-
         .btn-gusto {
             padding: 15px 25px; background: #25D366; color: white;
             border: 2px solid white; border-radius: 12px; font-weight: bold;
-            cursor: pointer;
         }
-
-        /* Bloqueo estricto del botón de VR */
-        .a-enter-vr, .a-enter-ar { display: none !important; }
+        /* Ocultar VR y el botón de pantalla completa */
+        .a-enter-vr, .a-enter-ar, .a-enter-vr-button { display: none !important; }
         
-        /* Forzar que el lienzo de la cámara sea transparente y visible */
-        canvas { width: 100% !important; height: 100% !important; }
+        /* Asegurar que el video de la cámara no sea tapado por nada */
+        .mindar-ui-overlay { z-index: 500; }
     </style>
 </head>
 
 <body>
-    <div id="info-plato">ESCANEA EL LOGO</div>
+    <div id="info-plato">CARGANDO CÁMARA...</div>
 
     <div id="ui-overlay">
         <button class="btn-gusto" id="btn-prev">Anterior</button>
@@ -46,14 +40,12 @@
     <a-scene 
         mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: yes;" 
         embedded 
-        color-space="sRGB" 
-        renderer="colorManagement: true, physicallyCorrectLights: true"
         vr-mode-ui="enabled: false" 
-        device-orientation-permission-ui="enabled: false">
+        device-orientation-permission-ui="enabled: false"
+        color-space="sRGB" 
+        renderer="colorManagement: true, physicallyCorrectLights: true">
       
         <a-light type="ambient" intensity="1"></a-light>
-        <a-light type="directional" position="0 2 1" intensity="0.5"></a-light>
-
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
         <a-entity mindar-image-target="targetIndex: 0">
@@ -64,8 +56,8 @@
     <script>
         const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
         const catalogo = [
-            { nombre: "Sándwich", archivo: "food.glb", escala: "1 1 1" },
-            { nombre: "Postre", archivo: "postre.glb", escala: "1.2 1.2 1.2" }
+            { nombre: "Sándwich", archivo: "food.glb" },
+            { nombre: "Postre", archivo: "postre.glb" }
         ];
 
         let index = 0;
@@ -74,16 +66,17 @@
 
         function actualizarPlato() {
             const item = catalogo[index];
-            const rutaFinal = URL_BASE + item.archivo;
-            
-            visor.setAttribute("src", rutaFinal);
-            visor.setAttribute("scale", item.escala);
+            const ruta = URL_BASE + item.archivo;
+            visor.setAttribute("src", ruta);
             texto.innerText = "MENÚ: " + item.nombre;
         }
 
-        // Carga automática al iniciar
-        window.addEventListener('load', () => {
-            setTimeout(actualizarPlato, 1000);
+        // Evento que se dispara cuando la cámara REALMENTE inicia
+        window.addEventListener("arClick", () => { console.log("AR Iniciado"); });
+
+        document.querySelector('a-scene').addEventListener('loaded', () => {
+            actualizarPlato();
+            texto.innerText = "APUNTA AL LOGO";
         });
 
         document.querySelector("#btn-next").addEventListener('click', () => {
