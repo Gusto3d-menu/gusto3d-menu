@@ -108,7 +108,7 @@
             
             // 3. Reiniciar la animación con la rotación base del objeto
             // 'from' es la rotación definida, 'to' es el giro completo de 360 grados
-            visor.setAttribute("animation", `property: rotation; from: ${item.rot}; to: 0 0 0; dur: 10000; easing: linear; loop: true`);
+            visor.setAttribute("animation", `property: rotation; from: ${item.rot}; to: 0 0 0; dur: 0; easing: linear; loop: true`);
 
             texto.innerText = "ESTÁS VIENDO: " + item.nombre;
             console.log("Cargado:", item.nombre, "| Pos:", item.pos);
