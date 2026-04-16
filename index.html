@@ -1,1 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gustó3D - Menú Profesional</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; }
+        #info-plato {
+            position: fixed; top: 0; width: 100%; text-align: center;
+            color: white; background: rgba(0,0,0,0.8); padding: 15px 0;
+            z-index: 9999; font-family: sans-serif; font-weight: bold;
+        }
+        #ui-overlay {
+            position: fixed; bottom: 30px; left: 0; width: 100%;
+            display: flex; justify-content: center; gap: 20px; z-index: 9999;
+        }
+        .btn-gusto {
+            padding: 15px 25px; background: #25D366; color: white;
+            border: 2px solid white; border-radius: 12px; font-weight: bold;
+            cursor: pointer; box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
 
+<body>
+    <div id="info-plato">CARGANDO MENÚ...</div>
+
+    <div id="ui-overlay">
+        <button class="btn-gusto" id="btn-prev">Anterior</button>
+        <button class="btn-gusto" id="btn-next">Siguiente</button>
+    </div>
+
+    <a-scene 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no;" 
+        embedded color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" 
+        vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+      
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-gltf-model id="visor" position="0 0 0" scale="0.5 0.5 0.5"></a-gltf-model>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        // REEMPLAZA "TU-USUARIO" con tu nombre real de GitHub
+        const URL_BASE = "https://tu-usuario.github.io/gusto3d-assets/";
+
+        const catalogo = [
+            { nombre: "MENÚ: Sándwich", archivo: "food.glb", escala: "0.5 0.5 0.5" },
+            { nombre: "MENÚ: Postre", archivo: "postre.glb", escala: "0.8 0.8 0.8" }
+        ];
+
+        let index = 0;
+        const visor = document.querySelector("#visor");
+        const texto = document.querySelector("#info-plato");
+
+        function actualizarPlato() {
+            const item = catalogo[index];
+            // Construimos la URL completa apuntando al otro repositorio
+            const urlCompleta = URL_BASE + item.archivo;
+            
+            visor.setAttribute("src", urlCompleta);
+            visor.setAttribute("scale", item.escala);
+            texto.innerText = item.nombre;
+        }
+
+        // Cargar el primero al iniciar
+        window.onload = actualizarPlato;
+
+        document.querySelector("#btn-next").addEventListener('click', () => {
+            index = (index + 1) % catalogo.length;
+            actualizarPlato();
+        });
+
+        document.querySelector("#btn-prev").addEventListener('click', () => {
+            index = (index - 1 + catalogo.length) % catalogo.length;
+            actualizarPlato();
+        });
+    </script>
+</body>
+</html>
