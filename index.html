@@ -3,77 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gustó3D - Visualizador AR</title>
+    <title>Gustó3D - Visualizador AR Corregido</title>
     
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     
     <style>
-        /* 1. CORRECCIÓN DE PANTALLA COMPLETA */
-        body, html { 
-            margin: 0; 
-            padding: 0; 
-            width: 100%; 
-            height: 100%; 
-            overflow: hidden; 
-            background-color: transparent; 
+        /* =========================================
+           SOLUCIÓN FRANJA BLANCA (NUEVO CSS)
+           ========================================= */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: transparent !important; /* Fuerza fondo transparente */
         }
 
-        /* Fuerza al video de la cámara a cubrir todo el fondo sin dejar huecos */
-        video {
+        /* Fuerza la escena de A-Frame a ocupar todo el espacio */
+        a-scene {
             width: 100vw !important;
             height: 100vh !important;
-            object-fit: cover !important;
-            position: fixed;
+            position: absolute;
             top: 0;
             left: 0;
         }
 
+        /* Fuerza al video de la cámara a cubrir el fondo sin deformarse */
+        video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important; /* Crucial para evitar franjas */
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            z-index: -1; /* Asegura que esté detrás de todo */
+        }
+
+        /* Ajustes de interfaz existentes */
         #info-plato {
-            position: fixed; 
-            top: 0; 
-            width: 100%; 
-            text-align: center;
-            color: white; 
-            background: rgba(0,0,0,0.7); 
-            padding: 20px 0;
-            z-index: 1000; 
-            font-family: Arial, sans-serif; 
-            font-weight: bold;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            position: fixed; top: 0; width: 100%; text-align: center;
+            color: white; background: rgba(0,0,0,0.7); padding: 20px 0;
+            z-index: 1000; font-family: Arial, sans-serif; font-weight: bold;
+            letter-spacing: 1px; text-transform: uppercase;
         }
 
         #ui-overlay {
-            position: fixed; 
-            bottom: 40px; 
-            left: 0; 
-            width: 100%;
-            display: flex; 
-            justify-content: center; 
-            gap: 30px; 
-            z-index: 1000;
+            position: fixed; bottom: 40px; left: 0; width: 100%;
+            display: flex; justify-content: center; gap: 30px; z-index: 1000;
         }
 
         .btn-gusto {
-            padding: 15px 30px; 
-            background: #25D366; 
-            color: white;
-            border: 2px solid white; 
-            border-radius: 50px; 
-            font-weight: bold;
-            box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
+            padding: 15px 30px; background: #25D366; color: white;
+            border: 2px solid white; border-radius: 50px; font-weight: bold;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.3); cursor: pointer;
+            -webkit-tap-highlight-color: transparent; text-transform: uppercase;
         }
 
-        .btn-gusto:active {
-            transform: scale(0.95);
-            background: #128C7E;
-        }
+        .btn-gusto:active { transform: scale(0.95); background: #128C7E; }
 
-        /* Ocultar elementos innecesarios de la interfaz de A-Frame */
-        .a-enter-vr, .a-enter-ar, .a-enter-vr-button { display: none !important; }
+        /* Ocultar elementos innecesarios de A-Frame */
+        .a-enter-vr, .a-enter-ar, .a-enter-vr-button, .a-orientation-modal { display: none !important; }
     </style>
 </head>
 
@@ -90,7 +81,7 @@
         vr-mode-ui="enabled: false" 
         device-orientation-permission-ui="enabled: false"
         color-space="sRGB" 
-        renderer="colorManagement: true, physicallyCorrectLights: true">
+        renderer="colorManagement: true, physicallyCorrectLights: true; logarithmicDepthBuffer: true;">
       
         <a-assets>
             </a-assets>
@@ -100,7 +91,7 @@
 
         <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;"></a-camera>
 
-        <a-entity mindar-image-target="targetIndex: 0">
+        <a-entity mindar-image-target="targetIndex: 0" id="target-entidad">
             <a-gltf-model 
                 id="visor" 
                 src="" 
@@ -122,30 +113,49 @@
         let index = 0;
         const visor = document.querySelector("#visor");
         const texto = document.querySelector("#info-plato");
+        const scene = document.querySelector('a-scene');
 
+        // Función para actualizar el plato con manejo de caché y errores
         function actualizarPlato() {
             const item = catalogo[index];
-            const ruta = URL_BASE + item.archivo;
+            // Añadimos una marca de tiempo para evitar caché agresivo si es necesario
+            const ruta = `${URL_BASE}${item.archivo}?v=${new Date().getTime()}`;
             
-            // Cambiamos el atributo src del modelo
-            visor.setAttribute("src", ruta);
-            texto.innerText = "ESTÁS VIENDO: " + item.nombre;
+            console.log("Cargando plato:", ruta);
+            
+            // Usamos remove y setAttribute para forzar la recarga del modelo
+            visor.removeAttribute('src'); 
+            
+            // Pequeño delay para asegurar que A-Frame note el cambio
+            setTimeout(() => {
+                visor.setAttribute("src", ruta);
+                texto.innerText = "ESTÁS VIENDO: " + item.nombre;
+            }, 50);
         }
 
-        // Evento cuando MindAR detecta que la cámara está lista
-        document.querySelector('a-scene').addEventListener('arReady', () => {
+        // =========================================
+        // CORRECCIÓN PARA RECARGA Y CACHÉ
+        // =========================================
+        
+        // 1. Asegurar que cargamos el primer plato apenas la escena esté lista
+        if (scene.hasLoaded) {
+            actualizarPlato();
+        } else {
+            scene.addEventListener('loaded', actualizarPlato);
+        }
+
+        // 2. MindAR está listo
+        scene.addEventListener('arReady', () => {
             texto.innerText = "APUNTA AL LOGO DE GUSTÓ3D";
         });
 
-        // Evento cuando se encuentra el logo
-        document.querySelector('[mindar-image-target]').addEventListener("targetFound", () => {
-            console.log("Logo detectado");
+        // 3. Manejo de errores de carga del modelo
+        visor.addEventListener('model-error', (e) => {
+            console.error("Error cargando el modelo .glb:", e);
+            texto.innerText = "ERROR AL CARGAR EL PLATO";
         });
 
-        // Inicializar el primer plato
-        actualizarPlato();
-
-        // Control de botones
+        // Control de botones (se mantienen igual)
         document.querySelector("#btn-next").addEventListener('click', () => {
             index = (index + 1) % catalogo.length;
             actualizarPlato();
