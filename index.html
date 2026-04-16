@@ -2,15 +2,15 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gustó3D - Visualizador AR Corregido</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Gustó3D - AR Pantalla Completa Fix</title>
     
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     
     <style>
         /* =========================================
-           SOLUCIÓN FRANJA BLANCA (NUEVO CSS)
+           SOLUCIÓN DEFINITIVA PANTALLA COMPLETA
            ========================================= */
         html, body {
             margin: 0;
@@ -18,35 +18,43 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: transparent !important; /* Fuerza fondo transparente */
+            position: fixed; /* Evita scrolls fantasma */
+            background-color: #000 !important; /* Fondo negro por seguridad */
         }
 
-        /* Fuerza la escena de A-Frame a ocupar todo el espacio */
+        /* Fuerza la escena de A-Frame a ocupar todo el viewport */
         a-scene {
             width: 100vw !important;
             height: 100vh !important;
             position: absolute;
             top: 0;
             left: 0;
+            z-index: 1;
         }
 
-        /* Fuerza al video de la cámara a cubrir el fondo sin deformarse */
-        video {
+        /* EL CAMBIO CRÍTICO: Forzar el video de MindAR */
+        #mindar-image-video {
             width: 100% !important;
             height: 100% !important;
-            object-fit: cover !important; /* Crucial para evitar franjas */
+            object-fit: cover !important; /* ESTO ES LO MÁS IMPORTANTE */
             position: fixed !important;
             top: 0;
             left: 0;
-            z-index: -1; /* Asegura que esté detrás de todo */
+            z-index: -1; /* Detrás de la escena */
         }
 
-        /* Ajustes de interfaz existentes */
+        /* Asegurar que el canvas de A-Frame sea transparente */
+        .a-canvas {
+            background-color: transparent !important;
+        }
+
+        /* Estilos de Interfaz existentes y mejorados */
         #info-plato {
             position: fixed; top: 0; width: 100%; text-align: center;
-            color: white; background: rgba(0,0,0,0.7); padding: 20px 0;
+            color: white; background: rgba(0,0,0,0.8); padding: 25px 0;
             z-index: 1000; font-family: Arial, sans-serif; font-weight: bold;
             letter-spacing: 1px; text-transform: uppercase;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
         #ui-overlay {
@@ -55,16 +63,17 @@
         }
 
         .btn-gusto {
-            padding: 15px 30px; background: #25D366; color: white;
-            border: 2px solid white; border-radius: 50px; font-weight: bold;
-            box-shadow: 0px 4px 10px rgba(0,0,0,0.3); cursor: pointer;
+            padding: 18px 35px; background: #25D366; color: white;
+            border: 3px solid white; border-radius: 50px; font-weight: bold;
+            box-shadow: 0px 5px 15px rgba(0,0,0,0.4); cursor: pointer;
             -webkit-tap-highlight-color: transparent; text-transform: uppercase;
+            font-size: 1.1em; transition: all 0.2s;
         }
 
         .btn-gusto:active { transform: scale(0.95); background: #128C7E; }
 
-        /* Ocultar elementos innecesarios de A-Frame */
-        .a-enter-vr, .a-enter-ar, .a-enter-vr-button, .a-orientation-modal { display: none !important; }
+        /* Ocultar elementos innecesarios */
+        .a-enter-vr, .a-enter-ar, .a-enter-vr-button, .a-orientation-modal, .mindar-ui-scanning { display: none !important; }
     </style>
 </head>
 
@@ -77,17 +86,17 @@
     </div>
 
     <a-scene 
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: yes; filterMinCF:0.0001; filterBeta: 0.001;" 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF:0.001; filterBeta: 0.01; missTolerance: 50" 
         vr-mode-ui="enabled: false" 
         device-orientation-permission-ui="enabled: false"
         color-space="sRGB" 
-        renderer="colorManagement: true, physicallyCorrectLights: true; logarithmicDepthBuffer: true;">
+        renderer="colorManagement: true, physicallyCorrectLights: true, logarithmicDepthBuffer: true, antialias: true; alpha: true">
       
         <a-assets>
             </a-assets>
 
-        <a-light type="ambient" intensity="1.2"></a-light>
-        <a-light type="directional" position="0 2 2" intensity="0.8"></a-light>
+        <a-light type="ambient" intensity="1.5"></a-light>
+        <a-light type="directional" position="1 2 1" intensity="1.0"></a-light>
 
         <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;"></a-camera>
 
@@ -97,8 +106,8 @@
                 src="" 
                 position="0 0 0" 
                 rotation="90 0 0" 
-                scale="1 1 1"
-                animation="property: rotation; to: 90 360 0; dur: 8000; easing: linear; loop: true">
+                scale="1.5 1.5 1.5"
+                animation="property: rotation; to: 90 360 0; dur: 10000; easing: linear; loop: true">
             </a-gltf-model>
         </a-entity>
     </a-scene>
@@ -115,47 +124,47 @@
         const texto = document.querySelector("#info-plato");
         const scene = document.querySelector('a-scene');
 
-        // Función para actualizar el plato con manejo de caché y errores
+        // Función para actualizar el plato
         function actualizarPlato() {
             const item = catalogo[index];
-            // Añadimos una marca de tiempo para evitar caché agresivo si es necesario
-            const ruta = `${URL_BASE}${item.archivo}?v=${new Date().getTime()}`;
+            // Aseguramos que la URL sea limpia
+            const ruta = `${URL_BASE}${item.archivo}`;
             
             console.log("Cargando plato:", ruta);
             
-            // Usamos remove y setAttribute para forzar la recarga del modelo
-            visor.removeAttribute('src'); 
-            
-            // Pequeño delay para asegurar que A-Frame note el cambio
-            setTimeout(() => {
-                visor.setAttribute("src", ruta);
-                texto.innerText = "ESTÁS VIENDO: " + item.nombre;
-            }, 50);
+            // Forzamos la actualización del src
+            visor.setAttribute("src", ruta);
+            texto.innerText = "ESTÁS VIENDO: " + item.nombre;
         }
 
         // =========================================
-        // CORRECCIÓN PARA RECARGA Y CACHÉ
+        // LÓGICA DE CARGA Y ESTABILIDAD
         // =========================================
         
-        // 1. Asegurar que cargamos el primer plato apenas la escena esté lista
-        if (scene.hasLoaded) {
-            actualizarPlato();
-        } else {
-            scene.addEventListener('loaded', actualizarPlato);
-        }
+        // 1. Asegurar que cargamos el primer plato
+        actualizarPlato();
 
         // 2. MindAR está listo
         scene.addEventListener('arReady', () => {
             texto.innerText = "APUNTA AL LOGO DE GUSTÓ3D";
+            // Forzar fondo transparente en el body por seguridad
+            document.body.style.backgroundColor = "transparent";
         });
 
-        // 3. Manejo de errores de carga del modelo
-        visor.addEventListener('model-error', (e) => {
-            console.error("Error cargando el modelo .glb:", e);
-            texto.innerText = "ERROR AL CARGAR EL PLATO";
+        // 3. Manejo de Target Detectado y Perdido para estabilidad
+        const targetEntity = document.querySelector('[mindar-image-target]');
+        
+        targetEntity.addEventListener("targetFound", () => {
+            console.log("Logo detectado");
+            // Puedes añadir un sonido o vibración aquí si quieres
         });
 
-        // Control de botones (se mantienen igual)
+        targetEntity.addEventListener("targetLost", () => {
+            console.log("Logo perdido");
+            // Opcional: Ocultar el modelo o mostrar un mensaje
+        });
+
+        // Control de botones
         document.querySelector("#btn-next").addEventListener('click', () => {
             index = (index + 1) % catalogo.length;
             actualizarPlato();
