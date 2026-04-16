@@ -1,63 +1,122 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gustó3D - Cámara Final</title>
+    <title>Gustó3D - Visualizador AR</title>
+    
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     
     <style>
-        body { margin: 0; overflow: hidden; background-color: #000; }
+        /* 1. CORRECCIÓN DE PANTALLA COMPLETA */
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background-color: transparent; 
+        }
+
+        /* Fuerza al video de la cámara a cubrir todo el fondo sin dejar huecos */
+        video {
+            width: 100vw !important;
+            height: 100vh !important;
+            object-fit: cover !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
         #info-plato {
-            position: fixed; top: 0; width: 100%; text-align: center;
-            color: white; background: rgba(0,0,0,0.8); padding: 15px 0;
-            z-index: 1000; font-family: sans-serif; font-weight: bold;
+            position: fixed; 
+            top: 0; 
+            width: 100%; 
+            text-align: center;
+            color: white; 
+            background: rgba(0,0,0,0.7); 
+            padding: 20px 0;
+            z-index: 1000; 
+            font-family: Arial, sans-serif; 
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
+
         #ui-overlay {
-            position: fixed; bottom: 30px; left: 0; width: 100%;
-            display: flex; justify-content: center; gap: 20px; z-index: 1000;
+            position: fixed; 
+            bottom: 40px; 
+            left: 0; 
+            width: 100%;
+            display: flex; 
+            justify-content: center; 
+            gap: 30px; 
+            z-index: 1000;
         }
+
         .btn-gusto {
-            padding: 15px 25px; background: #25D366; color: white;
-            border: 2px solid white; border-radius: 12px; font-weight: bold;
+            padding: 15px 30px; 
+            background: #25D366; 
+            color: white;
+            border: 2px solid white; 
+            border-radius: 50px; 
+            font-weight: bold;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
-        /* Ocultar VR y el botón de pantalla completa */
+
+        .btn-gusto:active {
+            transform: scale(0.95);
+            background: #128C7E;
+        }
+
+        /* Ocultar elementos innecesarios de la interfaz de A-Frame */
         .a-enter-vr, .a-enter-ar, .a-enter-vr-button { display: none !important; }
-        
-        /* Asegurar que el video de la cámara no sea tapado por nada */
-        .mindar-ui-overlay { z-index: 500; }
     </style>
 </head>
 
 <body>
-    <div id="info-plato">CARGANDO CÁMARA...</div>
+    <div id="info-plato">INICIANDO CÁMARA...</div>
 
     <div id="ui-overlay">
-        <button class="btn-gusto" id="btn-prev">Anterior</button>
-        <button class="btn-gusto" id="btn-next">Siguiente</button>
+        <button class="btn-gusto" id="btn-prev">← ANTERIOR</button>
+        <button class="btn-gusto" id="btn-next">SIGUIENTE →</button>
     </div>
 
     <a-scene 
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: yes;" 
-        embedded 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: yes; filterMinCF:0.0001; filterBeta: 0.001;" 
         vr-mode-ui="enabled: false" 
         device-orientation-permission-ui="enabled: false"
         color-space="sRGB" 
         renderer="colorManagement: true, physicallyCorrectLights: true">
       
-        <a-light type="ambient" intensity="1"></a-light>
-        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        <a-assets>
+            </a-assets>
+
+        <a-light type="ambient" intensity="1.2"></a-light>
+        <a-light type="directional" position="0 2 2" intensity="0.8"></a-light>
+
+        <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;"></a-camera>
 
         <a-entity mindar-image-target="targetIndex: 0">
-            <a-gltf-model id="visor" position="0 0 0" rotation="0 0 0" scale="1 1 1"></a-gltf-model>
+            <a-gltf-model 
+                id="visor" 
+                src="" 
+                position="0 0 0" 
+                rotation="90 0 0" 
+                scale="1 1 1"
+                animation="property: rotation; to: 90 360 0; dur: 8000; easing: linear; loop: true">
+            </a-gltf-model>
         </a-entity>
     </a-scene>
 
     <script>
         const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
         const catalogo = [
-            { nombre: "Sándwich", archivo: "food.glb" },
-            { nombre: "Postre", archivo: "postre.glb" }
+            { nombre: "Sándwich Gourmet", archivo: "food.glb" },
+            { nombre: "Postre Especial", archivo: "postre.glb" }
         ];
 
         let index = 0;
@@ -67,18 +126,26 @@
         function actualizarPlato() {
             const item = catalogo[index];
             const ruta = URL_BASE + item.archivo;
+            
+            // Cambiamos el atributo src del modelo
             visor.setAttribute("src", ruta);
-            texto.innerText = "MENÚ: " + item.nombre;
+            texto.innerText = "ESTÁS VIENDO: " + item.nombre;
         }
 
-        // Evento que se dispara cuando la cámara REALMENTE inicia
-        window.addEventListener("arClick", () => { console.log("AR Iniciado"); });
-
-        document.querySelector('a-scene').addEventListener('loaded', () => {
-            actualizarPlato();
-            texto.innerText = "APUNTA AL LOGO";
+        // Evento cuando MindAR detecta que la cámara está lista
+        document.querySelector('a-scene').addEventListener('arReady', () => {
+            texto.innerText = "APUNTA AL LOGO DE GUSTÓ3D";
         });
 
+        // Evento cuando se encuentra el logo
+        document.querySelector('[mindar-image-target]').addEventListener("targetFound", () => {
+            console.log("Logo detectado");
+        });
+
+        // Inicializar el primer plato
+        actualizarPlato();
+
+        // Control de botones
         document.querySelector("#btn-next").addEventListener('click', () => {
             index = (index + 1) % catalogo.length;
             actualizarPlato();
