@@ -11,7 +11,6 @@
     <style>
         html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; background-color: #000; }
         
-        /* Eliminamos cualquier margen o franja blanca */
         #mindar-image-video { 
             width: 100% !important; height: 100% !important; 
             object-fit: cover !important; position: fixed !important; 
@@ -23,6 +22,7 @@
             color: white; background: rgba(0,0,0,0.85); padding: 20px 0; 
             z-index: 1000; font-family: 'Segoe UI', Roboto, sans-serif; 
             font-weight: bold; text-transform: uppercase; letter-spacing: 2px;
+            transition: opacity 0.3s ease;
         }
 
         #ui-overlay { 
@@ -72,12 +72,11 @@
     <script>
         const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
         
-        // Catálogo optimizado: Los platos no rotan, se quedan fijos como en un menú real.
         const catalogo = [
             { 
                 nombre: "Sándwich Gourmet", 
                 archivo: "food.glb", 
-                pos: "0 -0.8 0", // Eje Y ajustado para "tocar" el papel
+                pos: "0 -0.8 0", 
                 esc: "1.2 1.2 1.2", 
                 rot: "90 0 0" 
             },
@@ -97,17 +96,29 @@
         function actualizarPlato() {
             const item = catalogo[index];
             
-            // Forzamos la limpieza de atributos para evitar conflictos de memoria
-            visor.removeAttribute('src');
-            visor.removeAttribute('animation'); 
+            // 1. Resetear escala y remover animación previa para evitar conflictos
+            visor.removeAttribute('animation');
+            visor.setAttribute("scale", "0.01 0.01 0.01");
             
-            // Aplicamos los parámetros
+            // 2. Cambiar el modelo y propiedades básicas
             visor.setAttribute("src", URL_BASE + item.archivo);
             visor.setAttribute("position", item.pos);
-            visor.setAttribute("scale", item.esc);
             visor.setAttribute("rotation", item.rot);
             
-            texto.innerText = "GUSTÓ3D: " + item.nombre;
+            // 3. Aplicar animación de "pop-up" elástico
+            visor.setAttribute("animation", {
+                property: 'scale',
+                to: item.esc,
+                dur: 800,
+                easing: 'easeOutElastic'
+            });
+            
+            // Actualizar texto con efecto visual sencillo
+            texto.style.opacity = "0.5";
+            setTimeout(() => {
+                texto.innerText = "GUSTÓ3D: " + item.nombre;
+                texto.style.opacity = "1";
+            }, 150);
         }
 
         document.querySelector('a-scene').addEventListener('arReady', () => {
@@ -115,6 +126,7 @@
             document.body.style.backgroundColor = "transparent";
         });
 
+        // Carga inicial
         actualizarPlato();
 
         document.querySelector("#btn-next").addEventListener('click', () => {
