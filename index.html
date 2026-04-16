@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gustó3D Pro - Ultra Stability</title>
+    <title>Gustó3D Pro - Ultra Fast Tracking</title>
     
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
@@ -22,7 +22,7 @@
             color: white; background: rgba(0,0,0,0.85); padding: 20px 0; 
             z-index: 1000; font-family: 'Segoe UI', Roboto, sans-serif; 
             font-weight: bold; text-transform: uppercase; letter-spacing: 2px;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.2s ease;
         }
 
         #ui-overlay { 
@@ -51,11 +51,11 @@
     </div>
 
     <a-scene 
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF:0.00001; filterBeta: 0.0001; missTolerance: 10; warmupTolerance: 10;" 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF: 0.1; filterBeta: 0.001; missTolerance: 1; warmupTolerance: 1;" 
         vr-mode-ui="enabled: false" 
         device-orientation-permission-ui="enabled: false"
         color-space="sRGB" 
-        renderer="colorManagement: true, physicallyCorrectLights: true, logarithmicDepthBuffer: true; antialias: true; precision: high;">
+        renderer="colorManagement: true; physicallyCorrectLights: true; antialias: false; precision: medium; powerPreference: high-performance; logarithmicDepthBuffer: true;">
       
         <a-light type="ambient" intensity="1.8"></a-light>
         <a-light type="directional" position="1 2 1" intensity="1.2"></a-light>
@@ -96,29 +96,29 @@
         function actualizarPlato() {
             const item = catalogo[index];
             
-            // 1. Resetear escala y remover animación previa para evitar conflictos
+            // Reset de escala para la animación de entrada
             visor.removeAttribute('animation');
             visor.setAttribute("scale", "0.01 0.01 0.01");
             
-            // 2. Cambiar el modelo y propiedades básicas
+            // Cambio de modelo
             visor.setAttribute("src", URL_BASE + item.archivo);
             visor.setAttribute("position", item.pos);
             visor.setAttribute("rotation", item.rot);
             
-            // 3. Aplicar animación de "pop-up" elástico
+            // Animación elástica para mejorar la experiencia de usuario
             visor.setAttribute("animation", {
                 property: 'scale',
                 to: item.esc,
-                dur: 800,
+                dur: 700,
                 easing: 'easeOutElastic'
             });
             
-            // Actualizar texto con efecto visual sencillo
-            texto.style.opacity = "0.5";
+            // Feedback de texto
+            texto.style.opacity = "0.4";
             setTimeout(() => {
                 texto.innerText = "GUSTÓ3D: " + item.nombre;
                 texto.style.opacity = "1";
-            }, 150);
+            }, 100);
         }
 
         document.querySelector('a-scene').addEventListener('arReady', () => {
@@ -126,7 +126,7 @@
             document.body.style.backgroundColor = "transparent";
         });
 
-        // Carga inicial
+        // Inicializar primer plato
         actualizarPlato();
 
         document.querySelector("#btn-next").addEventListener('click', () => {
