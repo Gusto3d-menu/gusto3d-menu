@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gustó3D - Visualizador AR Final</title>
+    <title>Gustó3D - Visualizador Personalizado</title>
     
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
@@ -14,7 +14,6 @@
             overflow: hidden; position: fixed; background-color: #000;
         }
 
-        /* Ajuste para eliminar la franja blanca */
         #mindar-image-video {
             width: 100% !important; height: 100% !important;
             object-fit: cover !important; position: fixed !important;
@@ -47,7 +46,7 @@
 </head>
 
 <body>
-    <div id="info-plato">INICIANDO...</div>
+    <div id="info-plato">INICIANDO EXPERIENCIA...</div>
 
     <div id="ui-overlay">
         <button class="btn-gusto" id="btn-prev">← Anterior</button>
@@ -67,22 +66,29 @@
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
         <a-entity mindar-image-target="targetIndex: 0">
-            <a-gltf-model 
-                id="visor" 
-                src="" 
-                position="0 0 0" 
-                rotation="0 0 0" 
-                scale="1.5 1.5 1.5"
-                animation="property: rotation; to: 90 360 0; dur: 10000; easing: linear; loop: true">
-            </a-gltf-model>
+            <a-gltf-model id="visor"></a-gltf-model>
         </a-entity>
     </a-scene>
 
     <script>
         const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
+        
+        // CONFIGURACIÓN INDIVIDUAL POR ASSET
         const catalogo = [
-            { nombre: "Sándwich Gourmet", archivo: "food.glb" },
-            { nombre: "Postre Especial", archivo: "postre.glb" }
+            { 
+                nombre: "Sándwich Gourmet", 
+                archivo: "food.glb",
+                pos: "0 -0.8 0",      // Ajuste de altura
+                esc: "1.2 1.2 1.2",   // Ajuste de tamaño
+                rot: "90 0 0"         // Rotación inicial (X Y Z)
+            },
+            { 
+                nombre: "Postre Especial", 
+                archivo: "postre.glb",
+                pos: "0 -0.5 0",      // Ajuste de altura
+                esc: "1.6 1.6 1.6",   // Ajuste de tamaño
+                rot: "90 45 0"        // Rotación inicial (X Y Z)
+            }
         ];
 
         let index = 0;
@@ -91,20 +97,33 @@
 
         function actualizarPlato() {
             const item = catalogo[index];
-            visor.setAttribute("src", URL_BASE + item.archivo);
+            const rutaCompleta = URL_BASE + item.archivo;
+
+            // 1. Actualizar el archivo
+            visor.setAttribute("src", rutaCompleta);
+            
+            // 2. Aplicar transformación física única
+            visor.setAttribute("position", item.pos);
+            visor.setAttribute("scale", item.esc);
+            
+            // 3. Reiniciar la animación con la rotación base del objeto
+            // 'from' es la rotación definida, 'to' es el giro completo de 360 grados
+            visor.setAttribute("animation", `property: rotation; from: ${item.rot}; to: 90 360 0; dur: 10000; easing: linear; loop: true`);
+
             texto.innerText = "ESTÁS VIENDO: " + item.nombre;
+            console.log("Cargado:", item.nombre, "| Pos:", item.pos);
         }
 
-        // Eventos de inicio
+        // Eventos de sistema
         document.querySelector('a-scene').addEventListener('arReady', () => {
             texto.innerText = "APUNTA AL LOGO DE GUSTÓ3D";
             document.body.style.backgroundColor = "transparent";
         });
 
-        // Inicializar
+        // Inicialización
         actualizarPlato();
 
-        // Botones
+        // Controles de usuario
         document.querySelector("#btn-next").addEventListener('click', () => {
             index = (index + 1) % catalogo.length;
             actualizarPlato();
