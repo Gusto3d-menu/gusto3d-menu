@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gustó3D - Versión Estable Final</title>
+    <title>Gustó3D Pro - Ultra Stability</title>
     
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
@@ -11,7 +11,7 @@
     <style>
         html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; background-color: #000; }
         
-        /* FIX PANTALLA COMPLETA */
+        /* Eliminamos cualquier margen o franja blanca */
         #mindar-image-video { 
             width: 100% !important; height: 100% !important; 
             object-fit: cover !important; position: fixed !important; 
@@ -20,9 +20,9 @@
 
         #info-plato { 
             position: fixed; top: 0; width: 100%; text-align: center; 
-            color: white; background: rgba(0,0,0,0.8); padding: 20px 0; 
-            z-index: 1000; font-family: sans-serif; font-weight: bold; 
-            text-transform: uppercase; 
+            color: white; background: rgba(0,0,0,0.85); padding: 20px 0; 
+            z-index: 1000; font-family: 'Segoe UI', Roboto, sans-serif; 
+            font-weight: bold; text-transform: uppercase; letter-spacing: 2px;
         }
 
         #ui-overlay { 
@@ -31,58 +31,62 @@
         }
 
         .btn-gusto { 
-            padding: 18px 35px; background: #25D366; color: white; 
+            padding: 18px 40px; background: #25D366; color: white; 
             border: 3px solid white; border-radius: 50px; font-weight: bold; 
-            cursor: pointer; box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer; box-shadow: 0px 8px 20px rgba(0,0,0,0.4);
+            text-transform: uppercase; transition: transform 0.2s;
         }
 
+        .btn-gusto:active { transform: scale(0.9); }
         .a-enter-vr, .a-enter-ar, .a-enter-vr-button { display: none !important; }
     </style>
 </head>
 
 <body>
-    <div id="info-plato">ESTABILIZANDO...</div>
+    <div id="info-plato">SINCRONIZANDO...</div>
 
     <div id="ui-overlay">
-        <button class="btn-gusto" id="btn-prev">← Anterior</button>
-        <button class="btn-gusto" id="btn-next">Siguiente →</button>
+        <button class="btn-gusto" id="btn-prev">←</button>
+        <button class="btn-gusto" id="btn-next">→</button>
     </div>
 
     <a-scene 
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF:0.0001; filterBeta: 0.001; missTolerance: 30; warmupTolerance: 10" 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF:0.00001; filterBeta: 0.0001; missTolerance: 10; warmupTolerance: 10;" 
         vr-mode-ui="enabled: false" 
         device-orientation-permission-ui="enabled: false"
         color-space="sRGB" 
-        renderer="colorManagement: true, physicallyCorrectLights: true, logarithmicDepthBuffer: true; antialias: true;">
+        renderer="colorManagement: true, physicallyCorrectLights: true, logarithmicDepthBuffer: true; antialias: true; precision: high;">
       
-        <a-light type="ambient" intensity="1.5"></a-light>
-        <a-light type="directional" position="1 2 1" intensity="1.0"></a-light>
+        <a-light type="ambient" intensity="1.8"></a-light>
+        <a-light type="directional" position="1 2 1" intensity="1.2"></a-light>
 
-        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        <a-camera position="0 0 0" look-controls="enabled: false" fov="45"></a-camera>
 
         <a-entity mindar-image-target="targetIndex: 0">
-            <a-gltf-model id="visor"></a-gltf-model>
+            <a-entity id="anchor-wrapper">
+                <a-gltf-model id="visor" shadow="receive: false; cast: true"></a-gltf-model>
+            </a-entity>
         </a-entity>
     </a-scene>
 
     <script>
         const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
         
-        // CATÁLOGO CON POSICIÓN, ESCALA Y ROTACIÓN INDIVIDUAL
+        // Catálogo optimizado: Los platos no rotan, se quedan fijos como en un menú real.
         const catalogo = [
             { 
                 nombre: "Sándwich Gourmet", 
                 archivo: "food.glb", 
-                pos: "0 -0.8 0", 
+                pos: "0 -0.8 0", // Eje Y ajustado para "tocar" el papel
                 esc: "1.2 1.2 1.2", 
-                rot: "90 0 0" // Rotación fija
+                rot: "90 0 0" 
             },
             { 
                 nombre: "Postre Especial", 
                 archivo: "postre.glb", 
                 pos: "0 -0.5 0", 
                 esc: "1.6 1.6 1.6", 
-                rot: "90 45 0" // Rotación fija
+                rot: "90 45 0" 
             }
         ];
 
@@ -93,16 +97,17 @@
         function actualizarPlato() {
             const item = catalogo[index];
             
-            // Eliminamos cualquier animación previa por si acaso
-            visor.removeAttribute('animation');
+            // Forzamos la limpieza de atributos para evitar conflictos de memoria
+            visor.removeAttribute('src');
+            visor.removeAttribute('animation'); 
             
-            // Aplicamos los nuevos valores
+            // Aplicamos los parámetros
             visor.setAttribute("src", URL_BASE + item.archivo);
             visor.setAttribute("position", item.pos);
             visor.setAttribute("scale", item.esc);
-            visor.setAttribute("rotation", item.rot); // Rotación estática
+            visor.setAttribute("rotation", item.rot);
             
-            texto.innerText = "ESTÁS VIENDO: " + item.nombre;
+            texto.innerText = "GUSTÓ3D: " + item.nombre;
         }
 
         document.querySelector('a-scene').addEventListener('arReady', () => {
@@ -110,10 +115,8 @@
             document.body.style.backgroundColor = "transparent";
         });
 
-        // Inicialización
         actualizarPlato();
 
-        // Botones
         document.querySelector("#btn-next").addEventListener('click', () => {
             index = (index + 1) % catalogo.length;
             actualizarPlato();
