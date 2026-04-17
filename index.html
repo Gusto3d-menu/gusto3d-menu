@@ -23,7 +23,6 @@
             width: 250px; height: auto; margin-bottom: 35px;
             filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.6));
             animation: float 3s infinite ease-in-out;
-            display: block !important; /* Forzamos visibilidad */
         }
 
         .mensaje-carga {
@@ -47,7 +46,10 @@
 
 <body>
     <div id="loading-screen">
-        <img src="./logo-blanco.png" class="logo-gusto" alt="Logo Gustó3D">
+        <img src="https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-menu/main/logo-blanco.png?t=random" 
+             id="main-logo"
+             class="logo-gusto" 
+             alt="Logo Gustó3D">
         
         <div class="mensaje-carga">PREPARANDO EXPERIENCIA GUSTÓ3D</div>
         
@@ -80,6 +82,10 @@
     </a-scene>
 
     <script>
+        // TRUCO FINAL: Forzamos la actualización de la imagen con un número aleatorio
+        const logoImg = document.getElementById('main-logo');
+        logoImg.src = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-menu/main/logo-blanco.png?v=" + new Date().getTime();
+
         const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
         const catalogo = [
             { nombre: "Sándwich Gourmet", archivo: "food.glb", pos: "0 -0.8 0", esc: "1.2 1.2 1.2", rot: "90 0 0" },
@@ -100,14 +106,6 @@
             visor.setAttribute("rotation", item.rot);
             texto.innerText = "GUSTÓ3D: " + item.nombre;
         }
-
-        // Si después de 5 segundos no ha cargado la RA, igual quitamos la pantalla de carga para que no se trabe
-        setTimeout(() => {
-            if(loader.style.display !== "none") {
-                loader.style.opacity = "0";
-                setTimeout(() => { loader.style.display = "none"; ui.style.display = "flex"; }, 800);
-            }
-        }, 8000);
 
         document.querySelector('a-scene').addEventListener('arReady', () => {
             setTimeout(() => {
