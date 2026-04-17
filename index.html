@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gustó3D Pro - PNG Transparency</title>
+    <title>Gustó3D Pro - Experiencia RA</title>
     
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
@@ -11,34 +11,26 @@
     <style>
         html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; background-color: #000; }
         
-        /* PANTALLA DE CARGA CON LOGO PNG TRANSPARENTE */
+        /* PANTALLA DE CARGA GUSTÓ3D (SPLASH SCREEN) */
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            /* Fondo degrade elegante para que el logo azul resalte */
-            background: linear-gradient(135deg, #0a192f 0%, #000000 100%); 
+            background: radial-gradient(circle, #0a192f 0%, #000000 100%); 
             display: flex; flex-direction: column;
             justify-content: center; align-items: center; z-index: 3000;
             transition: opacity 0.8s ease;
         }
 
         .logo-gusto {
-            width: 240px; 
-            height: auto;
-            margin-bottom: 30px;
-            /* El PNG transparente permite usar este brillo suave detrás */
-            filter: drop-shadow(0 0 15px rgba(0, 150, 255, 0.4));
+            width: 240px; height: auto; margin-bottom: 30px;
+            /* Efecto de brillo gracias a la transparencia del PNG */
+            filter: drop-shadow(0 0 12px rgba(0, 150, 255, 0.5));
             animation: float 3s infinite ease-in-out;
         }
 
         .mensaje-carga {
-            color: #ffffff; 
-            font-family: 'Segoe UI', sans-serif; 
-            margin-bottom: 25px; 
-            letter-spacing: 2px; 
-            font-size: 14px;
-            font-weight: 300;
-            text-transform: uppercase;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            color: #ffffff; font-family: 'Segoe UI', sans-serif; 
+            margin-bottom: 25px; letter-spacing: 2px; font-size: 14px;
+            font-weight: 300; text-transform: uppercase;
         }
 
         .loader-bar { width: 200px; height: 2px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; }
@@ -66,17 +58,14 @@
             padding: 18px 40px; background: #25D366; color: white; 
             border: 2px solid white; border-radius: 50px; font-weight: bold; 
             cursor: pointer; box-shadow: 0px 8px 15px rgba(0,0,0,0.3);
-            text-transform: uppercase;
         }
     </style>
 </head>
 
 <body>
     <div id="loading-screen">
-        <img src="https://i.postimg.cc/8z0K9T7t/gusto3d-transparent.png" class="logo-gusto" alt="Logo Gustó3D">
-        
+        <img src="https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/logo.png" class="logo-gusto" alt="Gustó3D Logo">
         <div class="mensaje-carga">Preparando experiencia Gustó3D</div>
-        
         <div class="loader-bar">
             <div class="loader-progress"></div>
         </div>
@@ -137,7 +126,6 @@
                     ui.style.display = "flex";
                 }, 800);
                 texto.innerText = "APUNTA AL LOGO";
-                document.body.style.backgroundColor = "transparent";
             }, 2500); 
         });
 
