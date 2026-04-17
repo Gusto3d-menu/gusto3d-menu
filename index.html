@@ -11,7 +11,7 @@
     <style>
         html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; background-color: #000; }
         
-        /* PANTALLA DE CARGA GUSTÓ3D (SPLASH SCREEN) */
+        /* PANTALLA DE CARGA GUSTÓ3D */
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle, #0a192f 0%, #000000 100%); 
@@ -22,7 +22,6 @@
 
         .logo-gusto {
             width: 240px; height: auto; margin-bottom: 30px;
-            /* Efecto de brillo gracias a la transparencia del PNG */
             filter: drop-shadow(0 0 12px rgba(0, 150, 255, 0.5));
             animation: float 3s infinite ease-in-out;
         }
@@ -64,7 +63,7 @@
 
 <body>
     <div id="loading-screen">
-        <img src="https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/logo.png" class="logo-gusto" alt="Gustó3D Logo">
+        <img src="https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-menu/main/logo.png" class="logo-gusto" alt="Logo Gustó3D">
         <div class="mensaje-carga">Preparando experiencia Gustó3D</div>
         <div class="loader-bar">
             <div class="loader-progress"></div>
@@ -98,8 +97,20 @@
         const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
         
         const catalogo = [
-            { nombre: "Sándwich Gourmet", archivo: "food.glb", pos: "0 -0.8 0", esc: "1.2 1.2 1.2", rot: "90 0 0" },
-            { nombre: "Postre Especial", archivo: "postre.glb", pos: "0 -0.5 0.2", esc: "1.6 1.6 1.6", rot: "90 45 0" }
+            { 
+                nombre: "Sándwich Gourmet", 
+                archivo: "food.glb", 
+                pos: "0 -0.8 0", 
+                esc: "1.2 1.2 1.2", 
+                rot: "90 0 0" 
+            },
+            { 
+                nombre: "Postre Especial", 
+                archivo: "postre.glb", 
+                pos: "0 -0.5 0.3", // Altura ajustada para que no se vea enterrado
+                esc: "1.6 1.6 1.6", 
+                rot: "90 45 0" 
+            }
         ];
 
         let index = 0;
