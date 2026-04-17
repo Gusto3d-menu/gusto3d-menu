@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gustó3D Pro - Ultra Fast & Branded</title>
+    <title>Gustó3D Pro - PNG Transparency</title>
     
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
@@ -11,39 +11,49 @@
     <style>
         html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; background-color: #000; }
         
-        /* PANTALLA DE CARGA ESTILO ZAPWORKS */
+        /* PANTALLA DE CARGA CON LOGO PNG TRANSPARENTE */
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #111; display: flex; flex-direction: column;
+            /* Fondo degrade elegante para que el logo azul resalte */
+            background: linear-gradient(135deg, #0a192f 0%, #000000 100%); 
+            display: flex; flex-direction: column;
             justify-content: center; align-items: center; z-index: 3000;
             transition: opacity 0.8s ease;
         }
 
         .logo-gusto {
-            width: 180px; height: auto; margin-bottom: 30px;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
-            animation: pulse 2s infinite ease-in-out;
+            width: 240px; 
+            height: auto;
+            margin-bottom: 30px;
+            /* El PNG transparente permite usar este brillo suave detrás */
+            filter: drop-shadow(0 0 15px rgba(0, 150, 255, 0.4));
+            animation: float 3s infinite ease-in-out;
         }
 
-        .loader-bar { width: 220px; height: 2px; background: #333; border-radius: 5px; overflow: hidden; }
-        .loader-progress { width: 100%; height: 100%; background: #25D366; animation: loading 1.5s infinite; }
+        .mensaje-carga {
+            color: #ffffff; 
+            font-family: 'Segoe UI', sans-serif; 
+            margin-bottom: 25px; 
+            letter-spacing: 2px; 
+            font-size: 14px;
+            font-weight: 300;
+            text-transform: uppercase;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
 
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .loader-bar { width: 200px; height: 2px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; }
+        .loader-progress { width: 100%; height: 100%; background: #00d4ff; animation: loading 2s infinite; }
+
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
         /* INTERFAZ RA */
-        #mindar-image-video { 
-            width: 100% !important; height: 100% !important; 
-            object-fit: cover !important; position: fixed !important; 
-            top: 0; left: 0; z-index: -1; 
-        }
-
         #info-plato { 
             position: fixed; top: 0; width: 100%; text-align: center; 
             color: white; background: rgba(0,0,0,0.85); padding: 25px 0; 
             z-index: 1000; font-family: 'Segoe UI', sans-serif; 
             font-weight: bold; text-transform: uppercase; letter-spacing: 3px;
-            display: none; /* Se activa al iniciar AR */
+            display: none;
         }
 
         #ui-overlay { 
@@ -58,15 +68,15 @@
             cursor: pointer; box-shadow: 0px 8px 15px rgba(0,0,0,0.3);
             text-transform: uppercase;
         }
-
-        .a-enter-vr, .a-enter-ar { display: none !important; }
     </style>
 </head>
 
 <body>
     <div id="loading-screen">
-        <img src="https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/logo.png" class="logo-gusto" onerror="this.style.display='none'">
-        <div style="color: #D4AF37; font-family: sans-serif; margin-bottom: 15px; letter-spacing: 2px; font-size: 12px;">PREPARANDO MENÚ 3D</div>
+        <img src="https://i.postimg.cc/8z0K9T7t/gusto3d-transparent.png" class="logo-gusto" alt="Logo Gustó3D">
+        
+        <div class="mensaje-carga">Preparando experiencia Gustó3D</div>
+        
         <div class="loader-bar">
             <div class="loader-progress"></div>
         </div>
@@ -83,7 +93,6 @@
         mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF: 1; filterBeta: 0; missTolerance: 0; warmupTolerance: 0;" 
         vr-mode-ui="enabled: false" 
         device-orientation-permission-ui="enabled: false"
-        color-space="sRGB" 
         renderer="colorManagement: true; physicallyCorrectLights: true; antialias: false; precision: low; powerPreference: high-performance; logarithmicDepthBuffer: true;">
       
         <a-light type="ambient" intensity="1.8"></a-light>
@@ -100,20 +109,8 @@
         const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
         
         const catalogo = [
-            { 
-                nombre: "Sándwich Gourmet", 
-                archivo: "food.glb", 
-                pos: "0 -0.8 0", 
-                esc: "1.2 1.2 1.2", 
-                rot: "90 0 0" 
-            },
-            { 
-                nombre: "Postre Especial", 
-                archivo: "postre.glb", 
-                pos: "0 -0.5 0.2", // Subido un poco en Z (altura)
-                esc: "1.6 1.6 1.6", 
-                rot: "90 45 0" 
-            }
+            { nombre: "Sándwich Gourmet", archivo: "food.glb", pos: "0 -0.8 0", esc: "1.2 1.2 1.2", rot: "90 0 0" },
+            { nombre: "Postre Especial", archivo: "postre.glb", pos: "0 -0.5 0.2", esc: "1.6 1.6 1.6", rot: "90 45 0" }
         ];
 
         let index = 0;
@@ -131,7 +128,6 @@
             texto.innerText = "GUSTÓ3D: " + item.nombre;
         }
 
-        // EVENTO CRUCIAL: Ocultar carga cuando RA está lista
         document.querySelector('a-scene').addEventListener('arReady', () => {
             setTimeout(() => {
                 loader.style.opacity = "0";
@@ -142,7 +138,7 @@
                 }, 800);
                 texto.innerText = "APUNTA AL LOGO";
                 document.body.style.backgroundColor = "transparent";
-            }, 1500); // Tiempo de cortesía para mostrar tu marca
+            }, 2500); 
         });
 
         actualizarPlato();
