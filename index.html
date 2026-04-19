@@ -9,142 +9,58 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     
     <style>
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; background-color: #0d1117; }
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #0d1117; }
         
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, #0d1117 0%, #000000 100%); 
+            background: #0d1117; /* Color sólido primero para evitar parpadeos */
             display: flex; flex-direction: column;
             justify-content: center; align-items: center; z-index: 3000;
-            transition: opacity 1s ease;
-        }
-
-        /* Contenedor del logo con respaldo */
-        .logo-container {
-            width: 250px;
-            height: 250px;
-            margin-bottom: 30px;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
         .logo-gusto {
-            width: 100%;
-            height: auto;
-            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.5));
-            animation: float 3s infinite ease-in-out;
-            opacity: 0;
-            transition: opacity 0.5s;
-            z-index: 2;
+            width: 250px; height: auto; margin-bottom: 30px;
+            filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.5));
+            /* Quitamos animaciones por ahora para asegurar que se vea */
         }
 
-        .mensaje-carga {
-            color: #ffffff; font-family: 'Segoe UI', sans-serif; 
-            margin-bottom: 25px; letter-spacing: 3px; font-size: 12px;
-            font-weight: 300; text-transform: uppercase; text-align: center;
-        }
-
-        .loader-bar { width: 180px; height: 2px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; }
-        .loader-progress { width: 100%; height: 100%; background: #00d4ff; animation: loading 2s infinite ease-in-out; }
-
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-        @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-
-        #ui-overlay { position: fixed; bottom: 50px; left: 0; width: 100%; display: flex; justify-content: center; gap: 40px; z-index: 1000; display: none; opacity: 0; transition: opacity 1s; }
-        .btn-gusto { width: 65px; height: 65px; background: rgba(37, 211, 102, 0.9); color: white; border: 2px solid white; border-radius: 50%; font-size: 24px; font-weight: bold; cursor: pointer; box-shadow: 0px 10px 20px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; }
+        .mensaje-carga { color: #ffffff; font-family: sans-serif; letter-spacing: 2px; font-size: 14px; text-transform: uppercase; }
     </style>
 </head>
 
 <body>
     <div id="loading-screen">
-        <div class="logo-container">
-            <img src="logo-blanco.png" id="main-logo" class="logo-gusto" alt="Logo Gustó3D" onload="this.style.opacity='1'">
-        </div>
-        
-        <div class="mensaje-carga" id="status-text">PREPARANDO EXPERIENCIA GUSTÓ3D</div>
-        
-        <div class="loader-bar">
-            <div class="loader-progress"></div>
-        </div>
+        <img id="logo-visual" class="logo-gusto" alt="Logo Gustó3D">
+        <div class="mensaje-carga">PREPARANDO EXPERIENCIA GUSTÓ3D</div>
     </div>
 
-    <div id="ui-overlay">
-        <button class="btn-gusto" id="btn-prev">‹</button>
-        <button class="btn-gusto" id="btn-next">›</button>
-    </div>
-
-    <a-scene 
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF: 0.00001; filterBeta: 0.1;" 
-        vr-mode-ui="enabled: false" 
-        device-orientation-permission-ui="enabled: false"
-        renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true; precision: mediump; logarithmicDepthBuffer: true;">
-      
-        <a-light type="ambient" intensity="1.2"></a-light>
-        <a-light type="directional" position="1 2 1" intensity="1.5"></a-light>
-
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF: 0.00001; filterBeta: 0.1;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
         <a-entity mindar-image-target="targetIndex: 0">
-            <a-entity id="anchor-wrapper" animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true">
-                <a-gltf-model id="visor" rotation="90 0 0"></a-gltf-model>
-            </a-entity>
+            <a-gltf-model id="visor" rotation="90 0 0" position="0 -0.8 0.1" scale="1.2 1.2 1.2"></a-gltf-model>
         </a-entity>
     </a-scene>
 
     <script>
-        // LÓGICA DE DETECCIÓN Y REDUNDANCIA PARA EL LOGO
-        const logo = document.getElementById('main-logo');
-        const timestamp = new Date().getTime();
-        
-        // Si la ruta relativa falla, intentamos la ruta absoluta de GitHub
-        logo.onerror = function() {
-            console.log("Fallo ruta relativa, intentando absoluta...");
-            this.src = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-menu/main/logo-blanco.png?v=" + timestamp;
-            
-            // Si también falla la absoluta, mostramos un error en consola para diagnóstico
-            this.onerror = function() {
-                document.getElementById('status-text').innerText = "ERROR AL CARGAR LOGO - VERIFICAR GITHUB";
-            };
+        // ESTA ES LA MAGIA: Forzamos al navegador a descargar la imagen nueva
+        window.onload = function() {
+            const miLogo = document.getElementById('logo-visual');
+            // Al agregar ?v= y un número aleatorio, GitHub Pages se ve obligado a enviar el archivo nuevo
+            miLogo.src = "logo-blanco.png?v=" + Math.random();
         };
 
-        // Forzar actualización inmediata
-        logo.src = "logo-blanco.png?v=" + timestamp;
-
-        const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
-        const catalogo = [
-            { nombre: "Sándwich Gourmet", archivo: "food.glb", pos: "0 -0.8 0.1", esc: "1.2 1.2 1.2", rot: "90 0 0" },
-            { nombre: "Postre Especial", archivo: "postre.glb", pos: "0 -0.4 0.4", esc: "1.7 1.7 1.7", rot: "90 45 0" }
-        ];
-
-        let index = 0;
         const visor = document.querySelector("#visor");
-        const ui = document.querySelector("#ui-overlay");
         const loader = document.querySelector("#loading-screen");
 
-        function actualizarPlato() {
-            const item = catalogo[index];
-            visor.setAttribute("src", URL_BASE + item.archivo);
-            visor.setAttribute("position", item.pos);
-            visor.setAttribute("scale", item.esc);
-            visor.setAttribute("rotation", item.rot);
-        }
+        // Cargar el primer modelo
+        visor.setAttribute("src", "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/food.glb");
 
+        // Quitar pantalla de carga cuando la RA esté lista
         document.querySelector('a-scene').addEventListener('arReady', () => {
             setTimeout(() => {
-                loader.style.opacity = "0";
-                setTimeout(() => {
-                    loader.style.display = "none";
-                    ui.style.display = "flex";
-                    ui.style.opacity = "1";
-                }, 1000);
+                loader.style.display = "none";
             }, 3000); 
         });
-
-        actualizarPlato();
-        document.querySelector("#btn-next").addEventListener('click', () => { index = (index + 1) % catalogo.length; actualizarPlato(); });
-        document.querySelector("#btn-prev").addEventListener('click', () => { index = (index - 1 + catalogo.length) % catalogo.length; actualizarPlato(); });
     </script>
 </body>
 </html>
