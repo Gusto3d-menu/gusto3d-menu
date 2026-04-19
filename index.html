@@ -19,18 +19,31 @@
             transition: opacity 1s ease;
         }
 
+        /* Contenedor del logo con respaldo */
+        .logo-container {
+            width: 250px;
+            height: 250px;
+            margin-bottom: 30px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
         .logo-gusto {
-            width: 250px; height: auto; margin-bottom: 35px;
+            width: 100%;
+            height: auto;
             filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.5));
             animation: float 3s infinite ease-in-out;
-            /* El logo inicia invisible y aparece solo cuando carga */
-            opacity: 0; transition: opacity 0.5s;
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: 2;
         }
 
         .mensaje-carga {
             color: #ffffff; font-family: 'Segoe UI', sans-serif; 
             margin-bottom: 25px; letter-spacing: 3px; font-size: 12px;
-            font-weight: 300; text-transform: uppercase;
+            font-weight: 300; text-transform: uppercase; text-align: center;
         }
 
         .loader-bar { width: 180px; height: 2px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; }
@@ -39,27 +52,22 @@
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
         @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
-        #ui-overlay { 
-            position: fixed; bottom: 50px; left: 0; width: 100%; 
-            display: flex; justify-content: center; gap: 40px; z-index: 1000;
-            display: none; opacity: 0; transition: opacity 1s;
-        }
-
-        .btn-gusto { 
-            width: 65px; height: 65px; background: rgba(37, 211, 102, 0.9); 
-            color: white; border: 2px solid white; border-radius: 50%; 
-            font-size: 24px; font-weight: bold; cursor: pointer;
-            box-shadow: 0px 10px 20px rgba(0,0,0,0.4);
-            display: flex; align-items: center; justify-content: center;
-        }
+        #ui-overlay { position: fixed; bottom: 50px; left: 0; width: 100%; display: flex; justify-content: center; gap: 40px; z-index: 1000; display: none; opacity: 0; transition: opacity 1s; }
+        .btn-gusto { width: 65px; height: 65px; background: rgba(37, 211, 102, 0.9); color: white; border: 2px solid white; border-radius: 50%; font-size: 24px; font-weight: bold; cursor: pointer; box-shadow: 0px 10px 20px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 
 <body>
     <div id="loading-screen">
-        <img src="logo-blanco.png" id="main-logo" class="logo-gusto" alt="Logo Gustó3D" onload="this.style.opacity='1'">
+        <div class="logo-container">
+            <img src="logo-blanco.png" id="main-logo" class="logo-gusto" alt="Logo Gustó3D" onload="this.style.opacity='1'">
+        </div>
+        
         <div class="mensaje-carga" id="status-text">PREPARANDO EXPERIENCIA GUSTÓ3D</div>
-        <div class="loader-bar"><div class="loader-progress"></div></div>
+        
+        <div class="loader-bar">
+            <div class="loader-progress"></div>
+        </div>
     </div>
 
     <div id="ui-overlay">
@@ -86,9 +94,23 @@
     </a-scene>
 
     <script>
-        // TRUCO DE CACHÉ: Si el logo no aparece, le añadimos un parámetro aleatorio para forzar descarga
+        // LÓGICA DE DETECCIÓN Y REDUNDANCIA PARA EL LOGO
         const logo = document.getElementById('main-logo');
-        logo.src = "logo-blanco.png?v=" + new Date().getTime();
+        const timestamp = new Date().getTime();
+        
+        // Si la ruta relativa falla, intentamos la ruta absoluta de GitHub
+        logo.onerror = function() {
+            console.log("Fallo ruta relativa, intentando absoluta...");
+            this.src = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-menu/main/logo-blanco.png?v=" + timestamp;
+            
+            // Si también falla la absoluta, mostramos un error en consola para diagnóstico
+            this.onerror = function() {
+                document.getElementById('status-text').innerText = "ERROR AL CARGAR LOGO - VERIFICAR GITHUB";
+            };
+        };
+
+        // Forzar actualización inmediata
+        logo.src = "logo-blanco.png?v=" + timestamp;
 
         const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
         const catalogo = [
@@ -117,7 +139,7 @@
                     ui.style.display = "flex";
                     ui.style.opacity = "1";
                 }, 1000);
-            }, 2500); 
+            }, 3000); 
         });
 
         actualizarPlato();
