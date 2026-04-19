@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gustó3D - Experiencia Pro</title>
+    <title>Gustó3D - Pro</title>
     
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
@@ -11,7 +11,6 @@
     <style>
         html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; background-color: #0d1117; }
         
-        /* PANTALLA DE CARGA GUSTÓ3D */
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle, #0d1117 0%, #000000 100%); 
@@ -24,6 +23,7 @@
             width: 250px; height: auto; margin-bottom: 35px;
             filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.5));
             animation: float 3s infinite ease-in-out;
+            /* El logo inicia invisible y aparece solo cuando carga */
             opacity: 0; transition: opacity 0.5s;
         }
 
@@ -39,7 +39,6 @@
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
         @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
-        /* INTERFAZ DE NAVEGACIÓN */
         #ui-overlay { 
             position: fixed; bottom: 50px; left: 0; width: 100%; 
             display: flex; justify-content: center; gap: 40px; z-index: 1000;
@@ -58,7 +57,7 @@
 
 <body>
     <div id="loading-screen">
-        <img src="./logo-blanco.png" id="main-logo" class="logo-gusto" alt="Logo Gustó3D" onload="this.style.opacity='1'">
+        <img src="logo-blanco.png" id="main-logo" class="logo-gusto" alt="Logo Gustó3D" onload="this.style.opacity='1'">
         <div class="mensaje-carga" id="status-text">PREPARANDO EXPERIENCIA GUSTÓ3D</div>
         <div class="loader-bar"><div class="loader-progress"></div></div>
     </div>
@@ -69,14 +68,13 @@
     </div>
 
     <a-scene 
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF: 0.00001; filterBeta: 0.1; missTolerance: 10; warmupTolerance: 5;" 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF: 0.00001; filterBeta: 0.1;" 
         vr-mode-ui="enabled: false" 
         device-orientation-permission-ui="enabled: false"
         renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true; precision: mediump; logarithmicDepthBuffer: true;">
       
         <a-light type="ambient" intensity="1.2"></a-light>
         <a-light type="directional" position="1 2 1" intensity="1.5"></a-light>
-        <a-light type="point" position="-1 -1 2" intensity="0.5" color="#00d4ff"></a-light>
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
@@ -88,19 +86,9 @@
     </a-scene>
 
     <script>
+        // TRUCO DE CACHÉ: Si el logo no aparece, le añadimos un parámetro aleatorio para forzar descarga
         const logo = document.getElementById('main-logo');
-        const statusText = document.getElementById('status-text');
-        
-        // Reintento inteligente para el logo si GitHub Pages tarda en responder
-        let attempts = 0;
-        logo.onerror = function() {
-            if(attempts < 10) {
-                attempts++;
-                setTimeout(() => {
-                    this.src = "./logo-blanco.png?v=" + new Date().getTime();
-                }, 2000);
-            }
-        };
+        logo.src = "logo-blanco.png?v=" + new Date().getTime();
 
         const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
         const catalogo = [
@@ -118,18 +106,10 @@
             visor.setAttribute("src", URL_BASE + item.archivo);
             visor.setAttribute("position", item.pos);
             visor.setAttribute("scale", item.esc);
-            // Mantenemos la rotación base 90 para que mire a la cámara
             visor.setAttribute("rotation", item.rot);
         }
 
-        // Estabilización extra para Chrome
-        document.querySelector('a-scene').addEventListener('renderstart', () => {
-            const renderer = document.querySelector('a-scene').renderer;
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        });
-
         document.querySelector('a-scene').addEventListener('arReady', () => {
-            statusText.innerText = "¡Listo! Apunta al menú";
             setTimeout(() => {
                 loader.style.opacity = "0";
                 setTimeout(() => {
@@ -141,15 +121,8 @@
         });
 
         actualizarPlato();
-
-        document.querySelector("#btn-next").addEventListener('click', () => { 
-            index = (index + 1) % catalogo.length; 
-            actualizarPlato(); 
-        });
-        document.querySelector("#btn-prev").addEventListener('click', () => { 
-            index = (index - 1 + catalogo.length) % catalogo.length; 
-            actualizarPlato(); 
-        });
+        document.querySelector("#btn-next").addEventListener('click', () => { index = (index + 1) % catalogo.length; actualizarPlato(); });
+        document.querySelector("#btn-prev").addEventListener('click', () => { index = (index - 1 + catalogo.length) % catalogo.length; actualizarPlato(); });
     </script>
 </body>
 </html>
