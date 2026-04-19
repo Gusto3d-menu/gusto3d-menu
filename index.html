@@ -24,16 +24,13 @@
             width: 250px; height: auto; margin-bottom: 35px;
             filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.5));
             animation: float 3s infinite ease-in-out;
-            /* Cambiado: Visibilidad por defecto para evitar que desaparezca */
-            opacity: 1; 
-            transition: opacity 0.5s;
+            opacity: 0; transition: opacity 0.5s;
         }
 
         .mensaje-carga {
             color: #ffffff; font-family: 'Segoe UI', sans-serif; 
             margin-bottom: 25px; letter-spacing: 3px; font-size: 12px;
             font-weight: 300; text-transform: uppercase;
-            text-align: center;
         }
 
         .loader-bar { width: 180px; height: 2px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; }
@@ -45,12 +42,114 @@
         /* INTERFAZ DE NAVEGACIÓN */
         #ui-overlay { 
             position: fixed; bottom: 50px; left: 0; width: 100%; 
-            display: none; justify-content: center; gap: 40px; z-index: 1000;
-            opacity: 0; transition: opacity 1s;
+            display: flex; justify-content: center; gap: 40px; z-index: 1000;
+            display: none; opacity: 0; transition: opacity 1s;
         }
 
         .btn-gusto { 
             width: 65px; height: 65px; background: rgba(37, 211, 102, 0.9); 
             color: white; border: 2px solid white; border-radius: 50%; 
             font-size: 24px; font-weight: bold; cursor: pointer;
-            box-shadow:
+            box-shadow: 0px 10px 20px rgba(0,0,0,0.4);
+            display: flex; align-items: center; justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loading-screen">
+        <img src="./logo-blanco.png" id="main-logo" class="logo-gusto" alt="Logo Gustó3D" onload="this.style.opacity='1'">
+        <div class="mensaje-carga" id="status-text">PREPARANDO EXPERIENCIA GUSTÓ3D</div>
+        <div class="loader-bar"><div class="loader-progress"></div></div>
+    </div>
+
+    <div id="ui-overlay">
+        <button class="btn-gusto" id="btn-prev">‹</button>
+        <button class="btn-gusto" id="btn-next">›</button>
+    </div>
+
+    <a-scene 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF: 0.00001; filterBeta: 0.1; missTolerance: 10; warmupTolerance: 5;" 
+        vr-mode-ui="enabled: false" 
+        device-orientation-permission-ui="enabled: false"
+        renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true; precision: mediump; logarithmicDepthBuffer: true;">
+      
+        <a-light type="ambient" intensity="1.2"></a-light>
+        <a-light type="directional" position="1 2 1" intensity="1.5"></a-light>
+        <a-light type="point" position="-1 -1 2" intensity="0.5" color="#00d4ff"></a-light>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-entity id="anchor-wrapper" animation="property: rotation; to: 0 360 0; dur: 15000; easing: linear; loop: true">
+                <a-gltf-model id="visor" rotation="90 0 0"></a-gltf-model>
+            </a-entity>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        const logo = document.getElementById('main-logo');
+        const statusText = document.getElementById('status-text');
+        
+        // Reintento inteligente para el logo si GitHub Pages tarda en responder
+        let attempts = 0;
+        logo.onerror = function() {
+            if(attempts < 10) {
+                attempts++;
+                setTimeout(() => {
+                    this.src = "./logo-blanco.png?v=" + new Date().getTime();
+                }, 2000);
+            }
+        };
+
+        const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
+        const catalogo = [
+            { nombre: "Sándwich Gourmet", archivo: "food.glb", pos: "0 -0.8 0.1", esc: "1.2 1.2 1.2", rot: "90 0 0" },
+            { nombre: "Postre Especial", archivo: "postre.glb", pos: "0 -0.4 0.4", esc: "1.7 1.7 1.7", rot: "90 45 0" }
+        ];
+
+        let index = 0;
+        const visor = document.querySelector("#visor");
+        const ui = document.querySelector("#ui-overlay");
+        const loader = document.querySelector("#loading-screen");
+
+        function actualizarPlato() {
+            const item = catalogo[index];
+            visor.setAttribute("src", URL_BASE + item.archivo);
+            visor.setAttribute("position", item.pos);
+            visor.setAttribute("scale", item.esc);
+            // Mantenemos la rotación base 90 para que mire a la cámara
+            visor.setAttribute("rotation", item.rot);
+        }
+
+        // Estabilización extra para Chrome
+        document.querySelector('a-scene').addEventListener('renderstart', () => {
+            const renderer = document.querySelector('a-scene').renderer;
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        });
+
+        document.querySelector('a-scene').addEventListener('arReady', () => {
+            statusText.innerText = "¡Listo! Apunta al menú";
+            setTimeout(() => {
+                loader.style.opacity = "0";
+                setTimeout(() => {
+                    loader.style.display = "none";
+                    ui.style.display = "flex";
+                    ui.style.opacity = "1";
+                }, 1000);
+            }, 2500); 
+        });
+
+        actualizarPlato();
+
+        document.querySelector("#btn-next").addEventListener('click', () => { 
+            index = (index + 1) % catalogo.length; 
+            actualizarPlato(); 
+        });
+        document.querySelector("#btn-prev").addEventListener('click', () => { 
+            index = (index - 1 + catalogo.length) % catalogo.length; 
+            actualizarPlato(); 
+        });
+    </script>
+</body>
+</html>
