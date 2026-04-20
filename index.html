@@ -20,15 +20,14 @@
         }
 
         .logo-gusto {
-            width: 250px; height: auto; margin-bottom: 35px;
-            /* Respaldo visual si la imagen tarda */
-            min-height: 100px; 
+            width: 260px; height: auto; margin-bottom: 35px;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
         }
 
         .mensaje-carga {
-            color: #ffffff; font-family: 'Segoe UI', sans-serif; 
-            margin-bottom: 25px; letter-spacing: 2px; font-size: 14px;
-            text-transform: uppercase; text-align: center;
+            color: #ffffff; font-family: sans-serif; 
+            margin-bottom: 25px; letter-spacing: 2px; font-size: 13px;
+            text-transform: uppercase; font-weight: 300;
         }
 
         .loader-bar { width: 200px; height: 2px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; }
@@ -36,27 +35,28 @@
 
         @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
+        /* INTERFAZ DE USUARIO GUSTÓ3D */
         #ui-overlay { 
-            position: fixed; bottom: 50px; left: 0; width: 100%; 
+            position: fixed; bottom: 40px; left: 0; width: 100%; 
             display: flex; justify-content: center; gap: 40px; z-index: 1000; 
-            display: none;
+            display: none; 
         }
         
         .btn-gusto { 
-            padding: 20px 45px; background: #25D366; color: white; 
-            border: 2px solid white; border-radius: 50px; font-weight: bold; 
-            cursor: pointer; text-transform: uppercase; font-size: 20px;
-            box-shadow: 0px 8px 20px rgba(0,0,0,0.6);
+            width: 70px; height: 70px; background: #25D366; color: white; 
+            border: 3px solid white; border-radius: 50%; font-size: 30px; 
+            font-weight: bold; cursor: pointer; box-shadow: 0px 5px 15px rgba(0,0,0,0.6);
+            display: flex; align-items: center; justify-content: center;
         }
     </style>
 </head>
 
 <body>
     <div id="loading-screen">
-        <img src="https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-menu/main/logo-blanco.jpg" 
-             id="main-logo" class="logo-gusto" alt="Logo Gustó3D">
+        <img src="https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-menu/main/logo-banco.jpg" 
+             id="main-logo" class="logo-gusto" alt="Gustó3D">
         
-        <div class="mensaje-carga">PREPARANDO EXPERIENCIA GUSTÓ3D</div>
+        <div class="mensaje-carga">PREPARANDO GUSTÓ3D...</div>
         
         <div class="loader-bar">
             <div class="loader-progress"></div>
@@ -64,22 +64,25 @@
     </div>
 
     <div id="ui-overlay">
-        <button class="btn-gusto" id="btn-prev">←</button>
-        <button class="btn-gusto" id="btn-next">→</button>
+        <button class="btn-gusto" id="btn-prev">‹</button>
+        <button class="btn-gusto" id="btn-next">›</button>
     </div>
 
     <a-scene 
         mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF: 0.00001; filterBeta: 0.1;" 
         vr-mode-ui="enabled: false" 
-        renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true; precision: mediump;">
+        device-orientation-permission-ui="enabled: false"
+        renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true;">
       
-        <a-light type="ambient" intensity="1.5"></a-light>
+        <a-light type="ambient" intensity="1.2"></a-light>
         <a-light type="directional" position="1 2 1" intensity="1.5"></a-light>
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
         <a-entity mindar-image-target="targetIndex: 0">
-            <a-gltf-model id="visor" rotation="90 0 0"></a-gltf-model>
+            <a-entity id="wrapper" animation="property: rotation; to: 0 360 0; dur: 20000; easing: linear; loop: true">
+                <a-gltf-model id="visor" rotation="90 0 0"></a-gltf-model>
+            </a-entity>
         </a-entity>
     </a-scene>
 
@@ -87,13 +90,12 @@
         const loader = document.querySelector("#loading-screen");
         const ui = document.querySelector("#ui-overlay");
         const visor = document.querySelector("#visor");
-        const logo = document.getElementById('main-logo');
 
         // CATÁLOGO DE ASSETS
         const URL_ASSETS = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
         const catalogo = [
-            { nombre: "Sándwich Gourmet", archivo: "food.glb", pos: "0 -0.8 0.1", esc: "1.2 1.2 1.2", rot: "90 0 0" },
-            { nombre: "Postre Especial", archivo: "postre.glb", pos: "0 -0.4 0.4", esc: "1.7 1.7 1.7", rot: "90 45 0" }
+            { nombre: "Sándwich", archivo: "food.glb", pos: "0 -0.8 0.1", esc: "1.2 1.2 1.2" },
+            { nombre: "Postre", archivo: "postre.glb", pos: "0 -0.4 0.4", esc: "1.7 1.7 1.7" }
         ];
 
         let index = 0;
@@ -103,10 +105,9 @@
             visor.setAttribute("src", URL_ASSETS + item.archivo);
             visor.setAttribute("position", item.pos);
             visor.setAttribute("scale", item.esc);
-            visor.setAttribute("rotation", item.rot);
         }
 
-        // EVENTOS DE BOTONES
+        // EVENTOS DE NAVEGACIÓN
         document.querySelector("#btn-next").addEventListener('click', () => {
             index = (index + 1) % catalogo.length;
             actualizarPlato();
@@ -117,7 +118,7 @@
             actualizarPlato();
         });
 
-        // MANEJO DE CARGA
+        // CONTROL DE CARGA
         document.querySelector('a-scene').addEventListener('arReady', () => {
             setTimeout(() => {
                 loader.style.opacity = "0";
@@ -125,10 +126,10 @@
                     loader.style.display = "none";
                     ui.style.display = "flex";
                 }, 800);
-            }, 3000); 
+            }, 3500); 
         });
 
-        // Iniciar primer plato
+        // Inicializar primer asset
         actualizarPlato();
     </script>
 </body>
