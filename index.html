@@ -21,10 +21,7 @@
 
         .logo-gusto {
             width: 250px; height: auto; margin-bottom: 35px;
-            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.5));
-            animation: float 3s infinite ease-in-out;
-            /* El logo inicia invisible y aparece solo cuando carga */
-            opacity: 0; transition: opacity 0.5s;
+            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.4));
         }
 
         .mensaje-carga {
@@ -36,29 +33,18 @@
         .loader-bar { width: 180px; height: 2px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; }
         .loader-progress { width: 100%; height: 100%; background: #00d4ff; animation: loading 2s infinite ease-in-out; }
 
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
         @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
-        #ui-overlay { 
-            position: fixed; bottom: 50px; left: 0; width: 100%; 
-            display: flex; justify-content: center; gap: 40px; z-index: 1000;
-            display: none; opacity: 0; transition: opacity 1s;
-        }
-
-        .btn-gusto { 
-            width: 65px; height: 65px; background: rgba(37, 211, 102, 0.9); 
-            color: white; border: 2px solid white; border-radius: 50%; 
-            font-size: 24px; font-weight: bold; cursor: pointer;
-            box-shadow: 0px 10px 20px rgba(0,0,0,0.4);
-            display: flex; align-items: center; justify-content: center;
-        }
+        /* UI de navegación */
+        #ui-overlay { position: fixed; bottom: 50px; left: 0; width: 100%; display: flex; justify-content: center; gap: 40px; z-index: 1000; display: none; }
+        .btn-gusto { width: 65px; height: 65px; background: rgba(37, 211, 102, 0.9); color: white; border: 2px solid white; border-radius: 50%; font-size: 24px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 
 <body>
     <div id="loading-screen">
-        <img src="https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-menu/main/logo-banco.jpg" id="main-logo" class="logo-gusto" alt="Logo Gustó3D" onload="this.style.opacity='1'">
-        <div class="mensaje-carga" id="status-text">PREPARANDO EXPERIENCIA GUSTÓ3D</div>
+        <img src="logo-blanco.jpg" id="main-logo" class="logo-gusto" alt="Logo Gustó3D">
+        <div class="mensaje-carga">PREPARANDO EXPERIENCIA GUSTÓ3D</div>
         <div class="loader-bar"><div class="loader-progress"></div></div>
     </div>
 
@@ -70,8 +56,7 @@
     <a-scene 
         mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF: 0.00001; filterBeta: 0.1;" 
         vr-mode-ui="enabled: false" 
-        device-orientation-permission-ui="enabled: false"
-        renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true; precision: mediump; logarithmicDepthBuffer: true;">
+        renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true; precision: mediump;">
       
         <a-light type="ambient" intensity="1.2"></a-light>
         <a-light type="directional" position="1 2 1" intensity="1.5"></a-light>
@@ -86,9 +71,13 @@
     </a-scene>
 
     <script>
-        // TRUCO DE CACHÉ: Si el logo no aparece, le añadimos un parámetro aleatorio para forzar descarga
+        const loader = document.querySelector("#loading-screen");
+        const ui = document.querySelector("#ui-overlay");
+        const visor = document.querySelector("#visor");
         const logo = document.getElementById('main-logo');
-        logo.src = "logo-blanco.png?v=" + new Date().getTime();
+
+        // Bypass de caché para el nuevo JPG
+        logo.src = "logo-blanco.jpg?v=" + new Date().getTime();
 
         const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
         const catalogo = [
@@ -97,10 +86,6 @@
         ];
 
         let index = 0;
-        const visor = document.querySelector("#visor");
-        const ui = document.querySelector("#ui-overlay");
-        const loader = document.querySelector("#loading-screen");
-
         function actualizarPlato() {
             const item = catalogo[index];
             visor.setAttribute("src", URL_BASE + item.archivo);
@@ -115,7 +100,6 @@
                 setTimeout(() => {
                     loader.style.display = "none";
                     ui.style.display = "flex";
-                    ui.style.opacity = "1";
                 }, 1000);
             }, 2500); 
         });
