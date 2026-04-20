@@ -9,128 +9,140 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     
     <style>
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; background-color: #000000; }
+        html, body { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            overflow: hidden; position: fixed; background: #000; 
+        }
         
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000000; 
-            display: flex; flex-direction: column;
+            background: #000; display: flex; flex-direction: column;
             justify-content: center; align-items: center; z-index: 3000;
             transition: opacity 0.8s ease;
         }
 
         .logo-gusto {
-            width: 260px; height: auto; margin-bottom: 35px;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
+            width: 250px; height: auto; margin-bottom: 35px;
+            filter: drop-shadow(0 4px 8px rgba(255,255,255,0.3));
         }
 
         .mensaje-carga {
-            color: #ffffff; font-family: sans-serif; 
-            margin-bottom: 25px; letter-spacing: 2px; font-size: 13px;
-            text-transform: uppercase; font-weight: 300;
+            color: #fff; font-family: 'Segoe UI', sans-serif; 
+            margin-bottom: 25px; letter-spacing: 2px; font-size: 14px;
+            text-transform: uppercase; text-align: center;
         }
 
-        .loader-bar { width: 200px; height: 2px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden; }
-        .loader-progress { width: 100%; height: 100%; background: #00d4ff; animation: loading 2s infinite ease-in-out; }
-
+        .loader-bar { 
+            width: 200px; height: 4px; background: rgba(255,255,255,0.2); 
+            border-radius: 10px; overflow: hidden; 
+        }
+        .loader-progress { 
+            width: 100%; height: 100%; background: linear-gradient(90deg, #00d4ff, #25D366);
+            animation: loading 2.5s infinite ease-in-out; 
+        }
         @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
-        /* INTERFAZ DE USUARIO GUSTÓ3D */
         #ui-overlay { 
             position: fixed; bottom: 40px; left: 0; width: 100%; 
-            display: flex; justify-content: center; gap: 40px; z-index: 1000; 
-            display: none; 
+            display: flex; justify-content: center; gap: 30px; z-index: 1000;
+            opacity: 0; transition: opacity 0.5s ease;
         }
+        #ui-overlay.show { opacity: 1; display: flex !important; }
         
         .btn-gusto { 
-            width: 70px; height: 70px; background: #25D366; color: white; 
-            border: 3px solid white; border-radius: 50%; font-size: 30px; 
-            font-weight: bold; cursor: pointer; box-shadow: 0px 5px 15px rgba(0,0,0,0.6);
-            display: flex; align-items: center; justify-content: center;
+            padding: 18px 35px; background: linear-gradient(45deg, #25D366, #128C7E);
+            color: white; border: 2px solid rgba(255,255,255,0.8); 
+            border-radius: 50px; font-weight: bold; font-size: 18px;
+            cursor: pointer; text-transform: uppercase; box-shadow: 0 8px 25px rgba(37,211,102,0.4);
+            transition: all 0.3s ease; user-select: none;
         }
+        .btn-gusto:active { transform: scale(0.95); box-shadow: 0 4px 15px rgba(37,211,102,0.6); }
     </style>
 </head>
 
 <body>
+    <!-- 🖥️ PANTALLA CARGA -->
     <div id="loading-screen">
-        <img src="https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-menu/main/logo-banco.jpg" 
-             id="main-logo" class="logo-gusto" alt="Gustó3D">
-        
-        <div class="mensaje-carga">PREPARANDO GUSTÓ3D...</div>
-        
+        <img src="logo-banco.jpg" class="logo-gusto" alt="Logo Gustó3D" id="main-logo">
+        <div class="mensaje-carga">PREPARANDO EXPERIENCIA GUSTÓ3D</div>
         <div class="loader-bar">
             <div class="loader-progress"></div>
         </div>
     </div>
 
+    <!-- 🎮 BOTONES NAVEGACIÓN -->
     <div id="ui-overlay">
-        <button class="btn-gusto" id="btn-prev">‹</button>
-        <button class="btn-gusto" id="btn-next">›</button>
+        <button class="btn-gusto" id="btn-prev">← Anterior</button>
+        <button class="btn-gusto" id="btn-next">Siguiente →</button>
     </div>
 
+    <!-- 🎬 ESCENA AR -->
     <a-scene 
         mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF: 0.00001; filterBeta: 0.1;" 
-        vr-mode-ui="enabled: false" 
-        device-orientation-permission-ui="enabled: false"
+        vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false"
         renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true;">
       
         <a-light type="ambient" intensity="1.2"></a-light>
         <a-light type="directional" position="1 2 1" intensity="1.5"></a-light>
-
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
         <a-entity mindar-image-target="targetIndex: 0">
-            <a-entity id="wrapper" animation="property: rotation; to: 0 360 0; dur: 20000; easing: linear; loop: true">
-                <a-gltf-model id="visor" rotation="90 0 0"></a-gltf-model>
-            </a-entity>
+            <a-gltf-model id="visor" rotation="90 0 0" position="0 -0.8 0.1" scale="1.2 1.2 1.2" loading="lazy"></a-gltf-model>
         </a-entity>
     </a-scene>
 
     <script>
-        const loader = document.querySelector("#loading-screen");
-        const ui = document.querySelector("#ui-overlay");
-        const visor = document.querySelector("#visor");
+        // 🎯 ELEMENTOS DOM
+        const loader = document.getElementById("loading-screen");
+        const ui = document.getElementById("ui-overlay");
+        const visor = document.getElementById("visor");
+        const logo = document.getElementById("main-logo");
 
-        // CATÁLOGO DE ASSETS
-        const URL_ASSETS = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
+        // 📋 CATÁLOGO PLATOS
+        const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
         const catalogo = [
-            { nombre: "Sándwich", archivo: "food.glb", pos: "0 -0.8 0.1", esc: "1.2 1.2 1.2" },
-            { nombre: "Postre", archivo: "postre.glb", pos: "0 -0.4 0.4", esc: "1.7 1.7 1.7" }
+            { nombre: "Sándwich Gourmet", archivo: "food.glb", pos: "0 -0.8 0.1", escala: "1.2 1.2 1.2", rot: "90 0 0" },
+            { nombre: "Postre Especial", archivo: "postre.glb", pos: "0 -0.4 0.4", escala: "1.5 1.5 1.5", rot: "90 45 0" }
         ];
+        let platoActual = 0;
 
-        let index = 0;
-
-        function actualizarPlato() {
-            const item = catalogo[index];
-            visor.setAttribute("src", URL_ASSETS + item.archivo);
-            visor.setAttribute("position", item.pos);
-            visor.setAttribute("scale", item.esc);
+        // 🔄 Cambiar plato
+        function cambiarPlato(direccion) {
+            platoActual = (platoActual + direccion + catalogo.length) % catalogo.length;
+            const plato = catalogo[platoActual];
+            
+            visor.setAttribute("src", URL_BASE + plato.archivo);
+            visor.setAttribute("position", plato.pos);
+            visor.setAttribute("scale", plato.escala);
+            visor.setAttribute("rotation", plato.rot);
         }
 
-        // EVENTOS DE NAVEGACIÓN
-        document.querySelector("#btn-next").addEventListener('click', () => {
-            index = (index + 1) % catalogo.length;
-            actualizarPlato();
-        });
+        // 🎮 EVENTOS BOTONES (SIEMPRE activos)
+        document.getElementById("btn-prev").onclick = () => cambiarPlato(-1);
+        document.getElementById("btn-next").onclick = () => cambiarPlato(1);
 
-        document.querySelector("#btn-prev").addEventListener('click', () => {
-            index = (index - 1 + catalogo.length) % catalogo.length;
-            actualizarPlato();
-        });
-
-        // CONTROL DE CARGA
-        document.querySelector('a-scene').addEventListener('arReady', () => {
+        // ⏳ SECUENCIA CARGA FIJA (independiente de arReady)
+        setTimeout(() => {
+            loader.style.opacity = "0";
             setTimeout(() => {
-                loader.style.opacity = "0";
-                setTimeout(() => {
-                    loader.style.display = "none";
-                    ui.style.display = "flex";
-                }, 800);
-            }, 3500); 
+                loader.style.display = "none";
+                ui.classList.add("show"); // ✅ Activa UI
+            }, 800);
+        }, 4000); // 4 segundos fijos
+
+        // 🔗 Carga primer plato inmediatamente
+        cambiarPlato(0);
+
+        // 📡 Listener AR (opcional)
+        document.querySelector('a-scene').addEventListener('arReady', () => {
+            console.log("✅ AR listo");
         });
 
-        // Inicializar primer asset
-        actualizarPlato();
+        // 🖼️ Fallback logo si falla
+        logo.onerror = () => {
+            logo.src = "logo-banco.jpg"; // Fallback
+            logo.style.filter = "brightness(1.2)";
+        };
     </script>
 </body>
 </html>
