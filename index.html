@@ -61,7 +61,6 @@
 </head>
 
 <body>
-    <!-- 🖥️ PANTALLA CARGA -->
     <div id="loading-screen">
         <img src="logo-banco.jpg" class="logo-gusto" alt="Logo Gustó3D" id="main-logo">
         <div class="mensaje-carga">PREPARANDO EXPERIENCIA GUSTÓ3D</div>
@@ -70,13 +69,11 @@
         </div>
     </div>
 
-    <!-- 🎮 BOTONES NAVEGACIÓN -->
     <div id="ui-overlay">
         <button class="btn-gusto" id="btn-prev">← Anterior</button>
         <button class="btn-gusto" id="btn-next">Siguiente →</button>
     </div>
 
-    <!-- 🎬 ESCENA AR -->
     <a-scene 
         mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF: 0.00001; filterBeta: 0.1;" 
         vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false"
@@ -86,63 +83,4 @@
         <a-light type="directional" position="1 2 1" intensity="1.5"></a-light>
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <a-entity mindar-image-target="targetIndex: 0">
-            <a-gltf-model id="visor" rotation="0 0 0" position="0 0 0" scale="0.2 0.2 0.2" loading="lazy"></a-gltf-model>
-        </a-entity>
-    </a-scene>
-
-    <script>
-        // 🎯 ELEMENTOS DOM
-        const loader = document.getElementById("loading-screen");
-        const ui = document.getElementById("ui-overlay");
-        const visor = document.getElementById("visor");
-        const logo = document.getElementById("main-logo");
-
-        // 📋 CATÁLOGO PLATOS
-        const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
-        const catalogo = [
-            { nombre: "Sándwich Gourmet", archivo: "food.glb", pos: "0 -1 -1", escala: "10 10 10", rot: "90 45 0" },
-            { nombre: "Postre Especial", archivo: "postre.glb", pos: "0 -0.4 0.4", escala: "15 15 15", rot: "90 45 0" }
-        ];
-        let platoActual = 0;
-
-        // 🔄 Cambiar plato
-        function cambiarPlato(direccion) {
-            platoActual = (platoActual + direccion + catalogo.length) % catalogo.length;
-            const plato = catalogo[platoActual];
-            
-            visor.setAttribute("src", URL_BASE + plato.archivo);
-            visor.setAttribute("position", plato.pos);
-            visor.setAttribute("scale", plato.escala);
-            visor.setAttribute("rotation", plato.rot);
-        }
-
-        // 🎮 EVENTOS BOTONES (SIEMPRE activos)
-        document.getElementById("btn-prev").onclick = () => cambiarPlato(-1);
-        document.getElementById("btn-next").onclick = () => cambiarPlato(1);
-
-        // ⏳ SECUENCIA CARGA FIJA (independiente de arReady)
-        setTimeout(() => {
-            loader.style.opacity = "0";
-            setTimeout(() => {
-                loader.style.display = "none";
-                ui.classList.add("show"); // ✅ Activa UI
-            }, 800);
-        }, 4000); // 4 segundos fijos
-
-        // 🔗 Carga primer plato inmediatamente
-        cambiarPlato(0);
-
-        // 📡 Listener AR (opcional)
-        document.querySelector('a-scene').addEventListener('arReady', () => {
-            console.log("✅ AR listo");
-        });
-
-        // 🖼️ Fallback logo si falla
-        logo.onerror = () => {
-            logo.src = "logo-banco.jpg"; // Fallback
-            logo.style.filter = "brightness(1.2)";
-        };
-    </script>
-</body>
-</html>
+        <a-entity mindar-image-target="
