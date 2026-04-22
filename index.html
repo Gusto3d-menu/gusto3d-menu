@@ -83,4 +83,70 @@
         <a-light type="directional" position="1 2 1" intensity="1.5"></a-light>
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <a-entity mindar-image-target="
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-gltf-model id="visor" shadow="receive: true"></a-gltf-model>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        const loader = document.getElementById("loading-screen");
+        const ui = document.getElementById("ui-overlay");
+        const visor = document.getElementById("visor");
+        const logo = document.getElementById("main-logo");
+
+        // 📋 CATÁLOGO OPTIMIZADO
+        // Nota: En MindAR, si el trigger está en la mesa, 'rotation: 90 0 0' suele ser lo correcto.
+        // El eje Z (tercer valor de pos) controla qué tan "alto" flota sobre el papel.
+        const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
+        const catalogo = [
+            { 
+                nombre: "Sándwich Gourmet", 
+                archivo: "food.glb", 
+                pos: "0 0 0.1",       // Centrado sobre el trigger
+                escala: "0.5 0.5 0.5", // Escala base (ajustar según el modelo)
+                rot: "90 0 0"         // Orientación para mesa
+            },
+            { 
+                nombre: "Postre Especial", 
+                archivo: "postre.glb", 
+                pos: "0 0 0.2",       // Un poco más elevado si el modelo es plano
+                escala: "0.8 0.8 0.8", 
+                rot: "90 0 0" 
+            }
+        ];
+        let platoActual = 0;
+
+        function cambiarPlato(direccion) {
+            platoActual = (platoActual + direccion + catalogo.length) % catalogo.length;
+            const plato = catalogo[platoActual];
+            
+            // Aplicar cambios al modelo
+            visor.setAttribute("src", URL_BASE + plato.archivo);
+            visor.setAttribute("position", plato.pos);
+            visor.setAttribute("scale", plato.escala);
+            visor.setAttribute("rotation", plato.rot);
+            
+            console.log(`Cargando: ${plato.nombre}`);
+        }
+
+        document.getElementById("btn-prev").onclick = () => cambiarPlato(-1);
+        document.getElementById("btn-next").onclick = () => cambiarPlato(1);
+
+        // SECUENCIA CARGA
+        setTimeout(() => {
+            loader.style.opacity = "0";
+            setTimeout(() => {
+                loader.style.display = "none";
+                ui.classList.add("show");
+            }, 800);
+        }, 4000);
+
+        // Inicializar primer plato
+        cambiarPlato(0);
+
+        document.querySelector('a-scene').addEventListener('arReady', () => {
+            console.log("✅ Sistema AR de Gustó3D listo");
+        });
+    </script>
+</body>
+</html>
