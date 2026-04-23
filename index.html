@@ -57,6 +57,14 @@
             transition: all 0.3s ease; user-select: none;
         }
         .btn-gusto:active { transform: scale(0.95); box-shadow: 0 4px 15px rgba(37,211,102,0.6); }
+
+        #plato-info {
+            position: fixed; top: 40px; left: 20px; right: 20px;
+            color: white; font-family: 'Segoe UI', sans-serif;
+            font-size: 18px; font-weight: bold; text-align: center;
+            opacity: 0; transition: opacity 0.5s ease; z-index: 1000;
+        }
+        #plato-info.show { opacity: 1; }
     </style>
 </head>
 
@@ -69,6 +77,8 @@
         </div>
     </div>
 
+    <div id="plato-info"></div>
+    
     <div id="ui-overlay">
         <button class="btn-gusto" id="btn-prev">← Anterior</button>
         <button class="btn-gusto" id="btn-next">Siguiente →</button>
@@ -84,68 +94,102 @@
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
         <a-entity mindar-image-target="targetIndex: 0">
-            <a-gltf-model id="visor" shadow="receive: true"></a-gltf-model>
+            <a-gltf-model id="visor" shadow="receive: true" preload="true"></a-gltf-model>
         </a-entity>
     </a-scene>
 
     <script>
+        // 🎯 VARIABLES GLOBALES
+        let catalogo = [];
+        let platoActual = 0;
+        let modelosPrecargados = new Map();
+        const visor = document.getElementById("visor");
         const loader = document.getElementById("loading-screen");
         const ui = document.getElementById("ui-overlay");
-        const visor = document.getElementById("visor");
-        const logo = document.getElementById("main-logo");
+        const platoInfo = document.getElementById("plato-info");
 
-        // 📋 CATÁLOGO OPTIMIZADO
-        // Nota: En MindAR, si el trigger está en la mesa, 'rotation: 90 0 0' suele ser lo correcto.
-        // El eje Z (tercer valor de pos) controla qué tan "alto" flota sobre el papel.
-        const URL_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
-        const catalogo = [
-            { 
-                nombre: "Sándwich Gourmet", 
-                archivo: "food.glb", 
-                pos: "0 0 0.1",       // Centrado sobre el trigger
-                escala: "15 15 15", // Escala base (ajustar según el modelo)
-                rot: "90 0 0"         // Orientación para mesa
-            },
-            { 
-                nombre: "Postre Especial", 
-                archivo: "postre.glb", 
-                pos: "0 0 0.2",       // Un poco más elevado si el modelo es plano
-                escala: "10 10 10", 
-                rot: "90 0 0" 
+        // 🚀 CARGA OPTIMIZADA DEL MENÚ
+        async function cargarMenu() {
+            try {
+                const response = await fetch('./menu.json');
+                const menu = await response.json();
+                
+                catalogo = menu.platos;
+                // Precargar TODOS los modelos en background
+                precargarModelos(menu.config.url_base);
+                
+                console.log(`✅ Menú cargado: ${catalogo.length} platos`);
+                cambiarPlato(0); // Inicializar primer plato
+            } catch (error) {
+                console.error('❌ Error cargando menú:', error);
+                // Fallback si menu.json falla
+                cargarCatalogoHardcoded();
             }
-        ];
-        let platoActual = 0;
+        }
 
+        // ⚡ PRECARGAR MODELOS (ELIMINA LAG)
+        async function precargarModelos(urlBase) {
+            for (const plato of catalogo) {
+                try {
+                    const url = `${urlBase}${plato.archivo}`;
+                    // Crear modelo invisible para precarga
+                    const preloadModel = document.createElement('a-asset-item');
+                    preloadModel.setAttribute('id', `preload-${plato.id}`);
+                    preloadModel.setAttribute('src', url);
+                    document.querySelector('a-scene').appendChild(preloadModel);
+                    
+                    modelosPrecargados.set(plato.id, url);
+                    console.log(`🔄 Precargando: ${plato.nombre}`);
+                } catch (error) {
+                    console.warn(`⚠️ No se pudo precargar: ${plato.nombre}`);
+                }
+            }
+        }
+
+        // 🔄 CAMBIO DE PLATO ULTRA-RÁPIDO
         function cambiarPlato(direccion) {
             platoActual = (platoActual + direccion + catalogo.length) % catalogo.length;
             const plato = catalogo[platoActual];
             
-            // Aplicar cambios al modelo
-            visor.setAttribute("src", URL_BASE + plato.archivo);
+            // Cambios INSTANTÁNEOS (modelos ya precargados)
+            visor.setAttribute("src", `#preload-${plato.id}`);
             visor.setAttribute("position", plato.pos);
             visor.setAttribute("scale", plato.escala);
             visor.setAttribute("rotation", plato.rot);
             
-            console.log(`Cargando: ${plato.nombre}`);
+            // Actualizar UI
+            platoInfo.textContent = `${plato.nombre} - ${plato.descripcion}`;
+            platoInfo.classList.add('show');
+            
+            console.log(`✅ Mostrando: ${plato.nombre}`);
         }
 
+        // 🛡️ FALLBACK (si menu.json no carga)
+        function cargarCatalogoHardcoded() {
+            catalogo = [
+                { nombre: "Sándwich Gourmet", archivo: "food.glb", pos: "0 0 0.1", escala: "15 15 15", rot: "90 0 0" },
+                { nombre: "Postre Especial", archivo: "postre.glb", pos: "0 0 0.2", escala: "10 10 10", rot: "90 0 0" }
+            ];
+            cambiarPlato(0);
+        }
+
+        // 🎬 EVENTOS
         document.getElementById("btn-prev").onclick = () => cambiarPlato(-1);
         document.getElementById("btn-next").onclick = () => cambiarPlato(1);
 
-        // SECUENCIA CARGA
+        // 🚀 SECUENCIA DE INICIO
         setTimeout(() => {
             loader.style.opacity = "0";
             setTimeout(() => {
                 loader.style.display = "none";
                 ui.classList.add("show");
+                cargarMenu(); // Cargar menú después de splash
             }, 800);
-        }, 4000);
+        }, 3500);
 
-        // Inicializar primer plato
-        cambiarPlato(0);
-
+        // 📱 AR READY
         document.querySelector('a-scene').addEventListener('arReady', () => {
-            console.log("✅ Sistema AR de Gustó3D listo");
+            console.log("✅ Sistema AR Gustó3D listo - Precarga completada");
         });
     </script>
 </body>
