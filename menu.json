@@ -1,0 +1,37 @@
+{
+  "version": "1.0",
+  "config": {
+    "url_base": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/",
+    "auto_rotation": true,
+    "rotation_speed": 0.5
+  },
+  "platos": [
+    {
+      "id": 1,
+      "nombre": "Sándwich Gourmet",
+      "archivo": "food.glb",
+      "pos": "0 0 0.1",
+      "escala": "15 15 15",
+      "rot": "90 0 0",
+      "descripcion": "Nuestro sándwich estrella con ingredientes premium"
+    },
+    {
+      "id": 2,
+      "nombre": "Postre Especial",
+      "archivo": "postre.glb",
+      "pos": "0 0 0.2",
+      "escala": "10 10 10",
+      "rot": "90 0 0",
+      "descripcion": "Delicia cremosa con toque de vainilla"
+    },
+    {
+      "id": 3,
+      "nombre": "Pizza Artesanal",
+      "archivo": "pizza.glb",
+      "pos": "0 0 0.15",
+      "escala": "12 12 12",
+      "rot": "90 0 0",
+      "descripcion": "Masa artesanal horneada en piedra"
+    }
+  ]
+}
