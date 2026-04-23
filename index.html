@@ -108,103 +108,146 @@
     </a-scene>
 
     <script>
-        const loader = document.getElementById("loading-screen");
-        const ui = document.getElementById("ui-overlay");
-        const visor = document.getElementById("visor");
-        const mensajeCarga = document.getElementById("mensaje-carga");
-        const platoInfo = document.getElementById("plato-info");
-        
-        let catalogo = [];
-        let platoActual = 0;
-        let modelosPrecargados = new Map();
+    const loader = document.getElementById("loading-screen");
+    const ui = document.getElementById("ui-overlay");
+    const visor = document.getElementById("visor");
+    const mensajeCarga = document.getElementById("mensaje-carga");
+    const platoInfo = document.getElementById("plato-info");
+    
+    let catalogo = [];
+    let platoActual = 0;
 
-        // 1. CARGA DEL MENÚ DESDE JSON
-        async function cargarMenu() {
-            try {
-                mensajeCarga.textContent = "CONECTANDO CON LA CARTA...";
-                const response = await fetch('./menu.json');
-                const datos = await response.json();
-                catalogo = datos.platos;
-                
-                mensajeCarga.textContent = "PREPARANDO PLATOS 3D...";
-                for (const plato of catalogo) {
-                    await precargarModelo(plato.archivo);
-                }
-                
-                mensajeCarga.textContent = "¡BUEN PROVECHO!";
-                iniciarApp();
-            } catch (error) {
-                console.error("Error:", error);
-                mensajeCarga.textContent = "REVISANDO CONEXIÓN...";
-                setTimeout(iniciarApp, 2000); 
+    // 🔍 DEBUG: Verificar si todo carga
+    console.log("🚀 Gustó3D iniciando...");
+
+    // 1. CARGA DEL MENÚ
+    async function cargarMenu() {
+        try {
+            console.log("📥 Cargando menu.json...");
+            mensajeCarga.textContent = "CONECTANDO CON LA CARTA...";
+            const response = await fetch('./menu.json');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-        }
-
-        // 2. PRE-CARGA DE ASSETS
-        async function precargarModelo(url) {
-            return new Promise((resolve) => {
-                if (modelosPrecargados.has(url)) return resolve();
+            
+            const datos = await response.json();
+            catalogo = datos.platos || [];
+            console.log("✅ Menú cargado:", catalogo);
+            
+            mensajeCarga.textContent = "PREPARANDO PLATOS 3D...";
+            
+            // Pre-carga simple
+            for (const plato of catalogo) {
                 const link = document.createElement('link');
                 link.rel = 'preload';
-                link.href = url;
+                link.href = plato.archivo;
                 link.as = 'fetch';
                 document.head.appendChild(link);
-                modelosPrecargados.set(url, true);
-                resolve();
-            });
+            }
+            
+            mensajeCarga.textContent = "¡EXPERIENCIA LISTA!";
+            setTimeout(iniciarApp, 500);
+            
+        } catch (error) {
+            console.error("❌ ERROR menu.json:", error);
+            mensajeCarga.textContent = "FALLÓ CARGA - MODO MANUAL";
+            
+            // FALLBACK: catálogo hardcodeado
+            catalogo = [
+                {
+                    nombre: "Sándwich Gourmet",
+                    archivo: "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/food.glb",
+                    pos: "0 0 0.1",
+                    escala: "15 15 15",
+                    rot: "90 0 0"
+                }
+            ];
+            setTimeout(iniciarApp, 1000);
+        }
+    }
+
+    // 2. CAMBIO DE PLATO CORREGIDO
+    function cambiarPlato(direccion) {
+        if (catalogo.length === 0) {
+            console.log("⚠️ No hay platos disponibles");
+            return;
         }
 
-        // 3. CAMBIO DE PLATO CON EFECTO REBOTE
-        function cambiarPlato(direccion) {
-            if (catalogo.length === 0) return;
-
-            platoActual = (platoActual + direccion + catalogo.length) % catalogo.length;
-            const plato = catalogo[platoActual];
-
-            // Efecto de salida (achicar)
-            visor.setAttribute("scale", "0.01 0.01 0.01");
-
-            setTimeout(() => {
-                visor.setAttribute("src", plato.archivo);
-                visor.setAttribute("position", plato.pos);
-                visor.setAttribute("rotation", plato.rot);
-
-                // ANIMACIÓN ELÁSTICA
-                visor.setAttribute("animation", {
-                    property: "scale",
-                    to: plato.escala,
-                    dur: 1000,
-                    easing: "easeOutElastic"
-                });
-
-                // Actualizar Texto
-                platoInfo.textContent = plato.nombre;
-                platoInfo.classList.remove("show");
-                setTimeout(() => platoInfo.classList.add("show"), 100);
-            }, 250);
-        }
-
-        function iniciarApp() {
-            document.getElementById("btn-prev").onclick = () => cambiarPlato(-1);
-            document.getElementById("btn-next").onclick = () => cambiarPlato(1);
-
-            if (catalogo.length > 0) cambiarPlato(0);
-
-            // Quitar pantalla de carga
-            setTimeout(() => {
-                loader.style.opacity = "0";
-                setTimeout(() => {
-                    loader.style.display = "none";
-                    ui.classList.add("show");
-                }, 800);
-            }, 1200);
-        }
-
-        document.addEventListener('DOMContentLoaded', cargarMenu);
+        platoActual = (platoActual + direccion + catalogo.length) % catalogo.length;
+        const plato = catalogo[platoActual];
         
-        document.querySelector('a-scene').addEventListener('arReady', () => {
-            console.log("Gustó3D listo en oficina");
-        });
-    </script>
+        console.log(`🔄 Cambiando a: ${plato.nombre}`);
+
+        // Transición SUAVE (no rompe MindAR)
+        visor.setAttribute("scale", "0.3 0.3 0.3");
+        
+        setTimeout(() => {
+            // Cambiar modelo
+            visor.setAttribute("gltf-model", plato.archivo);
+            visor.setAttribute("position", plato.pos);
+            visor.setAttribute("rotation", plato.rot);
+            
+            // Animación de entrada
+            visor.setAttribute("animation__scale", {
+                property: "scale",
+                to: plato.escala,
+                dur: 800,
+                easing: "easeOutQuad"
+            });
+            
+            // UI
+            platoInfo.textContent = plato.nombre;
+            platoInfo.classList.remove("show");
+            setTimeout(() => platoInfo.classList.add("show"), 50);
+            
+            console.log(`✅ ${plato.nombre} cargado`);
+        }, 200);
+    }
+
+    function iniciarApp() {
+        console.log("🎬 Iniciando app...");
+        
+        const btnPrev = document.getElementById("btn-prev");
+        const btnNext = document.getElementById("btn-next");
+        
+        if (btnPrev) btnPrev.onclick = () => cambiarPlato(-1);
+        if (btnNext) btnNext.onclick = () => cambiarPlato(1);
+
+        // Cargar primer plato
+        if (catalogo.length > 0) {
+            cambiarPlato(0);
+        }
+
+        // Loader out
+        setTimeout(() => {
+            loader.style.opacity = "0";
+            setTimeout(() => {
+                loader.style.display = "none";
+                ui.classList.add("show");
+                platoInfo.classList.add("show");
+            }, 800);
+        }, 1500);
+    }
+
+    // 🔥 INICIO
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log("📱 DOM listo");
+        cargarMenu();
+    });
+    
+    // MindAR Events
+    document.querySelector('a-scene').addEventListener('arReady', () => {
+        console.log("✅ AR listo - Apunta tu target");
+    });
+    
+    document.querySelector('a-scene').addEventListener('targetFound', () => {
+        console.log("🎯 TARGET DETECTADO - Modelos visibles");
+    });
+    
+    document.querySelector('a-scene').addEventListener('targetLost', () => {
+        console.log("🔍 Target perdido");
+    });
+</script>
 </body>
 </html>
