@@ -117,127 +117,102 @@
     let catalogo = [];
     let platoActual = 0;
 
-    // 🔍 DEBUG: Verificar si todo carga
-    console.log("🚀 Gustó3D iniciando...");
-
     // 1. CARGA DEL MENÚ
     async function cargarMenu() {
         try {
-            console.log("📥 Cargando menu.json...");
             mensajeCarga.textContent = "CONECTANDO CON LA CARTA...";
             const response = await fetch('./menu.json');
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
+            if (!response.ok) throw new Error("No se pudo cargar el JSON");
             
             const datos = await response.json();
             catalogo = datos.platos || [];
-            console.log("✅ Menú cargado:", catalogo);
             
             mensajeCarga.textContent = "PREPARANDO PLATOS 3D...";
             
-            // Pre-carga simple
-            for (const plato of catalogo) {
+            // Pre-carga silenciosa en caché
+            catalogo.forEach(plato => {
                 const link = document.createElement('link');
                 link.rel = 'preload';
                 link.href = plato.archivo;
                 link.as = 'fetch';
                 document.head.appendChild(link);
-            }
+            });
             
             mensajeCarga.textContent = "¡EXPERIENCIA LISTA!";
             setTimeout(iniciarApp, 500);
             
         } catch (error) {
-            console.error("❌ ERROR menu.json:", error);
-            mensajeCarga.textContent = "FALLÓ CARGA - MODO MANUAL";
-            
-            // FALLBACK: catálogo hardcodeado
-            catalogo = [
-                {
-                    nombre: "Sándwich Gourmet",
-                    archivo: "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/food.glb",
-                    pos: "0 0 0.1",
-                    escala: "15 15 15",
-                    rot: "90 0 0"
-                }
-            ];
-            setTimeout(iniciarApp, 1000);
+            console.error("Error:", error);
+            mensajeCarga.textContent = "ERROR DE CONEXIÓN";
         }
     }
 
     // 2. CAMBIO DE PLATO CON ROTACIÓN AUTOMÁTICA
-function cambiarPlato(direccion) {
-    if (catalogo.length === 0) {
-        console.log("⚠️ No hay platos disponibles");
-        return;
+    function cambiarPlato(direccion) {
+        if (catalogo.length === 0) return;
+
+        platoActual = (platoActual + direccion + catalogo.length) % catalogo.length;
+        const plato = catalogo[platoActual];
+        
+        // Escala intermedia para no romper el tracking de MindAR
+        visor.setAttribute("scale", "0.3 0.3 0.3");
+
+        setTimeout(() => {
+            // Cambiamos el modelo (usando gltf-model directamente)
+            visor.setAttribute("gltf-model", plato.archivo);
+            visor.setAttribute("position", plato.pos);
+            visor.setAttribute("rotation", plato.rot);
+            
+            // 🎯 NUEVO: ROTACIÓN CONTINUA (12 segundos por vuelta)
+            const rotFinal = plato.rotacion || "90 360 0";
+            visor.setAttribute("animation__rotate", {
+                property: "rotation",
+                to: rotFinal,
+                dur: 12000,
+                loop: true,
+                easing: "linear"
+            });
+
+            // 🎯 ANIMACIÓN DE ENTRADA (Efecto de crecimiento)
+            visor.setAttribute("animation__scale", {
+                property: "scale",
+                to: plato.escala,
+                dur: 800,
+                easing: "easeOutQuad"
+            });
+            
+            // Actualizar UI
+            platoInfo.textContent = plato.nombre;
+            platoInfo.classList.remove("show");
+            setTimeout(() => platoInfo.classList.add("show"), 50);
+            
+        }, 200);
     }
 
-    platoActual = (platoActual + direccion + catalogo.length) % catalogo.length;
-    const plato = catalogo[platoActual];
-    
-    console.log(`🔄 Cambiando a: ${plato.nombre}`);
-
-    // Transición SUAVE
-    visor.setAttribute("scale", "0.3 0.3 0.3");
-    
-    setTimeout(() => {
-        // Cambiar modelo
-        visor.setAttribute("gltf-model", plato.archivo);
-        visor.setAttribute("position", plato.pos);
-        visor.setAttribute("rotation", plato.rot);
-        
-        // 🎯 ROTACIÓN CONTINUA AUTOMÁTICA
-        visor.setAttribute("animation__rotate", {
-            property: "rotation",
-            to: "90 360 0",  // Gira 360° en Y (suave)
-            dur: 10000,      // 10 segundos por vuelta
-            loop: true,      // Infinita
-            easing: "linear" // Constante (sin acelerones)
-        });
-        
-        // Animación de entrada escala
-        visor.setAttribute("animation__scale", {
-            property: "scale",
-            to: plato.escala,
-            dur: 800,
-            easing: "easeOutQuad"
-        });
-        
-        // UI
-        platoInfo.textContent = plato.nombre;
-        platoInfo.classList.remove("show");
-        setTimeout(() => platoInfo.classList.add("show"), 50);
-        
-        console.log(`✅ ${plato.nombre} cargado + ROTANDO`);
-    }, 200);
-}
-
     function iniciarApp() {
-        console.log("🎬 Iniciando app...");
-        
-        const btnPrev = document.getElementById("btn-prev");
-        const btnNext = document.getElementById("btn-next");
-        
-        if (btnPrev) btnPrev.onclick = () => cambiarPlato(-1);
-        if (btnNext) btnNext.onclick = () => cambiarPlato(1);
+        document.getElementById("btn-prev").onclick = () => cambiarPlato(-1);
+        document.getElementById("btn-next").onclick = () => cambiarPlato(1);
 
-        // Cargar primer plato
         if (catalogo.length > 0) {
             cambiarPlato(0);
         }
 
-        // Loader out
+        // Quitar pantalla de carga
         setTimeout(() => {
             loader.style.opacity = "0";
             setTimeout(() => {
                 loader.style.display = "none";
                 ui.classList.add("show");
-                platoInfo.classList.add("show");
             }, 800);
         }, 1500);
     }
+
+    document.addEventListener('DOMContentLoaded', cargarMenu);
+
+    // Eventos de Consola para saber que todo va bien
+    document.querySelector('a-scene').addEventListener('arReady', () => console.log("✅ AR LISTO"));
+    document.querySelector('a-scene').addEventListener('targetFound', () => console.log("🎯 PLATO DETECTADO"));
+</script>
 
     // 🔥 INICIO
     document.addEventListener('DOMContentLoaded', () => {
