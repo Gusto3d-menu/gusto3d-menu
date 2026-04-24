@@ -5,16 +5,18 @@
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/food.glb",
       "pos": "0 0 0.1",
       "escala": "15 15 15",
-      "rot": "90 0 0",
-      "rotacion": "90 360 0"
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 12000
     },
     {
       "nombre": "Postre Especial",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/postre.glb",
       "pos": "0 0 0.2",
       "escala": "10 10 10",
-      "rot": "90 0 0",
-      "rotacion": "90 360 0"
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 15000
     }
   ]
 }
