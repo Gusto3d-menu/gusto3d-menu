@@ -4,15 +4,17 @@
       "nombre": "Sándwich Gourmet",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/food.glb",
       "pos": "0 0 0.1",
-      "escala": "8 8 8",
-      "rot": "90 0 0"
+      "escala": "15 15 15",
+      "rot": "90 0 0",
+      "rotacion": "90 360 0"
     },
     {
       "nombre": "Postre Especial",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/postre.glb",
       "pos": "0 0 0.2",
-      "escala": "6 6 6",
-      "rot": "90 0 0"
+      "escala": "10 10 10",
+      "rot": "90 0 0",
+      "rotacion": "90 360 0"
     }
   ]
 }
