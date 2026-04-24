@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gustó3D - Pro</title>
+    <title>Gustó3D - Pro Fijo</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
-    
     <style>
         html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; background: #000; }
         #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 3000; transition: opacity 0.8s ease; }
@@ -19,7 +18,6 @@
         .btn-gusto { padding: 15px 25px; background: linear-gradient(45deg, #25D366, #128C7E); color: white; border: 2px solid #fff; border-radius: 50px; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
     </style>
 </head>
-
 <body>
     <div id="loading-screen">
         <img src="logo-banco.jpg" class="logo-gusto" alt="Logo">
@@ -33,15 +31,19 @@
         <button class="btn-gusto" id="btn-next">→</button>
     </div>
 
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF: 0.001; filterBeta: 0.01;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        
         <a-entity mindar-image-target="targetIndex: 0">
-            <a-gltf-model id="visor"></a-gltf-model>
+            <a-entity id="contenedor-estabilizador" scale="0.01 0.01 0.01">
+                <a-gltf-model id="visor"></a-gltf-model>
+            </a-entity>
         </a-entity>
     </a-scene>
 
     <script>
         const visor = document.getElementById("visor");
+        const contenedor = document.getElementById("contenedor-estabilizador");
         const info = document.getElementById("plato-info");
         let catalogo = [];
         let platoActual = 0;
@@ -66,15 +68,24 @@
             platoActual = (platoActual + dir + catalogo.length) % catalogo.length;
             const p = catalogo[platoActual];
 
-            // 1. Reset para el efecto de "aparición mágica"
-            visor.setAttribute("scale", "0.01 0.01 0.01");
+            // 1. Reset inmediato de escala del CONTENEDOR
+            contenedor.setAttribute("scale", "0.01 0.01 0.01");
             
-            // 2. Cargar modelo y posición
+            // 2. Cargar modelo en el VISOR
             visor.setAttribute("gltf-model", p.archivo);
-            visor.setAttribute("position", p.pos);
+            contenedor.setAttribute("position", p.pos);
             
-            // 3. ROTACIÓN HORIZONTAL CONTINUA (Eje Y)
-            visor.setAttribute("animation__rotate", {
+            // 3. ANIMACIÓN DE ENTRADA (En el Contenedor)
+            // Esto resuelve el "no salen en aumento"
+            contenedor.setAttribute("animation__escala", {
+                property: "scale",
+                to: p.escala,
+                dur: p.anim_dur || 1100,
+                easing: "easeOutElastic"
+            });
+
+            // 4. ROTACIÓN (En el Visor)
+            visor.setAttribute("animation__rotar", {
                 property: "rotation",
                 from: p.rot_inicial,
                 to: p.rot_final,
@@ -83,34 +94,8 @@
                 easing: "linear"
             });
 
-            // 4. ✨ ANIMACIÓN DE ENTRADA (Rebote Elástico)
-            visor.setAttribute("animation__scale", {
-                property: "scale",
-                to: p.escala,
-                dur: p.anim_dur || 1100,
-                easing: "easeOutElastic" 
-            });
-
-            // 5. ✨ EFECTO "GLOW" (Sutil pulso de respiración)
-            // Esto hace que el plato se vea dinámico mientras gira
-            visor.setAttribute("animation__glow", {
-                property: "scale",
-                from: p.escala,
-                to: multiplicarEscala(p.escala, 1.05),
-                dir: "alternate",
-                dur: 2000,
-                loop: true,
-                easing: "easeInOutSine"
-            });
-
             info.textContent = p.nombre;
             info.classList.add("show");
-        }
-
-        // Función auxiliar para el efecto de pulso
-        function multiplicarEscala(escalaStr, factor) {
-            const parts = escalaStr.split(' ').map(n => parseFloat(n) * factor);
-            return `${parts[0]} ${parts[1]} ${parts[2]}`;
         }
 
         function configurarBotones() {
