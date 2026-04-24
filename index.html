@@ -167,43 +167,52 @@
         }
     }
 
-    // 2. CAMBIO DE PLATO CORREGIDO
-    function cambiarPlato(direccion) {
-        if (catalogo.length === 0) {
-            console.log("⚠️ No hay platos disponibles");
-            return;
-        }
-
-        platoActual = (platoActual + direccion + catalogo.length) % catalogo.length;
-        const plato = catalogo[platoActual];
-        
-        console.log(`🔄 Cambiando a: ${plato.nombre}`);
-
-        // Transición SUAVE (no rompe MindAR)
-        visor.setAttribute("scale", "0.3 0.3 0.3");
-        
-        setTimeout(() => {
-            // Cambiar modelo
-            visor.setAttribute("gltf-model", plato.archivo);
-            visor.setAttribute("position", plato.pos);
-            visor.setAttribute("rotation", plato.rot);
-            
-            // Animación de entrada
-            visor.setAttribute("animation__scale", {
-                property: "scale",
-                to: plato.escala,
-                dur: 800,
-                easing: "easeOutQuad"
-            });
-            
-            // UI
-            platoInfo.textContent = plato.nombre;
-            platoInfo.classList.remove("show");
-            setTimeout(() => platoInfo.classList.add("show"), 50);
-            
-            console.log(`✅ ${plato.nombre} cargado`);
-        }, 200);
+    // 2. CAMBIO DE PLATO CON ROTACIÓN AUTOMÁTICA
+function cambiarPlato(direccion) {
+    if (catalogo.length === 0) {
+        console.log("⚠️ No hay platos disponibles");
+        return;
     }
+
+    platoActual = (platoActual + direccion + catalogo.length) % catalogo.length;
+    const plato = catalogo[platoActual];
+    
+    console.log(`🔄 Cambiando a: ${plato.nombre}`);
+
+    // Transición SUAVE
+    visor.setAttribute("scale", "0.3 0.3 0.3");
+    
+    setTimeout(() => {
+        // Cambiar modelo
+        visor.setAttribute("gltf-model", plato.archivo);
+        visor.setAttribute("position", plato.pos);
+        visor.setAttribute("rotation", plato.rot);
+        
+        // 🎯 ROTACIÓN CONTINUA AUTOMÁTICA
+        visor.setAttribute("animation__rotate", {
+            property: "rotation",
+            to: "90 360 0",  // Gira 360° en Y (suave)
+            dur: 10000,      // 10 segundos por vuelta
+            loop: true,      // Infinita
+            easing: "linear" // Constante (sin acelerones)
+        });
+        
+        // Animación de entrada escala
+        visor.setAttribute("animation__scale", {
+            property: "scale",
+            to: plato.escala,
+            dur: 800,
+            easing: "easeOutQuad"
+        });
+        
+        // UI
+        platoInfo.textContent = plato.nombre;
+        platoInfo.classList.remove("show");
+        setTimeout(() => platoInfo.classList.add("show"), 50);
+        
+        console.log(`✅ ${plato.nombre} cargado + ROTANDO`);
+    }, 200);
+}
 
     function iniciarApp() {
         console.log("🎬 Iniciando app...");
