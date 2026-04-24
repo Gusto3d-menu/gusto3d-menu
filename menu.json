@@ -4,7 +4,7 @@
       "nombre": "Sándwich Gourmet",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/food.glb",
       "pos": "0 0 0.1",
-      "escala": "8 8 8",
+      "escala": "6 6 6",
       "rot_inicial": "90 0 0",
       "rot_final": "90 360 0",
       "velocidad": 12000
