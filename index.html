@@ -3,144 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gustó3D - Pro Ultra-Estable</title>
+    <title>Gustó3D - Pro</title>
     
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     
     <style>
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; background: #000; }
-        #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 3000; transition: opacity 0.8s ease; }
-        .logo-gusto { width: 200px; height: auto; margin-bottom: 30px; animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-15px); } }
-        .mensaje-carga { color: #fff; font-family: sans-serif; margin-bottom: 20px; letter-spacing: 2px; font-size: 13px; text-transform: uppercase; text-align: center; }
-        .loader-bar { width: 220px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
-        .loader-progress { width: 0%; height: 100%; background: linear-gradient(90deg, #00d4ff, #25D366); animation: progress 6.5s linear forwards; }
-        @keyframes progress { 0% { width: 0%; } 100% { width: 100%; } }
-        #plato-info { position: fixed; top: 40px; width: 100%; text-align: center; color: white; font-family: sans-serif; font-size: 22px; font-weight: bold; text-shadow: 0 2px 10px rgba(0,0,0,0.9); z-index: 1000; opacity: 0; transition: 0.5s; }
+        html, body {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; position: fixed; background: #000;
+        }
+        
+        #loading-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 3000;
+            transition: opacity 0.8s ease;
+        }
+
+        .logo-gusto {
+            width: 250px; height: auto; margin-bottom: 35px;
+            filter: drop-shadow(0 4px 8px rgba(255,255,255,0.3));
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+
+        .mensaje-carga {
+            color: #fff; font-family: 'Segoe UI', sans-serif;
+            margin-bottom: 25px; letter-spacing: 2px; font-size: 14px;
+            text-transform: uppercase; text-align: center;
+        }
+
+        .loader-bar { width: 200px; height: 6px; background: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden; margin-top: 20px; }
+        .loader-progress { width: 0%; height: 100%; background: linear-gradient(90deg, #00d4ff, #25D366); animation: progress 6s linear infinite; box-shadow: 0 0 10px rgba(0,212,255,0.5); }
+        @keyframes progress { 0% { width: 0%; } 50% { width: 70%; } 100% { width: 100%; } }
+
+        #plato-info {
+            position: fixed; top: 40px; width: 100%; text-align: center;
+            color: white; font-family: 'Segoe UI', sans-serif; font-size: 22px; font-weight: bold;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.9); z-index: 1000; opacity: 0; transition: all 0.5s;
+        }
         #plato-info.show { opacity: 1; transform: translateY(10px); }
-        #ui-overlay { position: fixed; bottom: 40px; left: 0; width: 100%; display: flex; justify-content: center; gap: 30px; z-index: 1000; opacity: 0; transition: 0.5s; }
-        #ui-overlay.show { opacity: 1; }
-        .btn-gusto { padding: 16px 28px; background: linear-gradient(45deg, #25D366, #128C7E); color: white; border: 2px solid #fff; border-radius: 50px; font-weight: bold; font-size: 18px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+
+        #ui-overlay {
+            position: fixed; bottom: 40px; left: 0; width: 100%;
+            display: flex; justify-content: center; gap: 30px; z-index: 1000;
+            opacity: 0; transition: opacity 0.5s ease;
+        }
+        #ui-overlay.show { opacity: 1; display: flex !important; }
+        
+        .btn-gusto {
+            padding: 18px 30px; background: linear-gradient(45deg, #25D366, #128C7E);
+            color: white; border: 2px solid rgba(255,255,255,0.8);
+            border-radius: 50px; font-weight: bold; font-size: 16px;
+            cursor: pointer; text-transform: uppercase; box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            transition: all 0.3s ease; user-select: none;
+        }
+        .btn-gusto:active { transform: scale(0.9); }
     </style>
 </head>
 
 <body>
     <div id="loading-screen">
-        <img src="logo-banco.jpg" class="logo-gusto" alt="Gustó3D">
-        <div class="mensaje-carga" id="mensaje-carga">INICIANDO...</div>
+        <img src="logo-banco.jpg" class="logo-gusto" alt="Logo Gustó3D" id="main-logo">
+        <div class="mensaje-carga" id="mensaje-carga">INICIANDO EXPERIENCIA...</div>
         <div class="loader-bar"><div class="loader-progress"></div></div>
     </div>
 
-    <div id="plato-info"></div>
+    <div id="plato-info">Cargando Plato...</div>
 
     <div id="ui-overlay">
-        <button class="btn-gusto" id="btn-prev">←</button>
-        <button class="btn-gusto" id="btn-next">→</button>
+        <button class="btn-gusto" id="btn-prev">← Anterior</button>
+        <button class="btn-gusto" id="btn-next">Siguiente →</button>
     </div>
 
+    <!-- 🛡️ A-SCENE ANTI-TREMOR COMPLETO -->
     <a-scene 
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF: 0.001; filterBeta: 0.005; matrixSmoothing: 0.9;"
-        vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false"
-        renderer="colorManagement: true; physicallyCorrectLights: true; antialias: false; precision: mediump;">
+        id="scene"
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; 
+                      filterMinCF: 0.001; filterBeta: 0.005; matrixSmoothing: 0.9;"
+        embedded
+        vr-mode-ui="enabled: false" 
+        device-orientation-permission-ui="enabled: false"
+        renderer="colorManagement: true; physicallyCorrectLights: true; antialias: false;">
       
-        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-        <a-entity mindar-image-target="targetIndex: 0">
-            <a-entity id="model-container" position="0 0 0.1" rotation="90 0 0">
-                <a-gltf-model id="visor" shadow="receive: true"></a-gltf-model>
-            </a-entity>
-        </a-entity>
-        
         <a-light type="ambient" intensity="1.0"></a-light>
         <a-light type="directional" position="1 2 1" intensity="1.2"></a-light>
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <!-- 🛡️ ESTRUCTURA ESTABLE ANTI-TREMOR -->
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-entity id="model-container" position="0 0 0.12" rotation="90 0 0">
+                <a-gltf-model id="visor" position="0 0 0" shadow="receive: true" dynamic="true"></a-gltf-model>
+            </a-entity>
+        </a-entity>
     </a-scene>
 
     <script>
+        // 🎯 ELEMENTOS
         const loader = document.getElementById("loading-screen");
         const ui = document.getElementById("ui-overlay");
         const visor = document.getElementById("visor");
         const modelContainer = document.getElementById("model-container");
         const mensajeCarga = document.getElementById("mensaje-carga");
         const platoInfo = document.getElementById("plato-info");
+        const scene = document.getElementById("scene");
         
         let catalogo = [];
         let platoActual = 0;
 
+        console.log("🚀 Gustó3D Pro iniciando...");
+
+        // 1. CARGA JSON PERSONALIZADO
         async function cargarMenu() {
             try {
+                mensajeCarga.textContent = "🔗 CONECTANDO CARTA DIGITAL...";
                 const response = await fetch('./menu.json');
                 const datos = await response.json();
-                catalogo = datos.platos;
+                catalogo = datos.platos || [];
+                console.log("✅ Menú cargado:", catalogo);
                 
-                const mensajes = ["ESTABILIZANDO CÁMARA...", "FILTRANDO VIBRACIÓN...", "CARGANDO PLATOS...", "¡LISTO!"];
-                let mIndex = 0;
-                const mInterval = setInterval(() => {
-                    if (mIndex < mensajes.length) { mensajeCarga.textContent = mensajes[mIndex]; mIndex++; }
-                }, 1500);
-
-                if (catalogo.length > 0) cambiarPlato(0);
-
-                setTimeout(() => {
-                    clearInterval(mInterval);
-                    loader.style.opacity = "0";
-                    setTimeout(() => { loader.style.display = "none"; ui.classList.add("show"); }, 800);
-                }, 6500);
-
-            } catch (error) { mensajeCarga.textContent = "ERROR DE DATOS"; }
+                mensajeCarga.textContent = "🍽️ PRECARGANDO PLATOS 3D...";
+                
+                // Pre-carga
+                for (const plato of catalogo) {
+                    const link = document.createElement('link');
+                    link.rel = 'preload'; link.href = plato.archivo; link.as = 'fetch';
+                    document.head.appendChild(link);
+                }
+                
+                setTimeout(iniciarApp, 500);
+                
+            } catch (error) {
+                console.error("❌ JSON error:", error);
+                mensajeCarga.textContent = "MODO MANUAL ACTIVADO";
+                catalogo = [{
+                    nombre: "Sándwich Gourmet",
+                    archivo: "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/food.glb",
+                    pos: "0 0 0.1", escala: "6 6 6", rot_inicial: "90 0 0", rot_final: "90 360 0", velocidad: 12000
+                }];
+                setTimeout(iniciarApp, 1000);
+            }
         }
 
+        // 2. CAMBIO DE PLATO CON TU JSON PERSONALIZADO ✅
         function cambiarPlato(direccion) {
             if (catalogo.length === 0) return;
+
             platoActual = (platoActual + direccion + catalogo.length) % catalogo.length;
             const plato = catalogo[platoActual];
+            
+            console.log(`🔄 ${plato.nombre}`);
 
-            // 1. Reducir escala del contenedor para la transición
-            modelContainer.setAttribute("scale", "0.2 0.2 0.2");
-
+            // Transición suave
+            modelContainer.setAttribute("scale", "0.3 0.3 0.3");
+            
             setTimeout(() => {
-                // 2. Cambiar el modelo en el visor interno
+                // Cambiar modelo
                 visor.setAttribute("gltf-model", plato.archivo);
                 
-                // 3. Fijar posición y rotación del contenedor estable
-                modelContainer.setAttribute("position", plato.pos || "0 0 0.1");
+                // POSICIÓN Y ROTACIÓN INICIAL
+                modelContainer.setAttribute("position", plato.pos);
+                modelContainer.setAttribute("rotation", plato.rot_inicial);
+                visor.setAttribute("scale", plato.escala);
                 
-                // 4. Aplicar rotación horizontal infinita al VISOR (no al contenedor)
+                // 🎯 ROTACIÓN PERSONALIZADA
                 visor.setAttribute("animation__rotate", {
                     property: "rotation",
-                    from: "0 0 0",
-                    to: "0 360 0",
+                    from: plato.rot_inicial,
+                    to: plato.rot_final,
                     dur: plato.velocidad || 12000,
                     loop: true,
                     easing: "linear"
                 });
-
-                // 5. Animación de escala al CONTENEDOR
+                
+                // Animación entrada
                 modelContainer.setAttribute("animation__scale", {
                     property: "scale",
-                    to: plato.escala,
-                    dur: 1000,
-                    easing: "easeOutQuad"
+                    to: "1 1 1",
+                    dur: 800,
+                    easing: "easeOutElastic"
                 });
-
+                
+                // UI
                 platoInfo.textContent = plato.nombre;
                 platoInfo.classList.remove("show");
-                setTimeout(() => platoInfo.classList.add("show"), 100);
-            }, 200);
+                setTimeout(() => platoInfo.classList.add("show"), 50);
+                
+            }, 250);
         }
 
-        // 🛡️ ESTABILIZADOR FORZADO: Mantiene el contenedor centrado cada 33ms
-        setInterval(() => {
-            if (visor.object3D.visible && modelContainer) {
-                // Forzamos al contenedor a no moverse bruscamente de su posición relativa
-                const p = modelContainer.getAttribute('position');
-                modelContainer.setAttribute('position', {x: 0, y: 0, z: p.z});
-            }
-        }, 33);
+        // 3. INICIO CON LOADER 6s
+        function iniciarApp() {
+            console.log("🎬 App iniciada");
+            
+            document.getElementById("btn-prev").onclick = () => cambiarPlato(-1);
+            document.getElementById("btn-next").onclick = () => cambiarPlato(1);
 
-        document.getElementById("btn-prev").onclick = () => cambiarPlato(-1);
-        document.getElementById("btn-next").onclick = () => cambiarPlato(1);
+            if (catalogo.length > 0) cambiarPlato(0);
+
+            // 🔥 LOADER PROGRESIVO 6 SEGUNDOS
+            const mensajes = [
+                "🔗 CONECTANDO AR...", "📱 CALIBRANDO CÁMARA...", 
+                "🍽️ CARGANDO PLATOS...", "✨ ILUMINACIÓN 3D...", "✅ ¡LISTO!"
+            ];
+            
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < mensajes.length) {
+                    mensajeCarga.textContent = mensajes[i];
+                    i++;
+                }
+            }, 1200);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                loader.style.opacity = "0";
+                setTimeout(() => {
+                    loader.style.display = "none";
+                    ui.classList.add("show");
+                    platoInfo.classList.add("show");
+                }, 1200);
+            }, 6500);
+        }
+
+        // 🛡️ ANTI-TREMOR DEFINITIVO
+        function estabilizar() {
+            if (modelContainer && visor) {
+                modelContainer.setAttribute('position', modelContainer.getAttribute('position'));
+                const rot = visor.getAttribute('rotation');
+                visor.setAttribute('rotation', `${rot.x.toFixed(0)} ${rot.y.toFixed(0)} 0`);
+            }
+        }
+
+        // INICIO
         document.addEventListener('DOMContentLoaded', cargarMenu);
+        
+        scene.addEventListener('loaded', () => {
+            setInterval(estabilizar, 50);
+            console.log("🛡️ Anti-tremor ON | AR listo");
+        });
+
+        // Events MindAR
+        scene.addEventListener('arReady', () => console.log("✅ AR activado"));
+        scene.addEventListener('targetFound', () => console.log("🎯 Target detectado"));
     </script>
 </body>
 </html>
