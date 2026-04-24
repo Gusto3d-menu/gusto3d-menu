@@ -7,7 +7,8 @@
       "escala": "4 4 4",
       "rot_inicial": "90 0 0",
       "rot_final": "90 360 0",
-      "velocidad": 12000
+      "velocidad": 12000,
+      "anim_dur": 1100
     },
     {
       "nombre": "Postre Especial",
@@ -16,7 +17,8 @@
       "escala": "6 6 6",
       "rot_inicial": "90 0 0",
       "rot_final": "90 360 0",
-      "velocidad": 15000
+      "velocidad": 15000,
+      "anim_dur": 1400
     }
   ]
 }
