@@ -66,15 +66,14 @@
             platoActual = (platoActual + dir + catalogo.length) % catalogo.length;
             const p = catalogo[platoActual];
 
-            // 1. Reset de escala para efecto de entrada
-            visor.setAttribute("scale", "0.1 0.1 0.1");
+            // 1. Reset para el efecto de "aparición mágica"
+            visor.setAttribute("scale", "0.01 0.01 0.01");
             
-            // 2. Aplicar modelo y posición
+            // 2. Cargar modelo y posición
             visor.setAttribute("gltf-model", p.archivo);
             visor.setAttribute("position", p.pos);
             
-            // 3. ROTACIÓN HORIZONTAL (Eje Y)
-            // 'from' asegura que siempre empiece desde la misma posición al cambiar de plato
+            // 3. ROTACIÓN HORIZONTAL CONTINUA (Eje Y)
             visor.setAttribute("animation__rotate", {
                 property: "rotation",
                 from: p.rot_inicial,
@@ -84,16 +83,34 @@
                 easing: "linear"
             });
 
-            // 4. Animación de escala (crecimiento suave)
+            // 4. ✨ ANIMACIÓN DE ENTRADA (Rebote Elástico)
             visor.setAttribute("animation__scale", {
                 property: "scale",
                 to: p.escala,
-                dur: 1000,
-                easing: "easeOutElastic"
+                dur: p.anim_dur || 1100,
+                easing: "easeOutElastic" 
+            });
+
+            // 5. ✨ EFECTO "GLOW" (Sutil pulso de respiración)
+            // Esto hace que el plato se vea dinámico mientras gira
+            visor.setAttribute("animation__glow", {
+                property: "scale",
+                from: p.escala,
+                to: multiplicarEscala(p.escala, 1.05),
+                dir: "alternate",
+                dur: 2000,
+                loop: true,
+                easing: "easeInOutSine"
             });
 
             info.textContent = p.nombre;
             info.classList.add("show");
+        }
+
+        // Función auxiliar para el efecto de pulso
+        function multiplicarEscala(escalaStr, factor) {
+            const parts = escalaStr.split(' ').map(n => parseFloat(n) * factor);
+            return `${parts[0]} ${parts[1]} ${parts[2]}`;
         }
 
         function configurarBotones() {
