@@ -45,7 +45,7 @@
         
         <a-entity mindar-image-target="targetIndex: 0">
             <a-entity id="contenedor-estabilizador" scale="0.01 0.01 0.01">
-                <a-gltf-model id="visor"></a-gltf-model>
+                <a-gltf-model id="visor" gltf-model-error="#model-error"></a-gltf-model>
             </a-entity>
         </a-entity>
     </a-scene>
@@ -56,169 +56,129 @@
         const info = document.getElementById("plato-info");
         let catalogo = [];
         let platoActual = 0;
-        let isLoadingModel = false;
 
-        // ✅ LIMPIAR ANIMACIONES ANTES DE CARGAR NUEVO MODELO
-        function limpiarAnimaciones() {
-            contenedor.removeAttribute('animation__escala');
-            visor.removeAttribute('animation__rotar');
-            // Remover todas las animaciones posibles
-            Array.from(contenedor.components).forEach(comp => {
-                if (comp.name.startsWith('animation')) contenedor.removeAttribute(comp.name);
-            });
-            Array.from(visor.components).forEach(comp => {
-                if (comp.name.startsWith('animation')) visor.removeAttribute(comp.name);
-            });
+        // 🔧 FUNCIÓN CLAVE: LIMPIAR TODO ANTES DE CARGAR
+        function resetModelo() {
+            // Remover animaciones
+            contenedor.removeAttribute('animation');
+            visor.removeAttribute('animation');
+            
+            // Reset escala y posición
+            contenedor.setAttribute('scale', '0.01 0.01 0.01');
+            contenedor.setAttribute('position', '0 0 0');
+            
+            // Remover modelo actual
+            visor.removeAttribute('gltf-model');
         }
 
         async function verificarModelo(url) {
             try {
-                const response = await fetch(url, { method: 'HEAD' });
+                const controller = new AbortController();
+                setTimeout(() => controller.abort(), 3000); // Timeout 3s
+                const response = await fetch(url, { 
+                    method: 'HEAD',
+                    signal: controller.signal 
+                });
                 return response.ok;
             } catch (e) {
                 return false;
             }
         }
 
-        // ✅ EVENTO model-loaded PARA ACTIVAR ANIMACIONES
-        function configurarEventosModelo() {
-            visor.addEventListener('model-loaded', () => {
-                console.log('✅ Modelo cargado correctamente');
-                // Solo activar animaciones DESPUÉS de que el modelo esté completamente cargado
-                const p = catalogo[platoActual];
-                
-                contenedor.setAttribute("animation__escala", {
-                    property: "scale",
-                    from: "0.01 0.01 0.01",
-                    to: p.escala,
-                    dur: p.anim_dur || 1100,
-                    easing: "easeOutElastic"
-                });
-
-                visor.setAttribute("animation__rotar", {
-                    property: "rotation",
-                    from: p.rot_inicial,
-                    to: p.rot_final,
-                    dur: p.velocidad || 12000,
-                    loop: true,
-                    easing: "linear",
-                    dir: "normal"
-                });
-
-                info.textContent = p.nombre;
-                info.classList.remove("en-preparacion");
+        // ✅ EVENTO model-loaded (SE CONFIGURA UNA SOLA VEZ)
+        visor.addEventListener('model-loaded', function() {
+            console.log('✅ Modelo cargado:', catalogo[platoActual]?.nombre);
+            const p = catalogo[platoActual];
+            
+            // POSICIÓN FINAL
+            contenedor.setAttribute('position', p.pos);
+            
+            // ANIMACIÓN ESCALA (DESPUÉS de cargar)
+            contenedor.setAttribute('animation__scale', {
+                property: 'scale',
+                from: '0.01 0.01 0.01',
+                to: p.escala,
+                dur: p.anim_dur || 1100,
+                easing: 'easeOutElastic'
             });
-
-            visor.addEventListener('model-error', (e) => {
-                console.error('❌ Error cargando modelo:', e.detail);
-                info.textContent = "En preparación...";
-                info.classList.add("en-preparacion");
+            
+            // ANIMACIÓN ROTACIÓN
+            visor.setAttribute('animation__rotate', {
+                property: 'rotation',
+                to: `${p.rot_inicial[0]} 360 ${p.rot_inicial[2]}`,
+                dur: p.velocidad || 12000,
+                loop: true,
+                easing: 'linear'
             });
-        }
+            
+            info.textContent = p.nombre;
+            info.classList.remove('en-preparacion');
+        });
+
+        // Manejo de errores de modelo
+        visor.addEventListener('model-error', function() {
+            console.log('❌ Modelo no disponible');
+            info.textContent = 'En preparación...';
+            info.classList.add('en-preparacion');
+        });
 
         async function cambiarPlato(dir) {
-            if (!catalogo.length || isLoadingModel) return;
+            if (!catalogo.length) return;
             
-            isLoadingModel = true;
             platoActual = (platoActual + dir + catalogo.length) % catalogo.length;
             const p = catalogo[platoActual];
-
-            console.log(`🔄 Cambiando a: ${p.nombre}`);
-
-            // 1. LIMPIAR ANIMACIONES Y RESET
-            limpiarAnimaciones();
-            contenedor.setAttribute("scale", "0.01 0.01 0.01");
-            contenedor.setAttribute("position", p.pos);
-
-            // 2. VERIFICAR SI EL MODELO EXISTE
-            const modeloExiste = await verificarModelo(p.archivo);
             
-            if (modeloExiste) {
-                // 3. CARGAR NUEVO MODELO
-                visor.setAttribute("gltf-model", p.archivo);
+            console.log(`🔄 Cambiando a: ${p.nombre}`);
+            
+            // 1. RESET COMPLETO
+            resetModelo();
+            
+            // 2. Verificar y cargar
+            const existe = await verificarModelo(p.archivo);
+            if (existe) {
                 info.textContent = `${p.nombre} (cargando...)`;
-                info.classList.remove("en-preparacion");
+                visor.setAttribute('gltf-model', p.archivo);
+                contenedor.setAttribute('position', p.pos);
             } else {
-                // 4. MODELO NO DISPONIBLE
-                visor.removeAttribute("gltf-model");
-                contenedor.setAttribute("position", "0 0 0");
-                info.textContent = "En preparación...";
-                info.classList.add("en-preparacion");
-                isLoadingModel = false;
-                info.classList.add("show");
-                return;
+                info.textContent = 'En preparación...';
+                info.classList.add('en-preparacion');
             }
-
-            info.classList.add("show");
-            isLoadingModel = false;
+            
+            info.classList.add('show');
         }
 
-        function configurarBotones() {
-            document.getElementById("btn-prev").onclick = () => cambiarPlato(-1);
-            document.getElementById("btn-next").onclick = () => cambiarPlato(1);
-        }
-
-        // ✅ ESPERAR A QUE TODO ESTÉ LISTO (DOM + A-Frame + MindAR)
-        async function iniciar() {
-            return new Promise((resolve) => {
-                // Esperar DOM
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', () => setTimeout(resolve, 100));
-                } else {
-                    setTimeout(resolve, 100);
-                }
-            }).then(async () => {
-                // Esperar A-Frame
-                return new Promise(resolve => {
-                    if (AFRAME) {
-                        AFRAME.registerComponent('wait-for-scene', {
-                            init: function() {
-                                this.el.addEventListener('loaded', resolve);
-                            }
-                        });
-                        document.querySelector('a-scene').setAttribute('wait-for-scene', '');
-                    } else {
-                        setTimeout(resolve, 500);
-                    }
-                });
-            }).then(async () => {
-                try {
-                    // Cargar menú
-                    const res = await fetch('./menu.json');
-                    const data = await res.json();
+        function iniciar() {
+            // Cargar menú
+            fetch('./menu.json')
+                .then(res => res.json())
+                .then(data => {
                     catalogo = data.platos;
                     
-                    // Configurar eventos del modelo UNA SOLA VEZ
-                    configurarEventosModelo();
-                    configurarBotones();
+                    // Configurar botones
+                    document.getElementById('btn-prev').onclick = () => cambiarPlato(-1);
+                    document.getElementById('btn-next').onclick = () => cambiarPlato(1);
                     
                     // Cargar primer plato
-                    await cambiarPlato(0);
+                    cambiarPlato(0);
                     
-                    // Mostrar UI
-                    document.getElementById("loading-screen").style.opacity = "0";
+                    // Ocultar loading
                     setTimeout(() => {
-                        document.getElementById("loading-screen").style.display = "none";
-                        document.getElementById("ui-overlay").classList.add("show");
-                    }, 800);
-                    
-                } catch (e) { 
-                    console.error("Error al cargar menú:", e);
-                    info.textContent = "En preparación...";
-                    info.classList.add("show", "en-preparacion");
-                }
-            });
+                        document.getElementById("loading-screen").style.opacity = "0";
+                        setTimeout(() => {
+                            document.getElementById("loading-screen").style.display = "none";
+                            document.getElementById("ui-overlay").classList.add("show");
+                        }, 800);
+                    }, 500);
+                })
+                .catch(e => {
+                    console.error('Error menú:', e);
+                    info.textContent = 'En preparación...';
+                    info.classList.add('show', 'en-preparacion');
+                });
         }
 
-        // ✅ INICIAR CUANDO TODO ESTÉ LISTO
-        window.addEventListener('load', () => {
-            iniciar().catch(console.error);
-        });
-
-        // Fallback para MindAR ready
-        document.addEventListener('mindar-face-ready', () => {
-            console.log('✅ MindAR listo');
-        });
+        // 🎯 INICIO SIMPLE Y DIRECTO
+        document.addEventListener('DOMContentLoaded', iniciar);
     </script>
 </body>
 </html>
