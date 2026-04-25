@@ -1,8 +1,8 @@
 {
   "platos": [
     {
-      "nombre": "Sándwich Gourmet",
-      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/food.glb",
+      "nombre": "Plato 01",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.glb",
       "pos": "0 0 0.1",
       "escala": "4 4 4",
       "rot_inicial": "90 0 0",
@@ -11,14 +11,94 @@
       "anim_dur": 1100
     },
     {
-      "nombre": "Postre Especial",
-      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/postre.glb",
+      "nombre": "Plato 02",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato02.glb",
+      "pos": "0 0 0.1",
+      "escala": "5 5 5",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 14000,
+      "anim_dur": 1200
+    },
+    {
+      "nombre": "Plato 03",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato03.glb",
+      "pos": "0 0 0.1",
+      "escala": "4.5 4.5 4.5",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 13000,
+      "anim_dur": 1300
+    },
+    {
+      "nombre": "Plato 04",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato04.glb",
       "pos": "0 0 0.1",
       "escala": "6 6 6",
       "rot_inicial": "90 0 0",
       "rot_final": "90 360 0",
       "velocidad": 15000,
       "anim_dur": 1400
+    },
+    {
+      "nombre": "Plato 05",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato05.glb",
+      "pos": "0 0 0.1",
+      "escala": "3.5 3.5 3.5",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 11000,
+      "anim_dur": 1000
+    },
+    {
+      "nombre": "Plato 06",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato06.glb",
+      "pos": "0 0 0.1",
+      "escala": "5.5 5.5 5.5",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 16000,
+      "anim_dur": 1500
+    },
+    {
+      "nombre": "Plato 07",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato07.glb",
+      "pos": "0 0 0.1",
+      "escala": "4 4 4",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 12500,
+      "anim_dur": 1150
+    },
+    {
+      "nombre": "Plato 08",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato08.glb",
+      "pos": "0 0 0.1",
+      "escala": "6.5 6.5 6.5",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 17000,
+      "anim_dur": 1600
+    },
+    {
+      "nombre": "Plato 09",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato09.glb",
+      "pos": "0 0 0.1",
+      "escala": "4.8 4.8 4.8",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 13500,
+      "anim_dur": 1250
+    },
+    {
+      "nombre": "Plato 10",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato10.glb",
+      "pos": "0 0 0.1",
+      "escala": "5 5 5",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 14500,
+      "anim_dur": 1350
     }
   ]
 }
