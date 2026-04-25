@@ -56,6 +56,20 @@
         const info = document.getElementById("plato-info");
         let catalogo = [];
         let platoActual = 0;
+        let isLoadingModel = false;
+
+        // ✅ LIMPIAR ANIMACIONES ANTES DE CARGAR NUEVO MODELO
+        function limpiarAnimaciones() {
+            contenedor.removeAttribute('animation__escala');
+            visor.removeAttribute('animation__rotar');
+            // Remover todas las animaciones posibles
+            Array.from(contenedor.components).forEach(comp => {
+                if (comp.name.startsWith('animation')) contenedor.removeAttribute(comp.name);
+            });
+            Array.from(visor.components).forEach(comp => {
+                if (comp.name.startsWith('animation')) visor.removeAttribute(comp.name);
+            });
+        }
 
         async function verificarModelo(url) {
             try {
@@ -66,42 +80,16 @@
             }
         }
 
-        async function iniciar() {
-            try {
-                const res = await fetch('./menu.json');
-                const data = await res.json();
-                catalogo = data.platos;
-                configurarBotones();
-                cambiarPlato(0);
-                document.getElementById("loading-screen").style.opacity = "0";
-                setTimeout(() => {
-                    document.getElementById("loading-screen").style.display = "none";
-                    document.getElementById("ui-overlay").classList.add("show");
-                }, 800);
-            } catch (e) { 
-                console.error("Error al cargar menú");
-                // Si no se puede cargar el menú, mostrar mensaje de preparación
-                info.textContent = "En preparación...";
-                info.classList.add("show", "en-preparacion");
-            }
-        }
-
-        async function cambiarPlato(dir) {
-            if (!catalogo.length) return;
-            platoActual = (platoActual + dir + catalogo.length) % catalogo.length;
-            const p = catalogo[platoActual];
-
-            // Verificar si el modelo existe
-            const modeloExiste = await verificarModelo(p.archivo);
-            
-            if (modeloExiste) {
-                // Cargar modelo normalmente
-                contenedor.setAttribute("scale", "0.01 0.01 0.01");
-                visor.setAttribute("gltf-model", p.archivo);
-                contenedor.setAttribute("position", p.pos);
+        // ✅ EVENTO model-loaded PARA ACTIVAR ANIMACIONES
+        function configurarEventosModelo() {
+            visor.addEventListener('model-loaded', () => {
+                console.log('✅ Modelo cargado correctamente');
+                // Solo activar animaciones DESPUÉS de que el modelo esté completamente cargado
+                const p = catalogo[platoActual];
                 
                 contenedor.setAttribute("animation__escala", {
                     property: "scale",
+                    from: "0.01 0.01 0.01",
                     to: p.escala,
                     dur: p.anim_dur || 1100,
                     easing: "easeOutElastic"
@@ -113,22 +101,56 @@
                     to: p.rot_final,
                     dur: p.velocidad || 12000,
                     loop: true,
-                    easing: "linear"
+                    easing: "linear",
+                    dir: "normal"
                 });
 
                 info.textContent = p.nombre;
                 info.classList.remove("en-preparacion");
-            } else {
-                // Modelo no encontrado - mostrar "En preparación..."
-                contenedor.setAttribute("scale", "0.01 0.01 0.01");
-                visor.removeAttribute("gltf-model");
-                contenedor.setAttribute("position", "0 0 0");
-                
+            });
+
+            visor.addEventListener('model-error', (e) => {
+                console.error('❌ Error cargando modelo:', e.detail);
                 info.textContent = "En preparación...";
                 info.classList.add("en-preparacion");
-            }
+            });
+        }
+
+        async function cambiarPlato(dir) {
+            if (!catalogo.length || isLoadingModel) return;
             
+            isLoadingModel = true;
+            platoActual = (platoActual + dir + catalogo.length) % catalogo.length;
+            const p = catalogo[platoActual];
+
+            console.log(`🔄 Cambiando a: ${p.nombre}`);
+
+            // 1. LIMPIAR ANIMACIONES Y RESET
+            limpiarAnimaciones();
+            contenedor.setAttribute("scale", "0.01 0.01 0.01");
+            contenedor.setAttribute("position", p.pos);
+
+            // 2. VERIFICAR SI EL MODELO EXISTE
+            const modeloExiste = await verificarModelo(p.archivo);
+            
+            if (modeloExiste) {
+                // 3. CARGAR NUEVO MODELO
+                visor.setAttribute("gltf-model", p.archivo);
+                info.textContent = `${p.nombre} (cargando...)`;
+                info.classList.remove("en-preparacion");
+            } else {
+                // 4. MODELO NO DISPONIBLE
+                visor.removeAttribute("gltf-model");
+                contenedor.setAttribute("position", "0 0 0");
+                info.textContent = "En preparación...";
+                info.classList.add("en-preparacion");
+                isLoadingModel = false;
+                info.classList.add("show");
+                return;
+            }
+
             info.classList.add("show");
+            isLoadingModel = false;
         }
 
         function configurarBotones() {
@@ -136,7 +158,67 @@
             document.getElementById("btn-next").onclick = () => cambiarPlato(1);
         }
 
-        document.addEventListener('DOMContentLoaded', iniciar);
+        // ✅ ESPERAR A QUE TODO ESTÉ LISTO (DOM + A-Frame + MindAR)
+        async function iniciar() {
+            return new Promise((resolve) => {
+                // Esperar DOM
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', () => setTimeout(resolve, 100));
+                } else {
+                    setTimeout(resolve, 100);
+                }
+            }).then(async () => {
+                // Esperar A-Frame
+                return new Promise(resolve => {
+                    if (AFRAME) {
+                        AFRAME.registerComponent('wait-for-scene', {
+                            init: function() {
+                                this.el.addEventListener('loaded', resolve);
+                            }
+                        });
+                        document.querySelector('a-scene').setAttribute('wait-for-scene', '');
+                    } else {
+                        setTimeout(resolve, 500);
+                    }
+                });
+            }).then(async () => {
+                try {
+                    // Cargar menú
+                    const res = await fetch('./menu.json');
+                    const data = await res.json();
+                    catalogo = data.platos;
+                    
+                    // Configurar eventos del modelo UNA SOLA VEZ
+                    configurarEventosModelo();
+                    configurarBotones();
+                    
+                    // Cargar primer plato
+                    await cambiarPlato(0);
+                    
+                    // Mostrar UI
+                    document.getElementById("loading-screen").style.opacity = "0";
+                    setTimeout(() => {
+                        document.getElementById("loading-screen").style.display = "none";
+                        document.getElementById("ui-overlay").classList.add("show");
+                    }, 800);
+                    
+                } catch (e) { 
+                    console.error("Error al cargar menú:", e);
+                    info.textContent = "En preparación...";
+                    info.classList.add("show", "en-preparacion");
+                }
+            });
+        }
+
+        // ✅ INICIAR CUANDO TODO ESTÉ LISTO
+        window.addEventListener('load', () => {
+            iniciar().catch(console.error);
+        });
+
+        // Fallback para MindAR ready
+        document.addEventListener('mindar-face-ready', () => {
+            console.log('✅ MindAR listo');
+        });
     </script>
 </body>
 </html>
