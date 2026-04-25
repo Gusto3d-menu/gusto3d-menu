@@ -16,15 +16,8 @@
         #ui-overlay { position: fixed; bottom: 40px; left: 0; width: 100%; display: flex; justify-content: center; gap: 20px; z-index: 1000; opacity: 0; transition: 0.5s; }
         #ui-overlay.show { opacity: 1; }
         .btn-gusto { padding: 15px 25px; background: linear-gradient(45deg, #25D366, #128C7E); color: white; border: 2px solid #fff; border-radius: 50px; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
-        .en-preparacion {
-            color: #ff6b35 !important;
-            font-size: 18px !important;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
+        .en-preparacion { color: #ff6b35 !important; font-size: 18px !important; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
     </style>
 </head>
 <body>
@@ -34,7 +27,6 @@
     </div>
 
     <div id="plato-info"></div>
-
     <div id="ui-overlay">
         <button class="btn-gusto" id="btn-prev">←</button>
         <button class="btn-gusto" id="btn-next">→</button>
@@ -42,10 +34,9 @@
 
     <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no; filterMinCF: 0.001; filterBeta: 0.01;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-        
         <a-entity mindar-image-target="targetIndex: 0">
             <a-entity id="contenedor-estabilizador" scale="0.01 0.01 0.01">
-                <a-gltf-model id="visor" gltf-model-error="#model-error"></a-gltf-model>
+                <a-gltf-model id="visor"></a-gltf-model>
             </a-entity>
         </a-entity>
     </a-scene>
@@ -57,127 +48,89 @@
         let catalogo = [];
         let platoActual = 0;
 
-        // 🔧 FUNCIÓN CLAVE: LIMPIAR TODO ANTES DE CARGAR
-        function resetModelo() {
-            // Remover animaciones
-            contenedor.removeAttribute('animation');
-            visor.removeAttribute('animation');
+        // 🔥 SOLUCIÓN AL BUG DE ESCALA: Esperar model-loaded
+        visor.addEventListener('model-loaded', function() {
+            const p = catalogo[platoActual];
+            console.log('✅ Modelo listo - activando animaciones');
             
-            // Reset escala y posición
-            contenedor.setAttribute('scale', '0.01 0.01 0.01');
-            contenedor.setAttribute('position', '0 0 0');
+            // POSICIÓN
+            contenedor.setAttribute("position", p.pos);
             
-            // Remover modelo actual
-            visor.removeAttribute('gltf-model');
-        }
+            // ESCALA (DESPUÉS del modelo)
+            contenedor.setAttribute("animation__escala", {
+                property: "scale",
+                to: p.escala,
+                dur: p.anim_dur || 1100,
+                easing: "easeOutElastic"
+            });
+            
+            // ROTACIÓN
+            visor.setAttribute("animation__rotar", {
+                property: "rotation",
+                from: p.rot_inicial,
+                to: p.rot_final,
+                dur: p.velocidad || 12000,
+                loop: true,
+                easing: "linear"
+            });
+        });
 
         async function verificarModelo(url) {
             try {
-                const controller = new AbortController();
-                setTimeout(() => controller.abort(), 3000); // Timeout 3s
-                const response = await fetch(url, { 
-                    method: 'HEAD',
-                    signal: controller.signal 
-                });
+                const response = await fetch(url, { method: 'HEAD' });
                 return response.ok;
-            } catch (e) {
-                return false;
-            }
+            } catch (e) { return false; }
         }
-
-        // ✅ EVENTO model-loaded (SE CONFIGURA UNA SOLA VEZ)
-        visor.addEventListener('model-loaded', function() {
-            console.log('✅ Modelo cargado:', catalogo[platoActual]?.nombre);
-            const p = catalogo[platoActual];
-            
-            // POSICIÓN FINAL
-            contenedor.setAttribute('position', p.pos);
-            
-            // ANIMACIÓN ESCALA (DESPUÉS de cargar)
-            contenedor.setAttribute('animation__scale', {
-                property: 'scale',
-                from: '0.01 0.01 0.01',
-                to: p.escala,
-                dur: p.anim_dur || 1100,
-                easing: 'easeOutElastic'
-            });
-            
-            // ANIMACIÓN ROTACIÓN
-            visor.setAttribute('animation__rotate', {
-                property: 'rotation',
-                to: `${p.rot_inicial[0]} 360 ${p.rot_inicial[2]}`,
-                dur: p.velocidad || 12000,
-                loop: true,
-                easing: 'linear'
-            });
-            
-            info.textContent = p.nombre;
-            info.classList.remove('en-preparacion');
-        });
-
-        // Manejo de errores de modelo
-        visor.addEventListener('model-error', function() {
-            console.log('❌ Modelo no disponible');
-            info.textContent = 'En preparación...';
-            info.classList.add('en-preparacion');
-        });
 
         async function cambiarPlato(dir) {
             if (!catalogo.length) return;
-            
             platoActual = (platoActual + dir + catalogo.length) % catalogo.length;
             const p = catalogo[platoActual];
+
+            // 🔧 RESET ANTES DE CARGAR
+            contenedor.removeAttribute("animation__escala");
+            visor.removeAttribute("animation__rotar");
+            contenedor.setAttribute("scale", "0.01 0.01 0.01");
+
+            const modeloExiste = await verificarModelo(p.archivo);
             
-            console.log(`🔄 Cambiando a: ${p.nombre}`);
-            
-            // 1. RESET COMPLETO
-            resetModelo();
-            
-            // 2. Verificar y cargar
-            const existe = await verificarModelo(p.archivo);
-            if (existe) {
-                info.textContent = `${p.nombre} (cargando...)`;
-                visor.setAttribute('gltf-model', p.archivo);
-                contenedor.setAttribute('position', p.pos);
+            if (modeloExiste) {
+                visor.setAttribute("gltf-model", p.archivo);
+                info.textContent = p.nombre;
+                info.classList.remove("en-preparacion");
             } else {
-                info.textContent = 'En preparación...';
-                info.classList.add('en-preparacion');
+                visor.removeAttribute("gltf-model");
+                info.textContent = "En preparación...";
+                info.classList.add("en-preparacion");
             }
             
-            info.classList.add('show');
+            info.classList.add("show");
         }
 
-        function iniciar() {
-            // Cargar menú
-            fetch('./menu.json')
-                .then(res => res.json())
-                .then(data => {
-                    catalogo = data.platos;
-                    
-                    // Configurar botones
-                    document.getElementById('btn-prev').onclick = () => cambiarPlato(-1);
-                    document.getElementById('btn-next').onclick = () => cambiarPlato(1);
-                    
-                    // Cargar primer plato
-                    cambiarPlato(0);
-                    
-                    // Ocultar loading
-                    setTimeout(() => {
-                        document.getElementById("loading-screen").style.opacity = "0";
-                        setTimeout(() => {
-                            document.getElementById("loading-screen").style.display = "none";
-                            document.getElementById("ui-overlay").classList.add("show");
-                        }, 800);
-                    }, 500);
-                })
-                .catch(e => {
-                    console.error('Error menú:', e);
-                    info.textContent = 'En preparación...';
-                    info.classList.add('show', 'en-preparacion');
-                });
+        async function iniciar() {
+            try {
+                const res = await fetch('./menu.json');
+                const data = await res.json();
+                catalogo = data.platos;
+                
+                document.getElementById("btn-prev").onclick = () => cambiarPlato(-1);
+                document.getElementById("btn-next").onclick = () => cambiarPlato(1);
+                
+                // PRIMER PLATO
+                cambiarPlato(0);
+                
+                document.getElementById("loading-screen").style.opacity = "0";
+                setTimeout(() => {
+                    document.getElementById("loading-screen").style.display = "none";
+                    document.getElementById("ui-overlay").classList.add("show");
+                }, 800);
+            } catch (e) { 
+                console.error("Error menú");
+                info.textContent = "En preparación...";
+                info.classList.add("show", "en-preparacion");
+            }
         }
 
-        // 🎯 INICIO SIMPLE Y DIRECTO
         document.addEventListener('DOMContentLoaded', iniciar);
     </script>
 </body>
