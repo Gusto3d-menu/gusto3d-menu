@@ -33,7 +33,7 @@
     {
       "nombre": "Pollo Broster",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato04.glb",
-      "pos": "0 0.2 -2",
+      "pos": "0 -0.5 2",
       "escala": "1.5 1.5 1.5",
       "rot_inicial": "90 0 0",
       "rot_final": "90 360 0",
