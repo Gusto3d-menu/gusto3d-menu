@@ -48,15 +48,19 @@
         let catalogo = [];
         let platoActual = 0;
 
-        // 🔥 SOLUCIÓN AL BUG DE ESCALA: Esperar model-loaded
+        // 🔥 EVENTO MODEL-LOADED CORREGIDO
         visor.addEventListener('model-loaded', function() {
             const p = catalogo[platoActual];
-            console.log('✅ Modelo listo - activando animaciones');
+            console.log('✅ Modelo listo - activando animaciones', p.velocidad);
+            
+            // LIMPIAR ANIMACIONES VIEJAS PRIMERO
+            contenedor.removeAttribute("animation__escala");
+            visor.removeAttribute("animation__rotar");
             
             // POSICIÓN
             contenedor.setAttribute("position", p.pos);
             
-            // ESCALA (DESPUÉS del modelo)
+            // ESCALA (Inicia animación desde 0.01)
             contenedor.setAttribute("animation__escala", {
                 property: "scale",
                 to: p.escala,
@@ -64,15 +68,18 @@
                 easing: "easeOutElastic"
             });
             
-            // ROTACIÓN
+            // ROTACIÓN (Usa p.velocidad sin valores por defecto que la ignoren)
             visor.setAttribute("animation__rotar", {
                 property: "rotation",
                 from: p.rot_inicial,
                 to: p.rot_final,
-                dur: p.velocidad || 12000,
+                dur: p.velocidad,
                 loop: true,
                 easing: "linear"
             });
+
+            info.textContent = p.nombre;
+            info.classList.remove("en-preparacion");
         });
 
         async function verificarModelo(url) {
@@ -82,15 +89,17 @@
             } catch (e) { return false; }
         }
 
+        // 🔥 FUNCIÓN CAMBIAR PLATO CON RESET COMPLETO
         async function cambiarPlato(dir) {
             if (!catalogo.length) return;
             platoActual = (platoActual + dir + catalogo.length) % catalogo.length;
             const p = catalogo[platoActual];
 
-            // 🔧 RESET ANTES DE CARGAR
+            // RESET COMPLETO
             contenedor.removeAttribute("animation__escala");
             visor.removeAttribute("animation__rotar");
             contenedor.setAttribute("scale", "0.01 0.01 0.01");
+            visor.removeAttribute("gltf-model"); 
 
             const modeloExiste = await verificarModelo(p.archivo);
             
@@ -99,7 +108,6 @@
                 info.textContent = p.nombre;
                 info.classList.remove("en-preparacion");
             } else {
-                visor.removeAttribute("gltf-model");
                 info.textContent = "En preparación...";
                 info.classList.add("en-preparacion");
             }
@@ -116,7 +124,7 @@
                 document.getElementById("btn-prev").onclick = () => cambiarPlato(-1);
                 document.getElementById("btn-next").onclick = () => cambiarPlato(1);
                 
-                // PRIMER PLATO
+                // CARGA INICIAL
                 cambiarPlato(0);
                 
                 document.getElementById("loading-screen").style.opacity = "0";
