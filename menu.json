@@ -7,7 +7,7 @@
       "escala": "0.6 0.6 0.6",
       "rot_inicial": "90 0 0",
       "rot_final": "90 360 0",
-      "velocidad": 6000,
+      "velocidad": 20000,
       "anim_dur": 1100
     },
     {
