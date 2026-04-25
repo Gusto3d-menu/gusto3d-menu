@@ -1,7 +1,7 @@
 {
   "platos": [
     {
-      "nombre": "Plato 01",
+      "nombre": "Ramen",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.glb",
       "pos": "0 0 0.1",
       "escala": "0.4 0.4 0.4",
@@ -11,7 +11,7 @@
       "anim_dur": 1100
     },
     {
-      "nombre": "Plato 02",
+      "nombre": "Food Can 415g",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato02.glb",
       "pos": "0 0 0.1",
       "escala": "5 5 5",
