@@ -68,15 +68,10 @@
             platoActual = (platoActual + dir + catalogo.length) % catalogo.length;
             const p = catalogo[platoActual];
 
-            // 1. Reset inmediato de escala del CONTENEDOR
             contenedor.setAttribute("scale", "0.01 0.01 0.01");
-            
-            // 2. Cargar modelo en el VISOR
             visor.setAttribute("gltf-model", p.archivo);
             contenedor.setAttribute("position", p.pos);
             
-            // 3. ANIMACIÓN DE ENTRADA (En el Contenedor)
-            // Esto resuelve el "no salen en aumento"
             contenedor.setAttribute("animation__escala", {
                 property: "scale",
                 to: p.escala,
@@ -84,7 +79,6 @@
                 easing: "easeOutElastic"
             });
 
-            // 4. ROTACIÓN (En el Visor)
             visor.setAttribute("animation__rotar", {
                 property: "rotation",
                 from: p.rot_inicial,
