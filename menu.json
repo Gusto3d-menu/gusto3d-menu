@@ -2,6 +2,7 @@
   "platos": [
     {
       "nombre": "Ramen",
+      "categoria": "Entradas",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.glb",
       "pos": "0 0 0.1",
@@ -13,6 +14,7 @@
     },
     {
       "nombre": "Food Can 415g",
+      "categoria": "Entradas",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato02.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato02.glb",
       "pos": "0 0 0.1",
@@ -24,6 +26,7 @@
     },
     {
       "nombre": "Hamburguesa",
+      "categoria": "Plato Fuerte",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato03.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato03.glb",
       "pos": "0 0.2 0.1",
@@ -35,6 +38,7 @@
     },
     {
       "nombre": "Pollo Broster",
+      "categoria": "Plato Fuerte",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato04.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato04.glb",
       "pos": "-0.3 4 -4",
@@ -45,7 +49,8 @@
       "anim_dur": 1400
     },
     {
-      "nombre": "Extra Chocolate Marshmallow Cupcake",
+      "nombre": "Extra Chocolate Cupcake",
+      "categoria": "Postres",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato05.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato05.glb",
       "pos": "0 4 -4",
@@ -57,6 +62,7 @@
     },
     {
       "nombre": "Desayuno americano",
+      "categoria": "Plato Fuerte",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato06.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato06.glb",
       "pos": "0 2 -2",
@@ -68,6 +74,7 @@
     },
     {
       "nombre": "Plato 07",
+      "categoria": "Bebidas",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato07.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato07.glb",
       "pos": "0 0 0.1",
@@ -79,6 +86,7 @@
     },
     {
       "nombre": "Plato 08",
+      "categoria": "Bebidas",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato08.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato08.glb",
       "pos": "0 0 0.1",
@@ -90,6 +98,7 @@
     },
     {
       "nombre": "Plato 09",
+      "categoria": "Plato Fuerte",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato09.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato09.glb",
       "pos": "0 0 0.1",
@@ -101,6 +110,7 @@
     },
     {
       "nombre": "Plato 10",
+      "categoria": "Postres",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato10.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato10.glb",
       "pos": "0 0 0.1",
