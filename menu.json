@@ -2,7 +2,7 @@
   "platos": [
     {
       "nombre": "Ramen",
-      "imagen": "./fotos/plato01.jpg",
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.glb",
       "pos": "0 0 0.1",
       "escala": "0.4 0.4 0.4",
@@ -13,7 +13,7 @@
     },
     {
       "nombre": "Food Can 415g",
-      "imagen": "./fotos/plato02.jpg",
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato02.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato02.glb",
       "pos": "0 0 0.1",
       "escala": "5 5 5",
@@ -24,7 +24,7 @@
     },
     {
       "nombre": "Hamburguesa",
-      "imagen": "./fotos/plato03.jpg",
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato03.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato03.glb",
       "pos": "0 0.2 0.1",
       "escala": "1.5 1.5 1.5",
@@ -35,7 +35,7 @@
     },
     {
       "nombre": "Pollo Broster",
-      "imagen": "./fotos/plato04.jpg",
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato04.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato04.glb",
       "pos": "-0.3 4 -4",
       "escala": "2 2 2",
@@ -46,7 +46,7 @@
     },
     {
       "nombre": "Extra Chocolate Marshmallow Cupcake",
-      "imagen": "./fotos/plato05.jpg",
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato05.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato05.glb",
       "pos": "0 4 -4",
       "escala": "0.5 0.5 0.5",
@@ -57,7 +57,7 @@
     },
     {
       "nombre": "Desayuno americano",
-      "imagen": "./fotos/plato06.jpg",
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato06.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato06.glb",
       "pos": "0 2 -2",
       "escala": "5.5 5.5 5.5",
@@ -68,7 +68,7 @@
     },
     {
       "nombre": "Plato 07",
-      "imagen": "./fotos/plato07.jpg",
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato07.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato07.glb",
       "pos": "0 0 0.1",
       "escala": "4 4 4",
@@ -79,7 +79,7 @@
     },
     {
       "nombre": "Plato 08",
-      "imagen": "./fotos/plato08.jpg",
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato08.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato08.glb",
       "pos": "0 0 0.1",
       "escala": "6.5 6.5 6.5",
@@ -90,7 +90,7 @@
     },
     {
       "nombre": "Plato 09",
-      "imagen": "./fotos/plato09.jpg",
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato09.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato09.glb",
       "pos": "0 0 0.1",
       "escala": "4.8 4.8 4.8",
@@ -101,7 +101,7 @@
     },
     {
       "nombre": "Plato 10",
-      "imagen": "./fotos/plato10.jpg",
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato10.jpg",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato10.glb",
       "pos": "0 0 0.1",
       "escala": "5 5 5",
