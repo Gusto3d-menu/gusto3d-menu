@@ -187,13 +187,20 @@
 
         .plato-info { 
             padding: 22px; 
-            height: 170px;
+            height: 180px;
             display: flex; flex-direction: column;
         }
         .plato-nombre {
             font-family: 'Playfair Display', serif;
             color: white; font-size: 20px; margin: 0 0 8px; line-height: 1.25;
             flex-shrink: 0;
+        }
+        .plato-precio {
+            font-family: 'Playfair Display', serif;
+            color: #25D366; font-size: 26px; font-weight: 700;
+            margin: 4px 0 12px 0; flex-shrink: 0;
+            text-shadow: 0 2px 8px rgba(37,211,102,0.3);
+            letter-spacing: 1px;
         }
         /* CAMBIO: La descripción ahora ocupa el espacio del subtítulo + descripción anterior */
         .plato-descripcion {
@@ -437,23 +444,23 @@
 
             const placeholderDisplay = tieneImagen ? 'none' : 'flex';
 
-            slide.innerHTML = `
-                <div class="plato-card" data-plato-idx="${idxGlobal}">
-                    <div class="plato-imagen-wrap" data-plato-idx="${idxGlobal}">
-                        ${imgHTML}
-                        <div class="plato-imagen-placeholder" style="display:${placeholderDisplay};" data-plato-idx="${idxGlobal}">
-                            <div class="icono-plato-svg">${svgIconCategoria(catActual)}</div>
-                            <span class="placeholder-text">Toca para AR</span>
-                        </div>
-                        <div class="plato-shimmer"></div>
-                        <div class="plato-badge-num">${posicion + 1} / ${totalPlatos}</div>
+        slide.innerHTML = `
+            <div class="plato-card" data-plato-idx="${idxGlobal}">
+                <div class="plato-imagen-wrap" data-plato-idx="${idxGlobal}">
+                    ${imgHTML}
+                    <div class="plato-imagen-placeholder" style="display:${placeholderDisplay};" data-plato-idx="${idxGlobal}">
+                        <div class="icono-plato-svg">${svgIconCategoria(catActual)}</div>
+                        <span class="placeholder-text">Toca para AR</span>
                     </div>
-                    <div class="plato-info">
-                        <h3 class="plato-nombre">${plato.nombre}</h3>
-                        <!-- CAMBIO: Solo descripción, sin subtítulo de categoría ni ar-hint -->
-                        <p class="plato-descripcion">${descripcion}</p>
-                    </div>
-                </div>`;
+                    <div class="plato-shimmer"></div>
+                    <div class="plato-badge-num">${posicion + 1} / ${totalPlatos}</div>
+                </div>
+                <div class="plato-info">
+                    <h3 class="plato-nombre">${plato.nombre}</h3>
+                    <div class="plato-precio">$${plato.precio || 'Consultar'}</div>
+                    <p class="plato-descripcion">${descripcion}</p>
+                </div>
+            </div>`;
 
             // Event listener para la imagen/imagen-wrap (click/tap para AR)
             const imagenWrap = slide.querySelector('.plato-imagen-wrap');
