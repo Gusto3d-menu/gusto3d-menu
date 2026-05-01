@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Gusto3D - Menu Interactivo</title>
+    
+    <!-- Librería de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     <style>
+     
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap');
 
         *, *::before, *::after { box-sizing: border-box; }
@@ -357,6 +362,15 @@
         const btnPrev    = document.getElementById("btn-prev");
         const btnNext    = document.getElementById("btn-next");
 
+        /* ─── CONFIGURACIÓN SUPABASE ─── */
+        const SUPABASE_URL = "https://hnczgxsqtrchukzuuusq.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_rD91R_BezGsvMXTl0bbkg_dUR1LhOf";
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Simularemos que el cliente escaneó la Mesa 1 para esta prueba
+        const MESA_ID = 1; 
+        let idSesionActual = null;
+
         /* ─── ESTADO ─── */
         let catalogo        = [];
         let catActual       = -1;
@@ -541,34 +555,50 @@
         });
 
         async function mostrarPlatoAR(index) {
-            window.platoSeleccionado = index;
-            const p = catalogo[index];
+    window.platoSeleccionado = index;
+    const p = catalogo[index];
 
-            document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
-            document.getElementById('btn-volver').style.display = 'none';
+    // --- NUEVO: Registrar pedido/vista en Supabase ---
+    try {
+        await _supabase
+            .from('pedidos_temporales')
+            .insert([
+                { 
+                    mesa_id: MESA_ID, 
+                    nombre_plato: p.nombre, 
+                    estado: 'visto' 
+                }
+            ]);
+        console.log("Interés registrado en base de datos para:", p.nombre);
+    } catch (err) {
+        console.error("Error al conectar con Supabase:", err);
+    }
+    // ------------------------------------------------
 
-            contenedor.setAttribute("scale", "0.01 0.01 0.01");
-            visor.removeAttribute("gltf-model");
+    document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
+    document.getElementById('btn-volver').style.display = 'none';
 
-            const mindarSystem = arScene.systems['mindar-image-system'];
-            await mindarSystem.start();
+    contenedor.setAttribute("scale", "0.01 0.01 0.01");
+    visor.removeAttribute("gltf-model");
 
-            try {
-                const res = await fetch(p.archivo, { method: 'HEAD' });
-                if (res.ok) {
-                    visor.setAttribute("gltf-model", p.archivo);
-                    info.textContent = p.nombre;
-                    info.classList.remove("en-preparacion");
-                } else { throw new Error(); }
-            } catch {
-                info.textContent = "En preparacion...";
-                info.classList.add("en-preparacion");
-            }
+    const mindarSystem = arScene.systems['mindar-image-system'];
+    await mindarSystem.start();
 
-            info.style.display = 'block';
-            uiAr.style.display = 'flex';
-        }
+    try {
+        const res = await fetch(p.archivo, { method: 'HEAD' });
+        if (res.ok) {
+            visor.setAttribute("gltf-model", p.archivo);
+            info.textContent = p.nombre;
+            info.classList.remove("en-preparacion");
+        } else { throw new Error(); }
+    } catch {
+        info.textContent = "En preparacion...";
+        info.classList.add("en-preparacion");
+    }
 
+    info.style.display = 'block';
+    uiAr.style.display = 'flex';
+}
         /* ─── INIT ─── */
         async function init() {
             try {
