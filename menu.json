@@ -163,6 +163,25 @@
       "rot_final": "90 360 0",
       "velocidad": 17000,
       "anim_dur": 1600
+    },
+     {
+      "id": "p009",
+      "nombre": "Bebida Gourmet",
+      "categoria": 3,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato09.jpg",
+      "precio": "19.99",
+      "precio_anterior": null,
+      "disponible": true,
+      "destacado": false,
+      "alergenos": [],
+      "descripcion": "Bebida gourmet con sabores unicos y combinacion perfecta de texturas.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato09.glb",
+      "pos": "0 0 0.1",
+      "escala": "6.5 6.5 6.5",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 17000,
+      "anim_dur": 1600
     }
   ]
 }
