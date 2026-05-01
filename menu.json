@@ -3,6 +3,7 @@
     {
       "nombre": "Ramen",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.jpg",
+      "precio": "18.99",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.glb",
       "descripcion": "Fideos japoneses en caldo de pollo con huevo, cebollín, nori y lonchas de cerdo marinado. Auténtico sabor del Japón.",
       "pos": "0 0 0.1",
@@ -15,6 +16,7 @@
     {
       "nombre": "Food Can 415g",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato02.jpg",
+      "precio": "12.50",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato02.glb",
       "descripcion": "Conserva premium de atún en aceite de oliva virgen extra. Perfecto para ensaladas, pastas o directo del envase.",
       "pos": "0 0 0.1",
@@ -27,6 +29,7 @@
     {
       "nombre": "Hamburguesa",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato03.jpg",
+      "precio": "22.90",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato03.glb",
       "descripcion": "Carne 100% Angus jugosa con cheddar derretido, bacon crujiente, lechuga, tomate y nuestra salsa secreta.",
       "pos": "0 0.2 0.1",
@@ -39,6 +42,7 @@
     {
       "nombre": "Pollo Broster",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato04.jpg",
+      "precio": "16.75",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato04.glb",
       "descripcion": "Pechuga de pollo empanizada con nuestra receta secreta coreana. Crujiente por fuera, jugosa por dentro.",
       "pos": "-0.3 4 -4",
@@ -51,6 +55,7 @@
     {
       "nombre": "Extra Chocolate Marshmallow Cupcake",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato05.jpg",
+      "precio": "8.50",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato05.glb",
       "descripcion": "Cupcake de chocolate intenso con corazón de marshmallow y cobertura de ganache. ¡Pecado delicioso!",
       "pos": "0 4 -4",
@@ -63,6 +68,7 @@
     {
       "nombre": "Desayuno americano",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato06.jpg",
+      "precio": "14.99",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato06.glb",
       "descripcion": "Huevos revueltos, bacon, salchichas, hash browns y pan tostado. El desayuno clásico americano.",
       "pos": "0 2 -2",
@@ -75,6 +81,7 @@
     {
       "nombre": "Plato 07",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato07.jpg",
+      "precio": "25.00",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato07.glb",
       "descripcion": "Especialidad de la casa con ingredientes seleccionados y presentación impecable.",
       "pos": "0 0 0.1",
@@ -87,6 +94,7 @@
     {
       "nombre": "Plato 08",
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato08.jpg",
+      "precio": "19.99",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato08.glb",
       "descripcion": "Plato gourmet con sabores únicos y combinación perfecta de texturas.",
       "pos": "0 0 0.1",
