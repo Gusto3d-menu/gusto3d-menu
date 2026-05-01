@@ -135,7 +135,15 @@
         .plato-imagen-wrap {
             width: 100%; height: 210px; position: relative; overflow: hidden;
             background: linear-gradient(135deg,#1a2744 0%,#0f3460 100%);
+            cursor: pointer; /* Indica que es clickeable */
         }
+        .plato-imagen-wrap::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(37,211,102,0.1), rgba(18,140,126,0.05));
+            opacity: 0; transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .plato-imagen-wrap:active::after { opacity: 1; }
         .plato-imagen {
             width: 100%; height: 100%; object-fit: cover;
             transition: transform 0.5s ease;
@@ -145,13 +153,17 @@
         .plato-imagen-placeholder {
             width: 100%; height: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 14px;
+            gap: 14px; cursor: pointer;
+        }
+        .plato-imagen-placeholder:active .icono-plato-svg {
+            transform: scale(1.1);
         }
         .icono-plato-svg {
             width: 72px; height: 72px; border-radius: 50%;
             background: linear-gradient(135deg,rgba(37,211,102,0.2),rgba(18,140,126,0.1));
             border: 2px solid rgba(37,211,102,0.35);
             display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s ease;
         }
         .placeholder-text {
             color: rgba(255,255,255,0.3); font-size: 11px;
@@ -170,25 +182,40 @@
         }
         @keyframes shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
 
-        .plato-info { padding: 20px 22px 22px; }
+        .plato-info { 
+            padding: 22px; 
+            height: 140px; /* Altura fija para consistencia */
+            display: flex; flex-direction: column;
+        }
         .plato-nombre {
             font-family: 'Playfair Display', serif;
-            color: white; font-size: 20px; margin: 0 0 5px; line-height: 1.25;
+            color: white; font-size: 20px; margin: 0 0 8px; line-height: 1.25;
+            flex-shrink: 0;
         }
         .plato-subtitulo {
             color: rgba(255,255,255,0.35); font-size: 11px;
-            letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px;
+            letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;
+            flex-shrink: 0;
         }
-        .btn-ver-ar {
-            width: 100%; padding: 14px;
-            background: linear-gradient(90deg,#25D366,#128C7E);
-            border: none; border-radius: 14px; color: white;
-            font-family: 'Poppins', sans-serif; font-weight: 600;
-            font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase;
-            cursor: pointer; transition: all 0.2s ease;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+        .plato-descripcion {
+            color: rgba(255,255,255,0.75); 
+            font-size: 13px; 
+            line-height: 1.45;
+            flex: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
         }
-        .btn-ver-ar:active { transform: scale(0.97); opacity: 0.9; }
+        .ar-hint {
+            margin-top: 8px; 
+            color: rgba(37,211,102,0.8); 
+            font-size: 11px;
+            letter-spacing: 1px; 
+            text-transform: uppercase;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
 
         /* NAVEGACION CARRUSEL */
         .carrusel-nav {
@@ -386,6 +413,7 @@
             slide.className = 'carrusel-slide' + (posicion === 0 ? ' activo' : '');
 
             const tieneImagen = plato.imagen && plato.imagen.trim() !== '';
+            const descripcion = plato.descripcion || "Delicioso plato preparado con ingredientes frescos y de la mejor calidad.";
 
             const imgHTML = tieneImagen
                 ? `<img class="plato-imagen"
@@ -397,12 +425,12 @@
             const placeholderDisplay = tieneImagen ? 'none' : 'flex';
 
             slide.innerHTML = `
-                <div class="plato-card">
-                    <div class="plato-imagen-wrap">
+                <div class="plato-card" data-plato-idx="${idxGlobal}">
+                    <div class="plato-imagen-wrap" data-plato-idx="${idxGlobal}">
                         ${imgHTML}
-                        <div class="plato-imagen-placeholder" style="display:${placeholderDisplay};">
+                        <div class="plato-imagen-placeholder" style="display:${placeholderDisplay};" data-plato-idx="${idxGlobal}">
                             <div class="icono-plato-svg">${svgIconCategoria(catActual)}</div>
-                            <span class="placeholder-text">Ver en AR</span>
+                            <span class="placeholder-text">Toca para AR</span>
                         </div>
                         <div class="plato-shimmer"></div>
                         <div class="plato-badge-num">${posicion + 1} / ${totalPlatos}</div>
@@ -410,16 +438,14 @@
                     <div class="plato-info">
                         <h3 class="plato-nombre">${plato.nombre}</h3>
                         <p class="plato-subtitulo">${nombresCategorias[catActual]}</p>
-                        <button class="btn-ver-ar" data-idx="${idxGlobal}">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><path d="M8 2v16M16 6v16"/>
-                            </svg>
-                            VER EN REALIDAD AUMENTADA
-                        </button>
+                        <p class="plato-descripcion">${descripcion}</p>
+                        <div class="ar-hint">👆 Toca la imagen para AR</div>
                     </div>
                 </div>`;
 
-            slide.querySelector('.btn-ver-ar').addEventListener('click', () => {
+            // Event listener para la imagen/imagen-wrap (click/tap para AR)
+            const imagenWrap = slide.querySelector('.plato-imagen-wrap');
+            imagenWrap.addEventListener('click', () => {
                 mostrarPlatoAR(idxGlobal);
             });
 
