@@ -135,7 +135,7 @@
         .plato-imagen-wrap {
             width: 100%; height: 210px; position: relative; overflow: hidden;
             background: linear-gradient(135deg,#1a2744 0%,#0f3460 100%);
-            cursor: pointer; /* Indica que es clickeable */
+            cursor: pointer;
         }
         .plato-imagen-wrap::after {
             content: ''; position: absolute; inset: 0;
@@ -153,7 +153,7 @@
         .plato-imagen-placeholder {
             width: 100%; height: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 14px; cursor: pointer;
+            gap: 14px; cursor: pointer; text-align: center; padding: 20px;
         }
         .plato-imagen-placeholder:active .icono-plato-svg {
             transform: scale(1.1);
@@ -167,7 +167,7 @@
         }
         .placeholder-text {
             color: rgba(255,255,255,0.3); font-size: 11px;
-            letter-spacing: 2px; text-transform: uppercase;
+            letter-spacing: 2px; text-transform: uppercase; margin-top: 8px;
         }
         .plato-badge-num {
             position: absolute; top: 12px; right: 12px;
@@ -184,7 +184,7 @@
 
         .plato-info { 
             padding: 22px; 
-            height: 140px; /* Altura fija para consistencia */
+            height: 140px;
             display: flex; flex-direction: column;
         }
         .plato-nombre {
@@ -407,7 +407,7 @@
             return `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(37,211,102,0.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${iconos[cat] || iconos[0]}</svg>`;
         }
 
-        /* ─── CONSTRUIR SLIDE DE PLATO ─── */
+        /* ─── CONSTRUIR SLIDE DE PLATO (CORREGIDO) ─── */
         function crearSlide(plato, idxGlobal, posicion, totalPlatos) {
             const slide = document.createElement('div');
             slide.className = 'carrusel-slide' + (posicion === 0 ? ' activo' : '');
@@ -419,7 +419,7 @@
                 ? `<img class="plato-imagen"
                          src="${plato.imagen}"
                          alt="${plato.nombre}"
-                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">`
+                         onerror="this.parentNode.querySelector('.plato-imagen-placeholder').style.display='flex'; this.style.display='none';">`
                 : '';
 
             const placeholderDisplay = tieneImagen ? 'none' : 'flex';
@@ -445,7 +445,15 @@
 
             // Event listener para la imagen/imagen-wrap (click/tap para AR)
             const imagenWrap = slide.querySelector('.plato-imagen-wrap');
-            imagenWrap.addEventListener('click', () => {
+            imagenWrap.addEventListener('click', (e) => {
+                e.stopPropagation();
+                mostrarPlatoAR(idxGlobal);
+            });
+
+            // También en el placeholder por si acaso
+            const placeholder = slide.querySelector('.plato-imagen-placeholder');
+            placeholder.addEventListener('click', (e) => {
+                e.stopPropagation();
                 mostrarPlatoAR(idxGlobal);
             });
 
@@ -456,23 +464,18 @@
         function actualizarCarrusel() {
             const total = platosActuales.length;
 
-            /* Mover track */
             track.style.transform = `translateX(-${indiceActual * 100}%)`;
 
-            /* Clase activo en slides */
             document.querySelectorAll('.carrusel-slide').forEach((s, i) => {
                 s.classList.toggle('activo', i === indiceActual);
             });
 
-            /* Dots */
             document.querySelectorAll('.dot').forEach((d, i) => {
                 d.classList.toggle('activo', i === indiceActual);
             });
 
-            /* Contador */
             contador.textContent = `${indiceActual + 1} / ${total}`;
 
-            /* Flechas */
             btnPrev.classList.toggle('oculto', indiceActual === 0);
             btnNext.classList.toggle('oculto', indiceActual === total - 1);
         }
@@ -496,17 +499,14 @@
             document.getElementById('titulo-categoria').textContent = nombresCategorias[id];
             document.getElementById('badge-cantidad').textContent   = `${total} platos`;
 
-            /* Limpiar carrusel anterior */
             track.innerHTML   = '';
             dotsWrap.innerHTML = '';
 
-            /* Crear slides */
             platosActuales.forEach((plato, pos) => {
                 const idxGlobal = indices[pos];
                 track.appendChild(crearSlide(plato, idxGlobal, pos, total));
             });
 
-            /* Crear dots */
             platosActuales.forEach((_, i) => {
                 const dot = document.createElement('div');
                 dot.className = 'dot' + (i === 0 ? ' activo' : '');
@@ -602,7 +602,6 @@
                 const data = await res.json();
                 catalogo   = data.platos;
 
-                /* Botones de categoria */
                 document.querySelectorAll('.btn-categoria').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.getElementById('pantalla-categorias').classList.remove('activa');
@@ -610,14 +609,11 @@
                     });
                 });
 
-                /* Flechas carrusel */
                 btnPrev.addEventListener('click', () => irA(indiceActual - 1));
                 btnNext.addEventListener('click', () => irA(indiceActual + 1));
 
-                /* Swipe */
                 initSwipe();
 
-                /* Botones UI AR */
                 document.getElementById('ar-back-list').addEventListener('click', () => {
                     arScene.systems['mindar-image-system'].stop();
                     uiAr.style.display  = 'none';
@@ -632,7 +628,6 @@
                     document.getElementById('pantalla-categorias').classList.add('activa');
                 });
 
-                /* Ocultar loading */
                 setTimeout(() => {
                     document.getElementById('loading-screen').style.opacity = '0';
                     setTimeout(() => {
