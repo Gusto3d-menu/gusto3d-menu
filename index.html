@@ -16,7 +16,7 @@
             font-family: 'Poppins', sans-serif;
         }
 
-        /* PANTALLA DE CARGA */
+        /* ── PANTALLA DE CARGA ── */
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, #000 0%, #1a1a2e 50%, #16213e 100%);
@@ -41,7 +41,28 @@
         }
         @keyframes progress-fill { 0%{width:0%;} 100%{width:100%;} }
 
-        /* PANTALLAS BASE */
+        /* ── PANTALLA ERROR ── */
+        #error-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #000 0%, #1a1a2e 50%, #16213e 100%);
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 3500; text-align: center; padding: 30px;
+        }
+        .error-icono {
+            width: 64px; height: 64px; border-radius: 50%;
+            background: rgba(255,107,53,0.15); border: 2px solid rgba(255,107,53,0.4);
+            display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
+        }
+        .error-titulo { color: #ff6b35; font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .error-sub { color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 28px; }
+        .btn-reintentar {
+            padding: 14px 32px; background: linear-gradient(45deg,#25D366,#128C7E);
+            border: none; border-radius: 50px; color: white;
+            font-family: 'Poppins', sans-serif; font-weight: 600;
+            font-size: 13px; letter-spacing: 1px; cursor: pointer;
+        }
+
+        /* ── PANTALLAS BASE ── */
         .pantalla {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -50,12 +71,16 @@
         }
         .pantalla.activa { opacity: 1; visibility: visible; }
 
-        /* PANTALLA CATEGORIAS */
+        /* ── PANTALLA CATEGORIAS ── */
         #pantalla-categorias h1 {
             font-family: 'Playfair Display', serif;
-            color: #25D366; font-size: 28px; margin-bottom: 8px; letter-spacing: 1px;
+            color: #25D366; font-size: 28px; margin-bottom: 4px; letter-spacing: 1px;
         }
-        #pantalla-categorias p {
+        #nombre-restaurante {
+            color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 4px;
+            font-weight: 300; letter-spacing: 1px;
+        }
+        #pantalla-categorias > p {
             color: rgba(255,255,255,0.4); font-size: 12px; margin-bottom: 35px;
             letter-spacing: 2px; text-transform: uppercase;
         }
@@ -86,7 +111,7 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* PANTALLA PLATOS + CARRUSEL */
+        /* ── PANTALLA PLATOS + CARRUSEL ── */
         #pantalla-platos { justify-content: flex-start; padding-top: 0; overflow: hidden; }
         .platos-header {
             width: 100%; padding: 55px 24px 18px;
@@ -104,11 +129,11 @@
             padding: 4px 10px; border-radius: 20px; letter-spacing: 1px;
         }
 
-        /* CARRUSEL */
+        /* ── CARRUSEL ── */
         .carrusel-wrapper {
             flex: 1; width: 100%; display: flex; flex-direction: column;
             align-items: center; justify-content: center; position: relative;
-            padding-bottom: 80px; /* Espacio para el hint AR fijo */
+            padding-bottom: 80px;
         }
         .carrusel-track-outer { width: 100%; overflow: hidden; position: relative; }
         .carrusel-track {
@@ -121,7 +146,7 @@
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* TARJETA PLATO */
+        /* ── TARJETA PLATO ── */
         .plato-card {
             width: 100%; max-width: 320px;
             background: rgba(255,255,255,0.04);
@@ -129,16 +154,38 @@
             border-radius: 28px; overflow: hidden;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
             transform: scale(0.97); transition: transform 0.4s ease;
+            position: relative;
         }
         .carrusel-slide.activo .plato-card { transform: scale(1); }
 
+        /* ── BADGE DESTACADO ── */
+        .badge-destacado {
+            position: absolute; top: 12px; left: 12px;
+            background: linear-gradient(45deg,#f7971e,#ffd200);
+            color: #1a1a2e; font-size: 10px; font-weight: 700;
+            padding: 4px 10px; border-radius: 20px; letter-spacing: 1px;
+            text-transform: uppercase; z-index: 5;
+            box-shadow: 0 2px 10px rgba(247,151,30,0.5);
+        }
+
+        /* ── BADGE AGOTADO ── */
+        .badge-agotado {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 6; border-radius: 28px;
+        }
+        .badge-agotado span {
+            color: #ff6b35; font-size: 16px; font-weight: 700;
+            letter-spacing: 3px; text-transform: uppercase;
+            border: 2px solid rgba(255,107,53,0.6);
+            padding: 10px 24px; border-radius: 50px;
+        }
+
         .plato-imagen-wrap {
-            width: 100%; 
-            height: 250px;
-            position: relative; 
-            overflow: hidden;
+            width: 100%; height: 220px;
+            position: relative; overflow: hidden;
             background: linear-gradient(135deg,#1a2744 0%,#0f3460 100%);
-            cursor: pointer;
         }
         .plato-imagen-wrap::after {
             content: ''; position: absolute; inset: 0;
@@ -146,7 +193,6 @@
             opacity: 0; transition: opacity 0.3s ease;
             pointer-events: none;
         }
-        .plato-imagen-wrap:active::after { opacity: 1; }
         .plato-imagen {
             width: 100%; height: 100%; object-fit: cover;
             transition: transform 0.5s ease;
@@ -156,10 +202,7 @@
         .plato-imagen-placeholder {
             width: 100%; height: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 14px; cursor: pointer; text-align: center; padding: 20px;
-        }
-        .plato-imagen-placeholder:active .icono-plato-svg {
-            transform: scale(1.1);
+            gap: 14px; text-align: center; padding: 20px;
         }
         .icono-plato-svg {
             width: 72px; height: 72px; border-radius: 50%;
@@ -176,7 +219,7 @@
             position: absolute; top: 12px; right: 12px;
             background: rgba(0,0,0,0.55); backdrop-filter: blur(8px);
             color: #25D366; font-size: 11px; font-weight: 600;
-            padding: 4px 10px; border-radius: 20px; letter-spacing: 1px;
+            padding: 4px 10px; border-radius: 20px; letter-spacing: 1px; z-index: 4;
         }
         .plato-shimmer {
             position: absolute; inset: 0;
@@ -185,57 +228,92 @@
         }
         @keyframes shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
 
-        .plato-info { 
-            padding: 22px; 
-            height: 200px;
+        /* ── BOTON VER EN 3D ── */
+        .btn-ver-ar {
+            width: 100%;
+            padding: 10px 0;
+            background: linear-gradient(90deg, rgba(37,211,102,0.18), rgba(18,140,126,0.10));
+            border: none;
+            border-top: 1px solid rgba(37,211,102,0.25);
+            color: #25D366;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s ease;
+        }
+        .btn-ver-ar:active {
+            background: linear-gradient(90deg, rgba(37,211,102,0.35), rgba(18,140,126,0.25));
+        }
+        .btn-ver-ar svg { flex-shrink: 0; }
+
+        .plato-info {
+            padding: 18px 22px 0;
             display: flex; flex-direction: column;
         }
         .plato-nombre {
             font-family: 'Playfair Display', serif;
-            color: white; font-size: 20px; margin: 0 0 8px; line-height: 1.25;
-            flex-shrink: 0;
-        }
-        .plato-precio {
-            font-family: 'Playfair Display', serif;
-            color: #25D366; font-size: 26px; font-weight: 700;
-            margin: 4px 0 12px 0; flex-shrink: 0;
-            text-shadow: 0 2px 8px rgba(37,211,102,0.3);
-            letter-spacing: 1px;
-        }
-        /* CAMBIO: La descripción ahora ocupa el espacio del subtítulo + descripción anterior */
-        .plato-descripcion {
-            color: rgba(255,255,255,0.75); 
-            font-size: 13px; 
-            line-height: 1.45;
-            flex: 1;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 4;
-            -webkit-box-orient: vertical;
-            margin-top: 4px;
+            color: white; font-size: 20px; margin: 0 0 4px; line-height: 1.25;
         }
 
-        /* HINT AR FIJO - NUEVO */
+        /* ── PRECIOS CON TACHADO ── */
+        .precios-wrap { display: flex; align-items: baseline; gap: 10px; margin: 4px 0 10px; }
+        .plato-precio {
+            font-family: 'Playfair Display', serif;
+            color: #25D366; font-size: 24px; font-weight: 700;
+            text-shadow: 0 2px 8px rgba(37,211,102,0.3);
+        }
+        .plato-precio-anterior {
+            font-size: 14px; color: rgba(255,255,255,0.3);
+            text-decoration: line-through; font-weight: 400;
+        }
+
+        .plato-descripcion {
+            color: rgba(255,255,255,0.75);
+            font-size: 12px; line-height: 1.45;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            margin-bottom: 12px;
+        }
+
+        /* ── ALERGENOS ── */
+        .alergenos-wrap {
+            display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px;
+        }
+        .alergen-chip {
+            font-size: 9px; font-weight: 600; letter-spacing: 1px;
+            padding: 3px 8px; border-radius: 20px; text-transform: uppercase;
+            background: rgba(255,107,53,0.12); color: rgba(255,107,53,0.9);
+            border: 1px solid rgba(255,107,53,0.25);
+        }
+
+        /* ── HINT AR FIJO ── */
         .ar-hint-fijo {
             position: absolute; bottom: 20px; left: 50%;
             transform: translateX(-50%);
-            color: rgba(37,211,102,0.8); 
-            font-size: 11px;
-            letter-spacing: 1px; 
-            text-transform: uppercase;
-            font-weight: 500;
-            text-align: center;
+            color: rgba(37,211,102,0.8);
+            font-size: 11px; letter-spacing: 1px;
+            text-transform: uppercase; font-weight: 500; text-align: center;
             background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
             padding: 8px 20px; border-radius: 25px;
             border: 1px solid rgba(37,211,102,0.3);
             animation: pulse-hint 2s infinite;
-            z-index: 15;
-            display: none;
+            z-index: 15; white-space: nowrap;
         }
-        .pantalla-platos.activa .ar-hint-fijo { display: block; }
-        @keyframes pulse-hint { 0%,100%{opacity:1; transform: translateX(-50%) translateY(0px);} 50%{opacity:0.7; transform: translateX(-50%) translateY(-2px);} }
+        @keyframes pulse-hint {
+            0%,100%{ opacity:1; transform: translateX(-50%) translateY(0px); }
+            50%{ opacity:0.7; transform: translateX(-50%) translateY(-2px); }
+        }
 
-        /* NAVEGACION CARRUSEL */
+        /* ── NAVEGACION CARRUSEL ── */
         .carrusel-nav {
             position: absolute; top: 50%; transform: translateY(-50%);
             width: 38px; height: 38px; border-radius: 50%;
@@ -247,34 +325,34 @@
         .carrusel-nav:active { background: rgba(37,211,102,0.3); border-color: #25D366; }
         .carrusel-nav.izq { left: 8px; }
         .carrusel-nav.der { right: 8px; }
-        .carrusel-nav.oculto { opacity: 0; pointer-events: none; }
 
-        /* DOTS */
-        .carrusel-dots { display: flex; gap: 6px; margin-top: 18px; align-items: center; }
+        /* ── DOTS ── */
+        .carrusel-dots { display: flex; gap: 6px; margin-top: 16px; align-items: center; }
         .dot {
             width: 7px; height: 7px; border-radius: 50%;
             background: rgba(255,255,255,0.2); transition: all 0.35s ease; cursor: pointer;
         }
         .dot.activo { background: #25D366; width: 22px; border-radius: 4px; }
 
-        /* CONTADOR */
+        /* ── CONTADOR ── */
         .carrusel-contador {
             position: absolute; bottom: 4px; right: 30px;
             color: rgba(255,255,255,0.25); font-size: 11px; letter-spacing: 1px;
         }
 
-        /* BOTON VOLVER */
+        /* ── BOTON VOLVER ── */
         #btn-volver {
             position: fixed; top: 18px; left: 18px;
             width: 40px; height: 40px; border-radius: 50%;
             background: rgba(37,211,102,0.15); color: #25D366;
             border: 1.5px solid rgba(37,211,102,0.5); z-index: 2500;
-            display: none; font-size: 18px; cursor: pointer;
+            display: none; align-items: center; justify-content: center;
+            font-size: 18px; cursor: pointer;
             backdrop-filter: blur(8px); transition: all 0.2s;
         }
         #btn-volver:active { background: #25D366; color: white; }
 
-        /* UI AR */
+        /* ── UI AR ── */
         #plato-info-ar {
             position: fixed; top: 50px; width: 100%; text-align: center;
             color: white; font-family: 'Poppins', sans-serif;
@@ -293,58 +371,52 @@
         }
         .en-preparacion { color: #ff6b35 !important; animation: pulse 2s infinite; }
         @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
+
+        /* ── ANIMACION ENTRADA SLIDE ── */
+        @keyframes slideEntrada {
+            from { opacity: 0; transform: translateY(18px) scale(0.96); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .carrusel-slide.activo .plato-card {
+            animation: slideEntrada 0.38s ease forwards;
+        }
     </style>
 </head>
 <body>
 
-    <!-- CARGA -->
+    <!-- ── CARGA ── -->
     <div id="loading-screen">
         <img src="logo-gusto3d.jpg" class="logo-gusto" alt="Logo Gusto3D">
         <div class="mensaje-carga">INICIALIZANDO GUSTO3D</div>
         <div class="barra-progreso"><div class="progreso-fill"></div></div>
     </div>
 
-    <!-- CATEGORIAS -->
+    <!-- ── ERROR ── -->
+    <div id="error-screen">
+        <div class="error-icono">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+                 stroke="#ff6b35" stroke-width="2" stroke-linecap="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <div class="error-titulo">Error al cargar el menu</div>
+        <div class="error-sub">Verifica tu conexion a internet<br>o que el archivo menu.json exista</div>
+        <button class="btn-reintentar" onclick="window.location.reload()">Reintentar</button>
+    </div>
+
+    <!-- ── CATEGORIAS ── -->
     <div id="pantalla-categorias" class="pantalla">
         <h1>MENU DIGITAL 3D</h1>
+        <div id="nombre-restaurante"></div>
         <p>Selecciona una categoria</p>
-        <div class="grid-categorias">
-            <button class="btn-categoria" data-cat="0">
-                <div class="cat-icon">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M2 20h20M12 4v4M8 8h8M6 12h12M4 16h16"/>
-                    </svg>
-                </div>
-                ENTRADAS
-            </button>
-            <button class="btn-categoria" data-cat="1">
-                <div class="cat-icon">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
-                    </svg>
-                </div>
-                PLATO FUERTE
-            </button>
-            <button class="btn-categoria" data-cat="2">
-                <div class="cat-icon">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2a5 5 0 0 1 5 5c0 3-5 8-5 8S7 10 7 7a5 5 0 0 1 5-5z"/><path d="M12 15v7M8 22h8"/>
-                    </svg>
-                </div>
-                POSTRES
-            </button>
-            <button class="btn-categoria" data-cat="3">
-                <div class="cat-icon">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M8 2h8l1 10H7L8 2z"/><path d="M7 12c0 5 2 8 5 8s5-3 5-8"/>
-                    </svg>
-                </div>
-                BEBIDAS
-            </button>
+        <div class="grid-categorias" id="grid-categorias">
+            <!-- Se genera dinamicamente desde menu.json -->
         </div>
     </div>
 
-    <!-- PLATOS CON CARRUSEL -->
+    <!-- ── PLATOS CON CARRUSEL ── -->
     <div id="pantalla-platos" class="pantalla">
         <div class="platos-header">
             <h2 id="titulo-categoria"></h2>
@@ -355,31 +427,38 @@
                 <div class="carrusel-track" id="carrusel-track"></div>
             </div>
             <button class="carrusel-nav izq" id="btn-prev">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
             </button>
             <button class="carrusel-nav der" id="btn-next">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
             </button>
             <div class="carrusel-dots" id="carrusel-dots"></div>
             <div class="carrusel-contador" id="carrusel-contador"></div>
-            <!-- HINT AR FIJO - NUEVO -->
-            <div class="ar-hint-fijo">👆 Toca la imagen para ver en AR</div>
+            <div class="ar-hint-fijo">Toca la imagen o "Ver en 3D" para AR</div>
         </div>
     </div>
 
-    <!-- BOTON VOLVER -->
+    <!-- ── BOTON VOLVER ── -->
     <button id="btn-volver">&#8592;</button>
 
-    <!-- UI AR -->
+    <!-- ── UI AR ── -->
     <div id="plato-info-ar"></div>
     <div id="ui-ar">
         <button class="btn-ar" id="ar-back-list">VER LISTA</button>
         <button class="btn-ar" id="ar-back-menu">CATEGORIAS</button>
     </div>
 
-    <!-- ESCENA AR -->
+    <!-- ── ESCENA AR ── -->
     <a-scene
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; filterMinCF: 0.001; filterBeta: 0.01;"
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;
+                      uiLoading: no; uiScanning: no;
+                      filterMinCF: 0.001; filterBeta: 0.01;"
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
         id="ar-scene">
@@ -392,64 +471,132 @@
     </a-scene>
 
     <script>
-        /* ─── REFERENCIAS DOM ─── */
-        const visor      = document.getElementById("visor");
-        const contenedor = document.getElementById("contenedor-estabilizador");
-        const info       = document.getElementById("plato-info-ar");
-        const arScene    = document.getElementById("ar-scene");
-        const uiAr       = document.getElementById("ui-ar");
-        const track      = document.getElementById("carrusel-track");
-        const dotsWrap   = document.getElementById("carrusel-dots");
-        const contador   = document.getElementById("carrusel-contador");
-        const btnPrev    = document.getElementById("btn-prev");
-        const btnNext    = document.getElementById("btn-next");
+    /* ══════════════════════════════════════════
+       REFERENCIAS DOM
+    ══════════════════════════════════════════ */
+    const visor      = document.getElementById("visor");
+    const contenedor = document.getElementById("contenedor-estabilizador");
+    const info       = document.getElementById("plato-info-ar");
+    const arScene    = document.getElementById("ar-scene");
+    const uiAr       = document.getElementById("ui-ar");
+    const track      = document.getElementById("carrusel-track");
+    const dotsWrap   = document.getElementById("carrusel-dots");
+    const contador   = document.getElementById("carrusel-contador");
+    const btnPrev    = document.getElementById("btn-prev");
+    const btnNext    = document.getElementById("btn-next");
 
-        /* ─── ESTADO ─── */
-        let catalogo        = [];
-        let catActual       = -1;
-        let indiceActual    = 0;
-        let platosActuales  = [];
-        let touchStartX     = 0;
-        let touchStartY     = 0;
-        let arrastrando     = false;
+    /* ══════════════════════════════════════════
+       ESTADO GLOBAL
+    ══════════════════════════════════════════ */
+    let catalogo       = [];
+    let categorias     = [];
+    let catActual      = -1;
+    let indiceActual   = 0;
+    let platosActuales = [];
+    let touchStartX    = 0;
+    let touchStartY    = 0;
+    let arrastrando    = false;
 
-        const nombresCategorias = ["Entradas", "Plato Fuerte", "Postres", "Bebidas"];
-        const mapeoPlatos = { 0: [0,1], 1: [2,3], 2: [4,5], 3: [6,7] };
+    /* ══════════════════════════════════════════
+       ICONOS SVG POR CATEGORIA (por icono slug)
+    ══════════════════════════════════════════ */
+    const ICONOS_CAT = {
+        entradas: '<path d="M2 20h20M12 4v4M8 8h8M6 12h12M4 16h16"/>',
+        fuerte:   '<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>',
+        postres:  '<circle cx="12" cy="9" r="5"/><path d="M12 14v8M8 22h8"/>',
+        bebidas:  '<path d="M8 2h8l1 10H7L8 2z"/><path d="M7 12c0 5 2 8 5 8s5-3 5-8"/>',
+        default:  '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>'
+    };
 
-        /* ─── ICONO SVG PLACEHOLDER SEGUN CATEGORIA ─── */
-        function svgIconCategoria(cat) {
-            const iconos = [
-                '<path d="M2 20h20M12 4v4M8 8h8M6 12h12M4 16h16"/>',
-                '<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>',
-                '<circle cx="12" cy="9" r="5"/><path d="M12 14v8M8 22h8"/>',
-                '<path d="M8 2h8l1 10H7L8 2z"/><path d="M7 12c0 5 2 8 5 8s5-3 5-8"/>'
-            ];
-            return `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(37,211,102,0.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${iconos[cat] || iconos[0]}</svg>`;
+    function svgIconCategoria(iconoSlug) {
+        const paths = ICONOS_CAT[iconoSlug] || ICONOS_CAT.default;
+        return `<svg width="34" height="34" viewBox="0 0 24 24" fill="none"
+                     stroke="rgba(37,211,102,0.8)" stroke-width="1.5"
+                     stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+    }
+
+    function svgIconBotonCat(iconoSlug) {
+        const paths = ICONOS_CAT[iconoSlug] || ICONOS_CAT.default;
+        return `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+                     stroke="white" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+    }
+
+    /* ══════════════════════════════════════════
+       GENERAR GRID DE CATEGORIAS DINAMICAMENTE
+    ══════════════════════════════════════════ */
+    function generarGridCategorias() {
+        const grid = document.getElementById('grid-categorias');
+        grid.innerHTML = '';
+        categorias.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-categoria';
+            btn.dataset.cat = cat.id;
+            btn.innerHTML = `
+                <div class="cat-icon">${svgIconBotonCat(cat.icono)}</div>
+                ${cat.nombre.toUpperCase()}`;
+            btn.addEventListener('click', () => {
+                document.getElementById('pantalla-categorias').classList.remove('activa');
+                abrirCategoria(cat.id);
+            });
+            grid.appendChild(btn);
+        });
+    }
+
+    /* ══════════════════════════════════════════
+       CREAR SLIDE DE PLATO
+    ══════════════════════════════════════════ */
+    function crearSlide(plato, idxGlobal, posicion, totalPlatos) {
+        const slide = document.createElement('div');
+        slide.className = 'carrusel-slide' + (posicion === 0 ? ' activo' : '');
+
+        const tieneImagen = plato.imagen && plato.imagen.trim() !== '';
+        const descripcion = plato.descripcion || "Delicioso plato preparado con ingredientes frescos.";
+        const catIcono    = categorias.find(c => c.id === catActual)?.icono || 'default';
+
+        /* ── imagen ── */
+        const imgHTML = tieneImagen
+            ? `<img class="plato-imagen" loading="lazy" decoding="async"
+                     src="${plato.imagen}" alt="${plato.nombre}"
+                     onerror="this.parentNode.querySelector('.plato-imagen-placeholder').style.display='flex';
+                              this.style.display='none';">`
+            : '';
+
+        /* ── precio con tachado ── */
+        const precioHTML = plato.precio_anterior
+            ? `<span class="plato-precio">$${plato.precio || 'Consultar'}</span>
+               <span class="plato-precio-anterior">$${plato.precio_anterior}</span>`
+            : `<span class="plato-precio">$${plato.precio || 'Consultar'}</span>`;
+
+        /* ── alergenos ── */
+        let alergenosHTML = '';
+        if (plato.alergenos && plato.alergenos.length > 0) {
+            const chips = plato.alergenos
+                .map(a => `<span class="alergen-chip">${a}</span>`)
+                .join('');
+            alergenosHTML = `<div class="alergenos-wrap">${chips}</div>`;
         }
 
-        /* ─── CONSTRUIR SLIDE DE PLATO (MODIFICADO) ─── */
-        function crearSlide(plato, idxGlobal, posicion, totalPlatos) {
-            const slide = document.createElement('div');
-            slide.className = 'carrusel-slide' + (posicion === 0 ? ' activo' : '');
+        /* ── badge destacado ── */
+        const badgeDestacado = plato.destacado
+            ? `<div class="badge-destacado">Recomendado</div>` : '';
 
-            const tieneImagen = plato.imagen && plato.imagen.trim() !== '';
-            const descripcion = plato.descripcion || "Delicioso plato preparado con ingredientes frescos y de la mejor calidad.";
+        /* ── badge agotado ── */
+        const badgeAgotado = (plato.disponible === false)
+            ? `<div class="badge-agotado"><span>Agotado</span></div>` : '';
 
-            const imgHTML = tieneImagen
-                ? `<img class="plato-imagen"
-                         src="${plato.imagen}"
-                         alt="${plato.nombre}"
-                         onerror="this.parentNode.querySelector('.plato-imagen-placeholder').style.display='flex'; this.style.display='none';">`
-                : '';
-
-            const placeholderDisplay = tieneImagen ? 'none' : 'flex';
+        const disponibleAttr = (plato.disponible === false) ? 'data-agotado="true"' : '';
 
         slide.innerHTML = `
-            <div class="plato-card" data-plato-idx="${idxGlobal}">
+            <div class="plato-card" data-plato-idx="${idxGlobal}" ${disponibleAttr}>
+                ${badgeAgotado}
+                ${badgeDestacado}
                 <div class="plato-imagen-wrap" data-plato-idx="${idxGlobal}">
                     ${imgHTML}
-                    <div class="plato-imagen-placeholder" style="display:${placeholderDisplay};" data-plato-idx="${idxGlobal}">
-                        <div class="icono-plato-svg">${svgIconCategoria(catActual)}</div>
+                    <div class="plato-imagen-placeholder"
+                         style="display:${tieneImagen ? 'none' : 'flex'};"
+                         data-plato-idx="${idxGlobal}">
+                        <div class="icono-plato-svg">${svgIconCategoria(catIcono)}</div>
                         <span class="placeholder-text">Toca para AR</span>
                     </div>
                     <div class="plato-shimmer"></div>
@@ -457,208 +604,271 @@
                 </div>
                 <div class="plato-info">
                     <h3 class="plato-nombre">${plato.nombre}</h3>
-                    <div class="plato-precio">$${plato.precio || 'Consultar'}</div>
+                    <div class="precios-wrap">${precioHTML}</div>
                     <p class="plato-descripcion">${descripcion}</p>
+                    ${alergenosHTML}
                 </div>
+                <button class="btn-ver-ar" data-plato-idx="${idxGlobal}"
+                        ${plato.disponible === false ? 'disabled style="opacity:0.35;cursor:not-allowed;"' : ''}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                        <path d="M1 6l5-3 6 3 5-3 6 3v12l-6 3-5-3-6 3-5-3V6z"/>
+                        <line x1="7" y1="3" x2="7" y2="15"/>
+                        <line x1="12" y1="6" x2="12" y2="18"/>
+                        <line x1="17" y1="3" x2="17" y2="15"/>
+                    </svg>
+                    VER EN 3D
+                </button>
             </div>`;
 
-            // Event listener para la imagen/imagen-wrap (click/tap para AR)
+        /* ── eventos ── */
+        if (plato.disponible !== false) {
             const imagenWrap = slide.querySelector('.plato-imagen-wrap');
-            imagenWrap.addEventListener('click', (e) => {
+            imagenWrap.style.cursor = 'pointer';
+            imagenWrap.addEventListener('click', e => {
                 e.stopPropagation();
                 mostrarPlatoAR(idxGlobal);
             });
 
-            // También en el placeholder por si acaso
             const placeholder = slide.querySelector('.plato-imagen-placeholder');
-            placeholder.addEventListener('click', (e) => {
+            placeholder.addEventListener('click', e => {
                 e.stopPropagation();
                 mostrarPlatoAR(idxGlobal);
             });
 
-            return slide;
-        }
-
-        /* ─── ACTUALIZAR CARRUSEL ─── */
-        function actualizarCarrusel() {
-            const total = platosActuales.length;
-
-            track.style.transform = `translateX(-${indiceActual * 100}%)`;
-
-            document.querySelectorAll('.carrusel-slide').forEach((s, i) => {
-                s.classList.toggle('activo', i === indiceActual);
-            });
-
-            document.querySelectorAll('.dot').forEach((d, i) => {
-                d.classList.toggle('activo', i === indiceActual);
-            });
-
-            contador.textContent = `${indiceActual + 1} / ${total}`;
-
-            btnPrev.classList.toggle('oculto', indiceActual === 0);
-            btnNext.classList.toggle('oculto', indiceActual === total - 1);
-        }
-
-        function irA(idx) {
-            const total = platosActuales.length;
-            if (idx < 0 || idx >= total) return;
-            indiceActual = idx;
-            actualizarCarrusel();
-        }
-
-        /* ─── ABRIR CATEGORIA CON CARRUSEL ─── */
-        function abrirCategoria(id) {
-            catActual     = id;
-            indiceActual  = 0;
-            const indices = mapeoPlatos[id] || [];
-
-            platosActuales = indices.map(i => catalogo[i]).filter(Boolean);
-            const total    = platosActuales.length;
-
-            document.getElementById('titulo-categoria').textContent = nombresCategorias[id];
-            document.getElementById('badge-cantidad').textContent   = `${total} platos`;
-
-            track.innerHTML   = '';
-            dotsWrap.innerHTML = '';
-
-            platosActuales.forEach((plato, pos) => {
-                const idxGlobal = indices[pos];
-                track.appendChild(crearSlide(plato, idxGlobal, pos, total));
-            });
-
-            platosActuales.forEach((_, i) => {
-                const dot = document.createElement('div');
-                dot.className = 'dot' + (i === 0 ? ' activo' : '');
-                dot.addEventListener('click', () => irA(i));
-                dotsWrap.appendChild(dot);
-            });
-
-            actualizarCarrusel();
-
-            document.getElementById('pantalla-platos').classList.add('activa');
-            document.getElementById('btn-volver').style.display = 'flex';
-            document.getElementById('btn-volver').onclick = () => {
-                document.getElementById('pantalla-platos').classList.remove('activa');
-                document.getElementById('pantalla-categorias').classList.add('activa');
-                document.getElementById('btn-volver').style.display = 'none';
-            };
-        }
-
-        /* ─── SWIPE TOUCH ─── */
-        function initSwipe() {
-            const outer = document.getElementById('carrusel-outer');
-
-            outer.addEventListener('touchstart', e => {
-                touchStartX = e.touches[0].clientX;
-                touchStartY = e.touches[0].clientY;
-                arrastrando = false;
-            }, { passive: true });
-
-            outer.addEventListener('touchmove', e => {
-                const dx = Math.abs(e.touches[0].clientX - touchStartX);
-                const dy = Math.abs(e.touches[0].clientY - touchStartY);
-                if (dx > dy && dx > 8) arrastrando = true;
-            }, { passive: true });
-
-            outer.addEventListener('touchend', e => {
-                if (!arrastrando) return;
-                const diff = touchStartX - e.changedTouches[0].clientX;
-                if (Math.abs(diff) > 45) {
-                    diff > 0 ? irA(indiceActual + 1) : irA(indiceActual - 1);
-                }
-                arrastrando = false;
+            const btnAR = slide.querySelector('.btn-ver-ar');
+            btnAR.addEventListener('click', e => {
+                e.stopPropagation();
+                mostrarPlatoAR(idxGlobal);
             });
         }
 
-        /* ─── MOSTRAR PLATO EN AR ─── */
-        visor.addEventListener('model-loaded', () => {
-            const p = catalogo[window.platoSeleccionado];
-            if (!p) return;
-            contenedor.setAttribute("position", p.pos);
-            contenedor.setAttribute("animation__escala", {
-                property: "scale", to: p.escala,
-                dur: p.anim_dur || 1100, easing: "easeOutElastic"
-            });
-            visor.setAttribute("animation__rotar", {
-                property: "rotation", from: p.rot_inicial, to: p.rot_final,
-                dur: p.velocidad, loop: true, easing: "linear"
-            });
+        return slide;
+    }
+
+    /* ══════════════════════════════════════════
+       ACTUALIZAR CARRUSEL
+    ══════════════════════════════════════════ */
+    function actualizarCarrusel() {
+        const total = platosActuales.length;
+
+        track.style.transform = `translateX(-${indiceActual * 100}%)`;
+
+        document.querySelectorAll('.carrusel-slide').forEach((s, i) => {
+            const era = s.classList.contains('activo');
+            s.classList.toggle('activo', i === indiceActual);
+            /* Forzar re-animacion al activar */
+            if (!era && i === indiceActual) {
+                const card = s.querySelector('.plato-card');
+                if (card) { card.style.animation = 'none'; void card.offsetWidth; card.style.animation = ''; }
+            }
         });
 
-        async function mostrarPlatoAR(index) {
-            window.platoSeleccionado = index;
-            const p = catalogo[index];
+        document.querySelectorAll('.dot').forEach((d, i) => {
+            d.classList.toggle('activo', i === indiceActual);
+        });
 
-            document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
+        contador.textContent = `${indiceActual + 1} / ${total}`;
+    }
+
+    /* Loop circular: nunca se bloquea en extremos */
+    function irA(idx) {
+        const total = platosActuales.length;
+        indiceActual = (idx + total) % total;
+        actualizarCarrusel();
+    }
+
+    /* ══════════════════════════════════════════
+       ABRIR CATEGORIA
+    ══════════════════════════════════════════ */
+    function abrirCategoria(catId) {
+        catActual    = catId;
+        indiceActual = 0;
+
+        /* Filtrar platos por campo "categoria" del JSON */
+        platosActuales = catalogo.filter(p => p.categoria === catId);
+        const total    = platosActuales.length;
+
+        const catNombre = categorias.find(c => c.id === catId)?.nombre || 'Menu';
+        document.getElementById('titulo-categoria').textContent = catNombre;
+        document.getElementById('badge-cantidad').textContent   = `${total} plato${total !== 1 ? 's' : ''}`;
+
+        track.innerHTML    = '';
+        dotsWrap.innerHTML = '';
+
+        /* Indice global real en catalogo */
+        platosActuales.forEach((plato, pos) => {
+            const idxGlobal = catalogo.indexOf(plato);
+            track.appendChild(crearSlide(plato, idxGlobal, pos, total));
+        });
+
+        platosActuales.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'dot' + (i === 0 ? ' activo' : '');
+            dot.addEventListener('click', () => irA(i));
+            dotsWrap.appendChild(dot);
+        });
+
+        actualizarCarrusel();
+
+        document.getElementById('pantalla-platos').classList.add('activa');
+        document.getElementById('btn-volver').style.display = 'flex';
+        document.getElementById('btn-volver').onclick = () => {
+            document.getElementById('pantalla-platos').classList.remove('activa');
+            document.getElementById('pantalla-categorias').classList.add('activa');
             document.getElementById('btn-volver').style.display = 'none';
+        };
+    }
 
-            contenedor.setAttribute("scale", "0.01 0.01 0.01");
-            visor.removeAttribute("gltf-model");
+    /* ══════════════════════════════════════════
+       SWIPE TOUCH
+    ══════════════════════════════════════════ */
+    function initSwipe() {
+        const outer = document.getElementById('carrusel-outer');
 
-            const mindarSystem = arScene.systems['mindar-image-system'];
-            await mindarSystem.start();
+        outer.addEventListener('touchstart', e => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            arrastrando = false;
+        }, { passive: true });
 
-            try {
-                const res = await fetch(p.archivo, { method: 'HEAD' });
-                if (res.ok) {
-                    visor.setAttribute("gltf-model", p.archivo);
-                    info.textContent = p.nombre;
-                    info.classList.remove("en-preparacion");
-                } else { throw new Error(); }
-            } catch {
-                info.textContent = "En preparacion...";
-                info.classList.add("en-preparacion");
+        outer.addEventListener('touchmove', e => {
+            const dx = Math.abs(e.touches[0].clientX - touchStartX);
+            const dy = Math.abs(e.touches[0].clientY - touchStartY);
+            if (dx > dy && dx > 8) arrastrando = true;
+        }, { passive: true });
+
+        outer.addEventListener('touchend', e => {
+            if (!arrastrando) return;
+            const diff = touchStartX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 45) {
+                diff > 0 ? irA(indiceActual + 1) : irA(indiceActual - 1);
+            }
+            arrastrando = false;
+        });
+    }
+
+    /* ══════════════════════════════════════════
+       PRECARGA DE MODELOS PRIORITARIOS
+    ══════════════════════════════════════════ */
+    function precargarModelos() {
+        const prioritarios = catalogo.filter(p => p.destacado).slice(0, 3);
+        prioritarios.forEach(p => {
+            const link = document.createElement('link');
+            link.rel = 'prefetch'; link.href = p.archivo;
+            document.head.appendChild(link);
+        });
+    }
+
+    /* ══════════════════════════════════════════
+       MOSTRAR PLATO EN AR
+    ══════════════════════════════════════════ */
+    visor.addEventListener('model-loaded', () => {
+        const p = catalogo[window.platoSeleccionado];
+        if (!p) return;
+        contenedor.setAttribute("position", p.pos);
+        contenedor.setAttribute("animation__escala", {
+            property: "scale", to: p.escala,
+            dur: p.anim_dur || 1100, easing: "easeOutElastic"
+        });
+        visor.setAttribute("animation__rotar", {
+            property: "rotation", from: p.rot_inicial, to: p.rot_final,
+            dur: p.velocidad, loop: true, easing: "linear"
+        });
+    });
+
+    async function mostrarPlatoAR(index) {
+        window.platoSeleccionado = index;
+        const p = catalogo[index];
+
+        document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
+        document.getElementById('btn-volver').style.display = 'none';
+
+        contenedor.setAttribute("scale", "0.01 0.01 0.01");
+        visor.removeAttribute("gltf-model");
+
+        const mindarSystem = arScene.systems['mindar-image-system'];
+        await mindarSystem.start();
+
+        try {
+            const res = await fetch(p.archivo, { method: 'HEAD' });
+            if (res.ok) {
+                visor.setAttribute("gltf-model", p.archivo);
+                info.textContent = p.nombre;
+                info.classList.remove("en-preparacion");
+            } else { throw new Error(); }
+        } catch {
+            info.textContent = "En preparacion...";
+            info.classList.add("en-preparacion");
+        }
+
+        info.style.display = 'block';
+        uiAr.style.display = 'flex';
+    }
+
+    /* ══════════════════════════════════════════
+       INIT PRINCIPAL
+    ══════════════════════════════════════════ */
+    async function init() {
+        try {
+            const res  = await fetch('./menu.json');
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+
+            catalogo   = data.platos;
+            categorias = data.categorias;
+
+            /* Nombre del restaurante */
+            const nombreRest = data.restaurante?.nombre || '';
+            if (nombreRest) {
+                document.getElementById('nombre-restaurante').textContent = nombreRest;
             }
 
-            info.style.display = 'block';
-            uiAr.style.display = 'flex';
-        }
+            /* Moneda dinamica (por si se quiere sobreescribir "$") */
+            window.MONEDA = data.restaurante?.moneda || 'USD';
 
-        /* ─── INIT ─── */
-        async function init() {
-            try {
-                const res  = await fetch('./menu.json');
-                const data = await res.json();
-                catalogo   = data.platos;
+            /* Generar grid de categorias dinamicamente */
+            generarGridCategorias();
 
-                document.querySelectorAll('.btn-categoria').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        document.getElementById('pantalla-categorias').classList.remove('activa');
-                        abrirCategoria(parseInt(btn.dataset.cat));
-                    });
-                });
+            /* Precarga de modelos destacados */
+            precargarModelos();
 
-                btnPrev.addEventListener('click', () => irA(indiceActual - 1));
-                btnNext.addEventListener('click', () => irA(indiceActual + 1));
+            /* Navegacion carrusel */
+            btnPrev.addEventListener('click', () => irA(indiceActual - 1));
+            btnNext.addEventListener('click', () => irA(indiceActual + 1));
+            initSwipe();
 
-                initSwipe();
+            /* Botones AR */
+            document.getElementById('ar-back-list').addEventListener('click', () => {
+                arScene.systems['mindar-image-system'].stop();
+                uiAr.style.display  = 'none';
+                info.style.display  = 'none';
+                abrirCategoria(catActual);
+            });
+            document.getElementById('ar-back-menu').addEventListener('click', () => {
+                arScene.systems['mindar-image-system'].stop();
+                uiAr.style.display  = 'none';
+                info.style.display  = 'none';
+                document.getElementById('pantalla-categorias').classList.add('activa');
+            });
 
-                document.getElementById('ar-back-list').addEventListener('click', () => {
-                    arScene.systems['mindar-image-system'].stop();
-                    uiAr.style.display  = 'none';
-                    info.style.display  = 'none';
-                    abrirCategoria(catActual);
-                });
-
-                document.getElementById('ar-back-menu').addEventListener('click', () => {
-                    arScene.systems['mindar-image-system'].stop();
-                    uiAr.style.display  = 'none';
-                    info.style.display  = 'none';
-                    document.getElementById('pantalla-categorias').classList.add('activa');
-                });
-
+            /* Fade out pantalla carga */
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.opacity = '0';
                 setTimeout(() => {
-                    document.getElementById('loading-screen').style.opacity = '0';
-                    setTimeout(() => {
-                        document.getElementById('loading-screen').style.display = 'none';
-                        document.getElementById('pantalla-categorias').classList.add('activa');
-                    }, 1200);
-                }, 4000);
+                    document.getElementById('loading-screen').style.display = 'none';
+                    document.getElementById('pantalla-categorias').classList.add('activa');
+                }, 1200);
+            }, 4000);
 
-            } catch (e) { console.error("Error cargando menu.json:", e); }
+        } catch (e) {
+            console.error("Error cargando menu.json:", e);
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('error-screen').style.display   = 'flex';
         }
+    }
 
-        window.onload = init;
+    window.onload = init;
     </script>
 </body>
 </html>
