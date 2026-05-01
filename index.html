@@ -1,217 +1,1247 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gustó3D - Menú Interactivo</title>
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
-    <style>
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; background: #000; }
-       
-        /* 🎨 PANTALLA DE CARGA (Tu diseño original) */
-        #loading-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #000 0%, #1a1a2e 50%, #16213e 100%);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 3000; transition: opacity 1.2s ease-out;
-        }
-        .logo-gusto { width: 220px; height: auto; margin-bottom: 30px; filter: drop-shadow(0 0 20px rgba(37, 211, 102, 0.5)); animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-        .mensaje-carga { color: #25D366; font-family: sans-serif; letter-spacing: 3px; font-size: 14px; text-transform: uppercase; margin-bottom: 20px; animation: pulse-text 1.5s infinite; }
-        @keyframes pulse-text { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .barra-progreso { width: 200px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; overflow: hidden; }
-        .progreso-fill { height: 100%; background: linear-gradient(90deg, #25D366, #128C7E); width: 0%; animation: progress-fill 4s ease-out forwards; }
-        @keyframes progress-fill { 0% { width: 0%; } 100% { width: 100%; } }
 
-        /* 🆕 PANTALLAS DE INTERFAZ */
-        .pantalla {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.5s ease;
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <title>Gusto3D - Menu Interactivo</title>
+
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap');
+
+
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html, body {
+
+            margin: 0; padding: 0; width: 100%; height: 100%;
+
+            overflow: hidden; position: fixed; background: #000;
+
+            font-family: 'Poppins', sans-serif;
+
         }
+
+
+
+        /* PANTALLA DE CARGA */
+
+        #loading-screen {
+
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+
+            background: linear-gradient(135deg, #000 0%, #1a1a2e 50%, #16213e 100%);
+
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+
+            z-index: 3000; transition: opacity 1.2s ease-out;
+
+        }
+
+        .logo-gusto {
+
+            width: 220px; height: auto; margin-bottom: 30px;
+
+            filter: drop-shadow(0 0 20px rgba(37,211,102,0.5));
+
+            animation: float 3s ease-in-out infinite;
+
+        }
+
+        @keyframes float { 0%,100%{transform:translateY(0px);} 50%{transform:translateY(-10px);} }
+
+        .mensaje-carga {
+
+            color: #25D366; letter-spacing: 3px; font-size: 13px;
+
+            text-transform: uppercase; margin-bottom: 20px; animation: pulse-text 1.5s infinite;
+
+        }
+
+        @keyframes pulse-text { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+        .barra-progreso { width: 200px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden; }
+
+        .progreso-fill {
+
+            height: 100%; background: linear-gradient(90deg,#25D366,#128C7E);
+
+            width: 0%; animation: progress-fill 4s ease-out forwards;
+
+        }
+
+        @keyframes progress-fill { 0%{width:0%;} 100%{width:100%;} }
+
+
+
+        /* PANTALLAS BASE */
+
+        .pantalla {
+
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+
+            background: linear-gradient(160deg,#0d1117 0%,#1a1a2e 40%,#0f3460 100%);
+
+            z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.5s ease;
+
+        }
+
         .pantalla.activa { opacity: 1; visibility: visible; }
 
-        /* BOTONES Y LISTAS */
-        .btn-categoria {
-            width: 280px; padding: 20px; margin: 10px; background: linear-gradient(45deg, #25D366, #128C7E);
-            color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-        .lista-platos { width: 85%; max-height: 50vh; overflow-y: auto; background: rgba(255,255,255,0.1); border-radius: 20px; padding: 15px; }
-        .plato-item {
-            padding: 18px; margin: 8px 0; background: rgba(37, 211, 102, 0.15);
-            border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: white;
-            display: flex; justify-content: space-between; font-family: sans-serif; cursor: pointer;
+
+
+        /* PANTALLA CATEGORIAS */
+
+        #pantalla-categorias h1 {
+
+            font-family: 'Playfair Display', serif;
+
+            color: #25D366; font-size: 28px; margin-bottom: 8px; letter-spacing: 1px;
+
         }
 
-        /* UI SOBRE AR */
-        #plato-info { position: fixed; top: 50px; width: 100%; text-align: center; color: white; font-family: sans-serif; font-size: 22px; font-weight: bold; text-shadow: 0 2px 10px #000; z-index: 1001; display: none; }
-        #ui-ar { position: fixed; bottom: 40px; width: 100%; display: none; justify-content: center; gap: 15px; z-index: 1001; }
-        .btn-ar { padding: 15px 25px; background: linear-gradient(45deg, #25D366, #128C7E); color: white; border: 2px solid white; border-radius: 50px; font-weight: bold; }
-       
-        #btn-volver { position: fixed; top: 25px; left: 25px; width: 45px; height: 45px; border-radius: 50%; background: #25D366; color: white; border: 2px solid white; z-index: 2500; display: none; font-size: 20px; }
-       
+        #pantalla-categorias p {
+
+            color: rgba(255,255,255,0.4); font-size: 12px; margin-bottom: 35px;
+
+            letter-spacing: 2px; text-transform: uppercase;
+
+        }
+
+        .grid-categorias {
+
+            display: grid; grid-template-columns: 1fr 1fr;
+
+            gap: 14px; width: 88%; max-width: 360px;
+
+        }
+
+        .btn-categoria {
+
+            position: relative; padding: 28px 10px 22px;
+
+            background: rgba(255,255,255,0.04);
+
+            border: 1px solid rgba(37,211,102,0.25);
+
+            border-radius: 20px; color: white; cursor: pointer;
+
+            text-transform: uppercase; font-family: 'Poppins', sans-serif;
+
+            font-weight: 600; font-size: 12px; letter-spacing: 1.5px;
+
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+
+            transition: all 0.3s ease; overflow: hidden;
+
+        }
+
+        .btn-categoria::before {
+
+            content: ''; position: absolute; inset: 0;
+
+            background: linear-gradient(135deg,rgba(37,211,102,0.15),rgba(18,140,126,0.05));
+
+            opacity: 0; transition: opacity 0.3s;
+
+        }
+
+        .btn-categoria:active::before { opacity: 1; }
+
+        .btn-categoria:active { transform: scale(0.97); border-color: #25D366; }
+
+        .cat-icon {
+
+            width: 52px; height: 52px; border-radius: 14px;
+
+            background: linear-gradient(135deg,#25D366,#128C7E);
+
+            display: flex; align-items: center; justify-content: center;
+
+        }
+
+
+
+        /* PANTALLA PLATOS + CARRUSEL */
+
+        #pantalla-platos { justify-content: flex-start; padding-top: 0; overflow: hidden; }
+
+        .platos-header {
+
+            width: 100%; padding: 55px 24px 18px;
+
+            display: flex; align-items: center; gap: 14px;
+
+            background: linear-gradient(180deg,rgba(13,17,23,0.95) 70%,transparent);
+
+            position: relative; z-index: 10;
+
+        }
+
+        #titulo-categoria {
+
+            font-family: 'Playfair Display', serif;
+
+            color: #25D366; font-size: 24px; margin: 0; flex: 1;
+
+        }
+
+        .cat-badge {
+
+            font-size: 11px; color: rgba(255,255,255,0.4);
+
+            background: rgba(255,255,255,0.07);
+
+            padding: 4px 10px; border-radius: 20px; letter-spacing: 1px;
+
+        }
+
+
+
+        /* CARRUSEL */
+
+        .carrusel-wrapper {
+
+            flex: 1; width: 100%; display: flex; flex-direction: column;
+
+            align-items: center; justify-content: center; position: relative;
+
+            padding-bottom: 20px;
+
+        }
+
+        .carrusel-track-outer { width: 100%; overflow: hidden; position: relative; }
+
+        .carrusel-track {
+
+            display: flex;
+
+            transition: transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94);
+
+            will-change: transform;
+
+        }
+
+        .carrusel-slide {
+
+            min-width: 100%; padding: 0 30px;
+
+            display: flex; justify-content: center; align-items: center;
+
+        }
+
+
+
+        /* TARJETA PLATO */
+
+        .plato-card {
+
+            width: 100%; max-width: 320px;
+
+            background: rgba(255,255,255,0.04);
+
+            border: 1px solid rgba(255,255,255,0.1);
+
+            border-radius: 28px; overflow: hidden;
+
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+
+            transform: scale(0.97); transition: transform 0.4s ease;
+
+        }
+
+        .carrusel-slide.activo .plato-card { transform: scale(1); }
+
+
+
+        .plato-imagen-wrap {
+
+            width: 100%; height: 210px; position: relative; overflow: hidden;
+
+            background: linear-gradient(135deg,#1a2744 0%,#0f3460 100%);
+
+        }
+
+        .plato-imagen {
+
+            width: 100%; height: 100%; object-fit: cover;
+
+            transition: transform 0.5s ease;
+
+        }
+
+        .plato-card:active .plato-imagen { transform: scale(1.04); }
+
+
+
+        .plato-imagen-placeholder {
+
+            width: 100%; height: 100%;
+
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+
+            gap: 14px;
+
+        }
+
+        .icono-plato-svg {
+
+            width: 72px; height: 72px; border-radius: 50%;
+
+            background: linear-gradient(135deg,rgba(37,211,102,0.2),rgba(18,140,126,0.1));
+
+            border: 2px solid rgba(37,211,102,0.35);
+
+            display: flex; align-items: center; justify-content: center;
+
+        }
+
+        .placeholder-text {
+
+            color: rgba(255,255,255,0.3); font-size: 11px;
+
+            letter-spacing: 2px; text-transform: uppercase;
+
+        }
+
+        .plato-badge-num {
+
+            position: absolute; top: 12px; right: 12px;
+
+            background: rgba(0,0,0,0.55); backdrop-filter: blur(8px);
+
+            color: #25D366; font-size: 11px; font-weight: 600;
+
+            padding: 4px 10px; border-radius: 20px; letter-spacing: 1px;
+
+        }
+
+        .plato-shimmer {
+
+            position: absolute; inset: 0;
+
+            background: linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.06) 50%,transparent 60%);
+
+            background-size: 200% 100%; animation: shimmer 3s infinite;
+
+        }
+
+        @keyframes shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+
+
+
+        .plato-info { padding: 20px 22px 22px; }
+
+        .plato-nombre {
+
+            font-family: 'Playfair Display', serif;
+
+            color: white; font-size: 20px; margin: 0 0 5px; line-height: 1.25;
+
+        }
+
+        .plato-subtitulo {
+
+            color: rgba(255,255,255,0.35); font-size: 11px;
+
+            letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px;
+
+        }
+
+        .btn-ver-ar {
+
+            width: 100%; padding: 14px;
+
+            background: linear-gradient(90deg,#25D366,#128C7E);
+
+            border: none; border-radius: 14px; color: white;
+
+            font-family: 'Poppins', sans-serif; font-weight: 600;
+
+            font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase;
+
+            cursor: pointer; transition: all 0.2s ease;
+
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+
+        }
+
+        .btn-ver-ar:active { transform: scale(0.97); opacity: 0.9; }
+
+
+
+        /* NAVEGACION CARRUSEL */
+
+        .carrusel-nav {
+
+            position: absolute; top: 50%; transform: translateY(-50%);
+
+            width: 38px; height: 38px; border-radius: 50%;
+
+            background: rgba(255,255,255,0.08); backdrop-filter: blur(6px);
+
+            border: 1px solid rgba(255,255,255,0.15);
+
+            color: white; display: flex; align-items: center; justify-content: center;
+
+            cursor: pointer; transition: all 0.2s; z-index: 10;
+
+        }
+
+        .carrusel-nav:active { background: rgba(37,211,102,0.3); border-color: #25D366; }
+
+        .carrusel-nav.izq { left: 8px; }
+
+        .carrusel-nav.der { right: 8px; }
+
+        .carrusel-nav.oculto { opacity: 0; pointer-events: none; }
+
+
+
+        /* DOTS */
+
+        .carrusel-dots { display: flex; gap: 6px; margin-top: 18px; align-items: center; }
+
+        .dot {
+
+            width: 7px; height: 7px; border-radius: 50%;
+
+            background: rgba(255,255,255,0.2); transition: all 0.35s ease; cursor: pointer;
+
+        }
+
+        .dot.activo { background: #25D366; width: 22px; border-radius: 4px; }
+
+
+
+        /* CONTADOR */
+
+        .carrusel-contador {
+
+            position: absolute; bottom: 4px; right: 30px;
+
+            color: rgba(255,255,255,0.25); font-size: 11px; letter-spacing: 1px;
+
+        }
+
+
+
+        /* BOTON VOLVER */
+
+        #btn-volver {
+
+            position: fixed; top: 18px; left: 18px;
+
+            width: 40px; height: 40px; border-radius: 50%;
+
+            background: rgba(37,211,102,0.15); color: #25D366;
+
+            border: 1.5px solid rgba(37,211,102,0.5); z-index: 2500;
+
+            display: none; font-size: 18px; cursor: pointer;
+
+            backdrop-filter: blur(8px); transition: all 0.2s;
+
+        }
+
+        #btn-volver:active { background: #25D366; color: white; }
+
+
+
+        /* UI AR */
+
+        #plato-info-ar {
+
+            position: fixed; top: 50px; width: 100%; text-align: center;
+
+            color: white; font-family: 'Poppins', sans-serif;
+
+            font-size: 20px; font-weight: 600; text-shadow: 0 2px 10px #000;
+
+            z-index: 1001; display: none; letter-spacing: 0.5px;
+
+        }
+
+        #ui-ar {
+
+            position: fixed; bottom: 40px; width: 100%;
+
+            display: none; justify-content: center; gap: 12px; z-index: 1001;
+
+        }
+
+        .btn-ar {
+
+            padding: 14px 22px; background: linear-gradient(45deg,#25D366,#128C7E);
+
+            color: white; border: 2px solid rgba(255,255,255,0.3);
+
+            border-radius: 50px; font-family: 'Poppins', sans-serif;
+
+            font-weight: 600; font-size: 12px; letter-spacing: 1px; cursor: pointer;
+
+        }
+
         .en-preparacion { color: #ff6b35 !important; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
+
     </style>
+
 </head>
+
 <body>
 
+
+
+    <!-- CARGA -->
+
     <div id="loading-screen">
-        <img src="logo-banco.jpg" class="logo-gusto" alt="Logo">
-        <div class="mensaje-carga">INICIALIZANDO GUSTÓ3D</div>
+
+        <img src="logo-banco.jpg" class="logo-gusto" alt="Logo Gusto3D">
+
+        <div class="mensaje-carga">INICIALIZANDO GUSTO3D</div>
+
         <div class="barra-progreso"><div class="progreso-fill"></div></div>
+
     </div>
+
+
+
+    <!-- CATEGORIAS -->
 
     <div id="pantalla-categorias" class="pantalla">
-        <h1 style="color: #25D366; font-family: sans-serif; margin-bottom: 30px;">MENU DIGITAL 3D</h1>
-        <button class="btn-categoria" data-cat="0">🥗 ENTRADAS</button>
-        <button class="btn-categoria" data-cat="1">🍖 PLATO FUERTE</button>
-        <button class="btn-categoria" data-cat="2">🍰 POSTRES</button>
-        <button class="btn-categoria" data-cat="3">🥤 BEBIDAS</button>
+
+        <h1>MENU DIGITAL 3D</h1>
+
+        <p>Selecciona una categoria</p>
+
+        <div class="grid-categorias">
+
+            <button class="btn-categoria" data-cat="0">
+
+                <div class="cat-icon">
+
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                        <path d="M2 20h20M12 4v4M8 8h8M6 12h12M4 16h16"/>
+
+                    </svg>
+
+                </div>
+
+                ENTRADAS
+
+            </button>
+
+            <button class="btn-categoria" data-cat="1">
+
+                <div class="cat-icon">
+
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                        <path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+
+                    </svg>
+
+                </div>
+
+                PLATO FUERTE
+
+            </button>
+
+            <button class="btn-categoria" data-cat="2">
+
+                <div class="cat-icon">
+
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                        <path d="M12 2a5 5 0 0 1 5 5c0 3-5 8-5 8S7 10 7 7a5 5 0 0 1 5-5z"/><path d="M12 15v7M8 22h8"/>
+
+                    </svg>
+
+                </div>
+
+                POSTRES
+
+            </button>
+
+            <button class="btn-categoria" data-cat="3">
+
+                <div class="cat-icon">
+
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                        <path d="M8 2h8l1 10H7L8 2z"/><path d="M7 12c0 5 2 8 5 8s5-3 5-8"/>
+
+                    </svg>
+
+                </div>
+
+                BEBIDAS
+
+            </button>
+
+        </div>
+
     </div>
+
+
+
+    <!-- PLATOS CON CARRUSEL -->
 
     <div id="pantalla-platos" class="pantalla">
-        <h2 id="titulo-categoria" style="color: #25D366; font-family: sans-serif;"></h2>
-        <div class="lista-platos" id="lista-platos"></div>
+
+        <div class="platos-header">
+
+            <h2 id="titulo-categoria"></h2>
+
+            <span class="cat-badge" id="badge-cantidad"></span>
+
+        </div>
+
+        <div class="carrusel-wrapper">
+
+            <div class="carrusel-track-outer" id="carrusel-outer">
+
+                <div class="carrusel-track" id="carrusel-track"></div>
+
+            </div>
+
+            <button class="carrusel-nav izq" id="btn-prev">
+
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+
+            </button>
+
+            <button class="carrusel-nav der" id="btn-next">
+
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+
+            </button>
+
+            <div class="carrusel-dots" id="carrusel-dots"></div>
+
+            <div class="carrusel-contador" id="carrusel-contador"></div>
+
+        </div>
+
     </div>
 
-    <button id="btn-volver">←</button>
 
-    <div id="plato-info"></div>
+
+    <!-- BOTON VOLVER -->
+
+    <button id="btn-volver">&#8592;</button>
+
+
+
+    <!-- UI AR -->
+
+    <div id="plato-info-ar"></div>
+
     <div id="ui-ar">
+
         <button class="btn-ar" id="ar-back-list">VER LISTA</button>
-        <button class="btn-ar" id="ar-back-menu">CATEGORÍAS</button>
+
+        <button class="btn-ar" id="ar-back-menu">CATEGORIAS</button>
+
     </div>
 
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; filterMinCF: 0.001; filterBeta: 0.01;"
-             vr-mode-ui="enabled: false"
-             device-orientation-permission-ui="enabled: false"
-             id="ar-scene">
+
+
+    <!-- ESCENA AR -->
+
+    <a-scene
+
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; filterMinCF: 0.001; filterBeta: 0.01;"
+
+        vr-mode-ui="enabled: false"
+
+        device-orientation-permission-ui="enabled: false"
+
+        id="ar-scene">
+
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
         <a-entity mindar-image-target="targetIndex: 0">
+
             <a-entity id="contenedor-estabilizador" scale="0.01 0.01 0.01">
+
                 <a-gltf-model id="visor"></a-gltf-model>
+
             </a-entity>
+
         </a-entity>
+
     </a-scene>
 
+
+
     <script>
-        const visor = document.getElementById("visor");
+
+        /* ─── REFERENCIAS DOM ─── */
+
+        const visor      = document.getElementById("visor");
+
         const contenedor = document.getElementById("contenedor-estabilizador");
-        const info = document.getElementById("plato-info");
-        const arScene = document.getElementById("ar-scene");
-        const uiAr = document.getElementById("ui-ar");
-       
-        let catalogo = [];
-        let catActual = -1;
+
+        const info       = document.getElementById("plato-info-ar");
+
+        const arScene    = document.getElementById("ar-scene");
+
+        const uiAr       = document.getElementById("ui-ar");
+
+        const track      = document.getElementById("carrusel-track");
+
+        const dotsWrap   = document.getElementById("carrusel-dots");
+
+        const contador   = document.getElementById("carrusel-contador");
+
+        const btnPrev    = document.getElementById("btn-prev");
+
+        const btnNext    = document.getElementById("btn-next");
+
+
+
+        /* ─── ESTADO ─── */
+
+        let catalogo        = [];
+
+        let catActual       = -1;
+
+        let indiceActual    = 0;
+
+        let platosActuales  = [];
+
+        let touchStartX     = 0;
+
+        let touchStartY     = 0;
+
+        let arrastrando     = false;
+
+
+
         const nombresCategorias = ["Entradas", "Plato Fuerte", "Postres", "Bebidas"];
-        const mapeoPlatos = { 0: [0, 1], 1: [2, 3], 2: [4], 3: [5] };
 
-        visor.addEventListener('model-loaded', () => {
-            const p = catalogo[window.platoSeleccionado];
-            contenedor.setAttribute("position", p.pos);
-            contenedor.setAttribute("animation__escala", {property: "scale", to: p.escala, dur: p.anim_dur || 1100, easing: "easeOutElastic"});
-            visor.setAttribute("animation__rotar", {property: "rotation", from: p.rot_inicial, to: p.rot_final, dur: p.velocidad, loop: true, easing: "linear"});
-        });
+        const mapeoPlatos = { 0: [0,1], 1: [2,3], 2: [4,5], 3: [6,7] };
 
-        async function mostrarPlatoAR(index) {
-            window.platoSeleccionado = index;
-            const p = catalogo[index];
-           
-            document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
-            document.getElementById('btn-volver').style.display = 'none';
 
-            contenedor.setAttribute("scale", "0.01 0.01 0.01");
-            visor.removeAttribute("gltf-model");
 
-            // Encendemos el motor AR con tus filtros aplicados en la etiqueta scene
-            const mindarSystem = arScene.systems['mindar-image-system'];
-            await mindarSystem.start();
+        /* ─── ICONO SVG PLACEHOLDER SEGUN CATEGORIA ─── */
 
-            try {
-                const res = await fetch(p.archivo, { method: 'HEAD' });
-                if (res.ok) {
-                    visor.setAttribute("gltf-model", p.archivo);
-                    info.textContent = p.nombre;
-                    info.classList.remove("en-preparacion");
-                } else { throw new Error(); }
-            } catch {
-                info.textContent = "En preparación...";
-                info.classList.add("en-preparacion");
-            }
+        function svgIconCategoria(cat) {
 
-            info.style.display = 'block';
-            uiAr.style.display = 'flex';
+            const iconos = [
+
+                '<path d="M2 20h20M12 4v4M8 8h8M6 12h12M4 16h16"/>',
+
+                '<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>',
+
+                '<circle cx="12" cy="9" r="5"/><path d="M12 14v8M8 22h8"/>',
+
+                '<path d="M8 2h8l1 10H7L8 2z"/><path d="M7 12c0 5 2 8 5 8s5-3 5-8"/>'
+
+            ];
+
+            return `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(37,211,102,0.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${iconos[cat] || iconos[0]}</svg>`;
+
         }
 
-        function abrirCategoria(id) {
-            catActual = id;
-            const lista = document.getElementById('lista-platos');
-            const indices = mapeoPlatos[id];
-           
-            document.getElementById('titulo-categoria').textContent = nombresCategorias[id];
-            lista.innerHTML = '';
-           
-            indices.forEach(idx => {
-                const plato = catalogo[idx];
-                const item = document.createElement('div');
-                item.className = 'plato-item';
-                item.innerHTML = `<span>${plato.nombre}</span><span>🍽️</span>`;
-                item.onclick = () => mostrarPlatoAR(idx);
-                lista.appendChild(item);
+
+
+        /* ─── CONSTRUIR SLIDE DE PLATO ─── */
+
+        function crearSlide(plato, idxGlobal, posicion, totalPlatos) {
+
+            const slide = document.createElement('div');
+
+            slide.className = 'carrusel-slide' + (posicion === 0 ? ' activo' : '');
+
+
+
+            const tieneImagen = plato.imagen && plato.imagen.trim() !== '';
+
+
+
+            const imgHTML = tieneImagen
+
+                ? `<img class="plato-imagen"
+
+                         src="${plato.imagen}"
+
+                         alt="${plato.nombre}"
+
+                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">`
+
+                : '';
+
+
+
+            const placeholderDisplay = tieneImagen ? 'none' : 'flex';
+
+
+
+            slide.innerHTML = `
+
+                <div class="plato-card">
+
+                    <div class="plato-imagen-wrap">
+
+                        ${imgHTML}
+
+                        <div class="plato-imagen-placeholder" style="display:${placeholderDisplay};">
+
+                            <div class="icono-plato-svg">${svgIconCategoria(catActual)}</div>
+
+                            <span class="placeholder-text">Ver en AR</span>
+
+                        </div>
+
+                        <div class="plato-shimmer"></div>
+
+                        <div class="plato-badge-num">${posicion + 1} / ${totalPlatos}</div>
+
+                    </div>
+
+                    <div class="plato-info">
+
+                        <h3 class="plato-nombre">${plato.nombre}</h3>
+
+                        <p class="plato-subtitulo">${nombresCategorias[catActual]}</p>
+
+                        <button class="btn-ver-ar" data-idx="${idxGlobal}">
+
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                                <path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><path d="M8 2v16M16 6v16"/>
+
+                            </svg>
+
+                            VER EN REALIDAD AUMENTADA
+
+                        </button>
+
+                    </div>
+
+                </div>`;
+
+
+
+            slide.querySelector('.btn-ver-ar').addEventListener('click', () => {
+
+                mostrarPlatoAR(idxGlobal);
+
             });
 
-            document.getElementById('pantalla-platos').classList.add('activa');
-            document.getElementById('btn-volver').style.display = 'block';
-            document.getElementById('btn-volver').onclick = () => {
-                document.getElementById('pantalla-platos').classList.remove('activa');
-                document.getElementById('pantalla-categorias').classList.add('activa');
-                document.getElementById('btn-volver').style.display = 'none';
-            };
+
+
+            return slide;
+
         }
+
+
+
+        /* ─── ACTUALIZAR CARRUSEL ─── */
+
+        function actualizarCarrusel() {
+
+            const total = platosActuales.length;
+
+
+
+            /* Mover track */
+
+            track.style.transform = `translateX(-${indiceActual * 100}%)`;
+
+
+
+            /* Clase activo en slides */
+
+            document.querySelectorAll('.carrusel-slide').forEach((s, i) => {
+
+                s.classList.toggle('activo', i === indiceActual);
+
+            });
+
+
+
+            /* Dots */
+
+            document.querySelectorAll('.dot').forEach((d, i) => {
+
+                d.classList.toggle('activo', i === indiceActual);
+
+            });
+
+
+
+            /* Contador */
+
+            contador.textContent = `${indiceActual + 1} / ${total}`;
+
+
+
+            /* Flechas */
+
+            btnPrev.classList.toggle('oculto', indiceActual === 0);
+
+            btnNext.classList.toggle('oculto', indiceActual === total - 1);
+
+        }
+
+
+
+        function irA(idx) {
+
+            const total = platosActuales.length;
+
+            if (idx < 0 || idx >= total) return;
+
+            indiceActual = idx;
+
+            actualizarCarrusel();
+
+        }
+
+
+
+        /* ─── ABRIR CATEGORIA CON CARRUSEL ─── */
+
+        function abrirCategoria(id) {
+
+            catActual     = id;
+
+            indiceActual  = 0;
+
+            const indices = mapeoPlatos[id] || [];
+
+
+
+            platosActuales = indices.map(i => catalogo[i]).filter(Boolean);
+
+            const total    = platosActuales.length;
+
+
+
+            document.getElementById('titulo-categoria').textContent = nombresCategorias[id];
+
+            document.getElementById('badge-cantidad').textContent   = `${total} platos`;
+
+
+
+            /* Limpiar carrusel anterior */
+
+            track.innerHTML   = '';
+
+            dotsWrap.innerHTML = '';
+
+
+
+            /* Crear slides */
+
+            platosActuales.forEach((plato, pos) => {
+
+                const idxGlobal = indices[pos];
+
+                track.appendChild(crearSlide(plato, idxGlobal, pos, total));
+
+            });
+
+
+
+            /* Crear dots */
+
+            platosActuales.forEach((_, i) => {
+
+                const dot = document.createElement('div');
+
+                dot.className = 'dot' + (i === 0 ? ' activo' : '');
+
+                dot.addEventListener('click', () => irA(i));
+
+                dotsWrap.appendChild(dot);
+
+            });
+
+
+
+            actualizarCarrusel();
+
+
+
+            document.getElementById('pantalla-platos').classList.add('activa');
+
+            document.getElementById('btn-volver').style.display = 'flex';
+
+            document.getElementById('btn-volver').onclick = () => {
+
+                document.getElementById('pantalla-platos').classList.remove('activa');
+
+                document.getElementById('pantalla-categorias').classList.add('activa');
+
+                document.getElementById('btn-volver').style.display = 'none';
+
+            };
+
+        }
+
+
+
+        /* ─── SWIPE TOUCH ─── */
+
+        function initSwipe() {
+
+            const outer = document.getElementById('carrusel-outer');
+
+
+
+            outer.addEventListener('touchstart', e => {
+
+                touchStartX = e.touches[0].clientX;
+
+                touchStartY = e.touches[0].clientY;
+
+                arrastrando = false;
+
+            }, { passive: true });
+
+
+
+            outer.addEventListener('touchmove', e => {
+
+                const dx = Math.abs(e.touches[0].clientX - touchStartX);
+
+                const dy = Math.abs(e.touches[0].clientY - touchStartY);
+
+                if (dx > dy && dx > 8) arrastrando = true;
+
+            }, { passive: true });
+
+
+
+            outer.addEventListener('touchend', e => {
+
+                if (!arrastrando) return;
+
+                const diff = touchStartX - e.changedTouches[0].clientX;
+
+                if (Math.abs(diff) > 45) {
+
+                    diff > 0 ? irA(indiceActual + 1) : irA(indiceActual - 1);
+
+                }
+
+                arrastrando = false;
+
+            });
+
+        }
+
+
+
+        /* ─── MOSTRAR PLATO EN AR ─── */
+
+        visor.addEventListener('model-loaded', () => {
+
+            const p = catalogo[window.platoSeleccionado];
+
+            if (!p) return;
+
+            contenedor.setAttribute("position", p.pos);
+
+            contenedor.setAttribute("animation__escala", {
+
+                property: "scale", to: p.escala,
+
+                dur: p.anim_dur || 1100, easing: "easeOutElastic"
+
+            });
+
+            visor.setAttribute("animation__rotar", {
+
+                property: "rotation", from: p.rot_inicial, to: p.rot_final,
+
+                dur: p.velocidad, loop: true, easing: "linear"
+
+            });
+
+        });
+
+
+
+        async function mostrarPlatoAR(index) {
+
+            window.platoSeleccionado = index;
+
+            const p = catalogo[index];
+
+
+
+            document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
+
+            document.getElementById('btn-volver').style.display = 'none';
+
+
+
+            contenedor.setAttribute("scale", "0.01 0.01 0.01");
+
+            visor.removeAttribute("gltf-model");
+
+
+
+            const mindarSystem = arScene.systems['mindar-image-system'];
+
+            await mindarSystem.start();
+
+
+
+            try {
+
+                const res = await fetch(p.archivo, { method: 'HEAD' });
+
+                if (res.ok) {
+
+                    visor.setAttribute("gltf-model", p.archivo);
+
+                    info.textContent = p.nombre;
+
+                    info.classList.remove("en-preparacion");
+
+                } else { throw new Error(); }
+
+            } catch {
+
+                info.textContent = "En preparacion...";
+
+                info.classList.add("en-preparacion");
+
+            }
+
+
+
+            info.style.display = 'block';
+
+            uiAr.style.display = 'flex';
+
+        }
+
+
+
+        /* ─── INIT ─── */
 
         async function init() {
+
             try {
-                const res = await fetch('./menu.json');
+
+                const res  = await fetch('./menu.json');
+
                 const data = await res.json();
-                catalogo = data.platos;
+
+                catalogo   = data.platos;
+
+
+
+                /* Botones de categoria */
 
                 document.querySelectorAll('.btn-categoria').forEach(btn => {
-                    btn.onclick = () => {
+
+                    btn.addEventListener('click', () => {
+
                         document.getElementById('pantalla-categorias').classList.remove('activa');
+
                         abrirCategoria(parseInt(btn.dataset.cat));
-                    };
+
+                    });
+
                 });
 
-                document.getElementById('ar-back-list').onclick = () => {
-                    arScene.systems['mindar-image-system'].stop();
-                    uiAr.style.display = 'none';
-                    info.style.display = 'none';
-                    abrirCategoria(catActual);
-                };
 
-                document.getElementById('ar-back-menu').onclick = () => {
+
+                /* Flechas carrusel */
+
+                btnPrev.addEventListener('click', () => irA(indiceActual - 1));
+
+                btnNext.addEventListener('click', () => irA(indiceActual + 1));
+
+
+
+                /* Swipe */
+
+                initSwipe();
+
+
+
+                /* Botones UI AR */
+
+                document.getElementById('ar-back-list').addEventListener('click', () => {
+
                     arScene.systems['mindar-image-system'].stop();
-                    uiAr.style.display = 'none';
-                    info.style.display = 'none';
+
+                    uiAr.style.display  = 'none';
+
+                    info.style.display  = 'none';
+
+                    abrirCategoria(catActual);
+
+                });
+
+
+
+                document.getElementById('ar-back-menu').addEventListener('click', () => {
+
+                    arScene.systems['mindar-image-system'].stop();
+
+                    uiAr.style.display  = 'none';
+
+                    info.style.display  = 'none';
+
                     document.getElementById('pantalla-categorias').classList.add('activa');
-                };
+
+                });
+
+
+
+                /* Ocultar loading */
 
                 setTimeout(() => {
+
                     document.getElementById('loading-screen').style.opacity = '0';
+
                     setTimeout(() => {
+
                         document.getElementById('loading-screen').style.display = 'none';
+
                         document.getElementById('pantalla-categorias').classList.add('activa');
+
                     }, 1200);
+
                 }, 4000);
 
-            } catch (e) { console.error("Error:", e); }
+
+
+            } catch (e) { console.error("Error cargando menu.json:", e); }
+
         }
 
+
+
         window.onload = init;
+
     </script>
+
 </body>
+
 </html>
