@@ -108,7 +108,7 @@
         .carrusel-wrapper {
             flex: 1; width: 100%; display: flex; flex-direction: column;
             align-items: center; justify-content: center; position: relative;
-            padding-bottom: 20px;
+            padding-bottom: 80px; /* Espacio para el hint AR fijo */
         }
         .carrusel-track-outer { width: 100%; overflow: hidden; position: relative; }
         .carrusel-track {
@@ -192,11 +192,7 @@
             color: white; font-size: 20px; margin: 0 0 8px; line-height: 1.25;
             flex-shrink: 0;
         }
-        .plato-subtitulo {
-            color: rgba(255,255,255,0.35); font-size: 11px;
-            letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;
-            flex-shrink: 0;
-        }
+        /* CAMBIO: La descripción ahora ocupa el espacio del subtítulo + descripción anterior */
         .plato-descripcion {
             color: rgba(255,255,255,0.75); 
             font-size: 13px; 
@@ -206,16 +202,28 @@
             display: -webkit-box;
             -webkit-line-clamp: 4;
             -webkit-box-orient: vertical;
+            margin-top: 4px;
         }
-        .ar-hint {
-            margin-top: 8px; 
+
+        /* HINT AR FIJO - NUEVO */
+        .ar-hint-fijo {
+            position: absolute; bottom: 20px; left: 50%;
+            transform: translateX(-50%);
             color: rgba(37,211,102,0.8); 
             font-size: 11px;
             letter-spacing: 1px; 
             text-transform: uppercase;
             font-weight: 500;
-            flex-shrink: 0;
+            text-align: center;
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+            padding: 8px 20px; border-radius: 25px;
+            border: 1px solid rgba(37,211,102,0.3);
+            animation: pulse-hint 2s infinite;
+            z-index: 15;
+            display: none;
         }
+        .pantalla-platos.activa .ar-hint-fijo { display: block; }
+        @keyframes pulse-hint { 0%,100%{opacity:1; transform: translateX(-50%) translateY(0px);} 50%{opacity:0.7; transform: translateX(-50%) translateY(-2px);} }
 
         /* NAVEGACION CARRUSEL */
         .carrusel-nav {
@@ -344,6 +352,8 @@
             </button>
             <div class="carrusel-dots" id="carrusel-dots"></div>
             <div class="carrusel-contador" id="carrusel-contador"></div>
+            <!-- HINT AR FIJO - NUEVO -->
+            <div class="ar-hint-fijo">👆 Toca la imagen para ver en AR</div>
         </div>
     </div>
 
@@ -407,7 +417,7 @@
             return `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(37,211,102,0.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${iconos[cat] || iconos[0]}</svg>`;
         }
 
-        /* ─── CONSTRUIR SLIDE DE PLATO (CORREGIDO) ─── */
+        /* ─── CONSTRUIR SLIDE DE PLATO (MODIFICADO) ─── */
         function crearSlide(plato, idxGlobal, posicion, totalPlatos) {
             const slide = document.createElement('div');
             slide.className = 'carrusel-slide' + (posicion === 0 ? ' activo' : '');
@@ -437,9 +447,8 @@
                     </div>
                     <div class="plato-info">
                         <h3 class="plato-nombre">${plato.nombre}</h3>
-                        <p class="plato-subtitulo">${nombresCategorias[catActual]}</p>
+                        <!-- CAMBIO: Solo descripción, sin subtítulo de categoría ni ar-hint -->
                         <p class="plato-descripcion">${descripcion}</p>
-                        <div class="ar-hint">👆 Toca la imagen para AR</div>
                     </div>
                 </div>`;
 
