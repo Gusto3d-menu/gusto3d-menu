@@ -682,192 +682,102 @@
     /* ══════════════════════════════════════════
        ABRIR CATEGORIA
     ══════════════════════════════════════════ */
-    function abrirCategoria(catId) {
-        catActual    = catId;
-        indiceActual = 0;
-
-        /* Filtrar platos por campo "categoria" del JSON */
-        platosActuales = catalogo.filter(p => p.categoria === catId);
-        const total    = platosActuales.length;
-
-        const catNombre = categorias.find(c => c.id === catId)?.nombre || 'Menu';
-        document.getElementById('titulo-categoria').textContent = catNombre;
-        document.getElementById('badge-cantidad').textContent   = `${total} plato${total !== 1 ? 's' : ''}`;
-
-        track.innerHTML    = '';
-        dotsWrap.innerHTML = '';
-
-        /* Indice global real en catalogo */
-        platosActuales.forEach((plato, pos) => {
-            const idxGlobal = catalogo.indexOf(plato);
-            track.appendChild(crearSlide(plato, idxGlobal, pos, total));
-        });
-
-        platosActuales.forEach((_, i) => {
-            const dot = document.createElement('div');
-            dot.className = 'dot' + (i === 0 ? ' activo' : '');
-            dot.addEventListener('click', () => irA(i));
-            dotsWrap.appendChild(dot);
-        });
-
-        actualizarCarrusel();
-
-        document.getElementById('pantalla-platos').classList.add('activa');
-        document.getElementById('btn-volver').style.display = 'flex';
-        document.getElementById('btn-volver').onclick = () => {
-            document.getElementById('pantalla-platos').classList.remove('activa');
-            document.getElementById('pantalla-categorias').classList.add('activa');
-            document.getElementById('btn-volver').style.display = 'none';
-        };
-    }
-
     /* ══════════════════════════════════════════
-       SWIPE TOUCH
-    ══════════════════════════════════════════ */
-    function initSwipe() {
-        const outer = document.getElementById('carrusel-outer');
+   LOGICA DE CARRUSEL INFINITO (REEMPLAZO)
+══════════════════════════════════════════ */
 
-        outer.addEventListener('touchstart', e => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            arrastrando = false;
-        }, { passive: true });
+function abrirCategoria(catId) {
+    catActual = catId;
+    platosActuales = catalogo.filter(p => p.categoria === catId);
+    const total = platosActuales.length;
+    
+    // Empezamos en 1 porque el 0 es el clon del último
+    indiceActual = 1; 
 
-        outer.addEventListener('touchmove', e => {
-            const dx = Math.abs(e.touches[0].clientX - touchStartX);
-            const dy = Math.abs(e.touches[0].clientY - touchStartY);
-            if (dx > dy && dx > 8) arrastrando = true;
-        }, { passive: true });
+    track.innerHTML = '';
+    dotsWrap.innerHTML = '';
 
-        outer.addEventListener('touchend', e => {
-            if (!arrastrando) return;
-            const diff = touchStartX - e.changedTouches[0].clientX;
-            if (Math.abs(diff) > 45) {
-                diff > 0 ? irA(indiceActual + 1) : irA(indiceActual - 1);
-            }
-            arrastrando = false;
-        });
-    }
+    if (total === 0) return;
 
-    /* ══════════════════════════════════════════
-       PRECARGA DE MODELOS PRIORITARIOS
-    ══════════════════════════════════════════ */
-    function precargarModelos() {
-        const prioritarios = catalogo.filter(p => p.destacado).slice(0, 3);
-        prioritarios.forEach(p => {
-            const link = document.createElement('link');
-            link.rel = 'prefetch'; link.href = p.archivo;
-            document.head.appendChild(link);
-        });
-    }
+    // 1. Clon del ÚLTIMO al principio
+    const ultimoPlato = platosActuales[total - 1];
+    track.appendChild(crearSlide(ultimoPlato, catalogo.indexOf(ultimoPlato), total - 1, total));
 
-    /* ══════════════════════════════════════════
-       MOSTRAR PLATO EN AR
-    ══════════════════════════════════════════ */
-    visor.addEventListener('model-loaded', () => {
-        const p = catalogo[window.platoSeleccionado];
-        if (!p) return;
-        contenedor.setAttribute("position", p.pos);
-        contenedor.setAttribute("animation__escala", {
-            property: "scale", to: p.escala,
-            dur: p.anim_dur || 1100, easing: "easeOutElastic"
-        });
-        visor.setAttribute("animation__rotar", {
-            property: "rotation", from: p.rot_inicial, to: p.rot_final,
-            dur: p.velocidad, loop: true, easing: "linear"
-        });
+    // 2. Platos REALES
+    platosActuales.forEach((plato, pos) => {
+        track.appendChild(crearSlide(plato, catalogo.indexOf(plato), pos, total));
+        
+        const dot = document.createElement('div');
+        dot.className = 'dot' + (pos === 0 ? ' activo' : '');
+        dot.addEventListener('click', () => irA(pos + 1));
+        dotsWrap.appendChild(dot);
     });
 
-    async function mostrarPlatoAR(index) {
-        window.platoSeleccionado = index;
-        const p = catalogo[index];
+    // 3. Clon del PRIMERO al final
+    const primerPlato = platosActuales[0];
+    track.appendChild(crearSlide(primerPlato, catalogo.indexOf(primerPlato), 0, total));
 
-        document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
-        document.getElementById('btn-volver').style.display = 'none';
+    // Posicionamiento inicial sin animación
+    track.style.transition = 'none';
+    actualizarCarrusel();
+    
+    setTimeout(() => {
+        track.style.transition = 'transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94)';
+        document.getElementById('pantalla-platos').classList.add('activa');
+    }, 50);
 
-        contenedor.setAttribute("scale", "0.01 0.01 0.01");
-        visor.removeAttribute("gltf-model");
+    const catNombre = categorias.find(c => c.id === catId)?.nombre || 'Menu';
+    document.getElementById('titulo-categoria').textContent = catNombre;
+    document.getElementById('badge-cantidad').textContent = `${total} plato${total !== 1 ? 's' : ''}`;
+    document.getElementById('btn-volver').style.display = 'flex';
+}
 
-        const mindarSystem = arScene.systems['mindar-image-system'];
-        await mindarSystem.start();
+function actualizarCarrusel() {
+    const totalReal = platosActuales.length;
+    track.style.transform = `translateX(-${indiceActual * 100}%)`;
 
-        try {
-            const res = await fetch(p.archivo, { method: 'HEAD' });
-            if (res.ok) {
-                visor.setAttribute("gltf-model", p.archivo);
-                info.textContent = p.nombre;
-                info.classList.remove("en-preparacion");
-            } else { throw new Error(); }
-        } catch {
-            info.textContent = "En preparacion...";
-            info.classList.add("en-preparacion");
+    // Calculamos qué punto (dot) debe brillar
+    let indiceVisual = indiceActual - 1;
+    if (indiceActual === 0) indiceVisual = totalReal - 1;
+    if (indiceActual === totalReal + 1) indiceVisual = 0;
+
+    document.querySelectorAll('.carrusel-slide').forEach((s, i) => {
+        s.classList.toggle('activa', i === indiceActual);
+    });
+
+    document.querySelectorAll('.dot').forEach((d, i) => {
+        d.classList.toggle('activo', i === indiceVisual);
+    });
+
+    contador.textContent = `${indiceVisual + 1} / ${totalReal}`;
+}
+
+function irA(idx) {
+    const totalReal = platosActuales.length;
+    indiceActual = idx;
+    
+    track.style.transition = 'transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94)';
+    actualizarCarrusel();
+
+    // El "salto mágico" ocurre cuando termina la transición
+    track.addEventListener('transitionend', function deVuelta() {
+        if (indiceActual === totalReal + 1) {
+            track.style.transition = 'none';
+            indiceActual = 1;
+            actualizarCarrusel();
         }
-
-        info.style.display = 'block';
-        uiAr.style.display = 'flex';
-    }
-
-    /* ══════════════════════════════════════════
-       INIT PRINCIPAL
-    ══════════════════════════════════════════ */
-    async function init() {
-        try {
-            const res  = await fetch('./menu.json');
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            const data = await res.json();
-
-            catalogo   = data.platos;
-            categorias = data.categorias;
-
-            /* Nombre del restaurante */
-            const nombreRest = data.restaurante?.nombre || '';
-            if (nombreRest) {
-                document.getElementById('nombre-restaurante').textContent = nombreRest;
-            }
-
-            /* Moneda dinamica (por si se quiere sobreescribir "$") */
-            window.MONEDA = data.restaurante?.moneda || 'USD';
-
-            /* Generar grid de categorias dinamicamente */
-            generarGridCategorias();
-
-            /* Precarga de modelos destacados */
-            precargarModelos();
-
-            /* Navegacion carrusel */
-            btnPrev.addEventListener('click', () => irA(indiceActual - 1));
-            btnNext.addEventListener('click', () => irA(indiceActual + 1));
-            initSwipe();
-
-            /* Botones AR */
-            document.getElementById('ar-back-list').addEventListener('click', () => {
-                arScene.systems['mindar-image-system'].stop();
-                uiAr.style.display  = 'none';
-                info.style.display  = 'none';
-                abrirCategoria(catActual);
-            });
-            document.getElementById('ar-back-menu').addEventListener('click', () => {
-                arScene.systems['mindar-image-system'].stop();
-                uiAr.style.display  = 'none';
-                info.style.display  = 'none';
-                document.getElementById('pantalla-categorias').classList.add('activa');
-            });
-
-            /* Fade out pantalla carga */
-            setTimeout(() => {
-                document.getElementById('loading-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loading-screen').style.display = 'none';
-                    document.getElementById('pantalla-categorias').classList.add('activa');
-                }, 1200);
-            }, 4000);
-
-        } catch (e) {
-            console.error("Error cargando menu.json:", e);
-            document.getElementById('loading-screen').style.display = 'none';
-            document.getElementById('error-screen').style.display   = 'flex';
+        if (indiceActual === 0) {
+            track.style.transition = 'none';
+            indiceActual = totalReal;
+            actualizarCarrusel();
         }
-    }
+        track.removeEventListener('transitionend', deVuelta);
+    });
+}
+
+// Asegúrate de que los botones llamen a la nueva función irA
+btnNext.onclick = () => irA(indiceActual + 1);
+btnPrev.onclick = () => irA(indiceActual - 1);
 
     window.onload = init;
     </script>
