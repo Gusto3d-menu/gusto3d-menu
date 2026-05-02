@@ -16,7 +16,6 @@
             font-family: 'Poppins', sans-serif;
         }
 
-        /* ── PANTALLA DE CARGA ── */
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, #000 0%, #1a1a2e 50%, #16213e 100%);
@@ -41,7 +40,6 @@
         }
         @keyframes progress-fill { 0%{width:0%;} 100%{width:100%;} }
 
-        /* ── PANTALLA ERROR ── */
         #error-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, #000 0%, #1a1a2e 50%, #16213e 100%);
@@ -62,7 +60,6 @@
             font-size: 13px; letter-spacing: 1px; cursor: pointer;
         }
 
-        /* ── PANTALLAS BASE ── */
         .pantalla {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -71,7 +68,6 @@
         }
         .pantalla.activa { opacity: 1; visibility: visible; }
 
-        /* ── PANTALLA CATEGORIAS ── */
         #pantalla-categorias h1 {
             font-family: 'Playfair Display', serif;
             color: #25D366; font-size: 28px; margin-bottom: 4px; letter-spacing: 1px;
@@ -111,7 +107,6 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* ── PANTALLA PLATOS + CARRUSEL ── */
         #pantalla-platos { justify-content: flex-start; padding-top: 0; overflow: hidden; }
         .platos-header {
             width: 100%; padding: 55px 24px 18px;
@@ -129,7 +124,6 @@
             padding: 4px 10px; border-radius: 20px; letter-spacing: 1px;
         }
 
-        /* ── CARRUSEL ── */
         .carrusel-wrapper {
             flex: 1; width: 100%; display: flex; flex-direction: column;
             align-items: center; justify-content: center; position: relative;
@@ -138,15 +132,19 @@
         .carrusel-track-outer { width: 100%; overflow: hidden; position: relative; }
         .carrusel-track {
             display: flex;
+            /* La transicion se activa/desactiva dinamicamente via JS */
             transition: transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94);
             will-change: transform;
+        }
+        /* ── CLASE UTILITARIA: sin transicion para saltos silenciosos ── */
+        .carrusel-track.sin-transicion {
+            transition: none !important;
         }
         .carrusel-slide {
             min-width: 100%; padding: 0 30px;
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* ── TARJETA PLATO ── */
         .plato-card {
             width: 100%; max-width: 320px;
             background: rgba(255,255,255,0.04);
@@ -158,7 +156,6 @@
         }
         .carrusel-slide.activo .plato-card { transform: scale(1); }
 
-        /* ── BADGE DESTACADO ── */
         .badge-destacado {
             position: absolute; top: 12px; left: 12px;
             background: linear-gradient(45deg,#f7971e,#ffd200);
@@ -168,7 +165,6 @@
             box-shadow: 0 2px 10px rgba(247,151,30,0.5);
         }
 
-        /* ── BADGE AGOTADO ── */
         .badge-agotado {
             position: absolute; inset: 0;
             background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
@@ -228,9 +224,8 @@
         }
         @keyframes shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
 
-        /* ── BOTON VER EN 3D ── */
         .btn-ver-ar {
-            display: none !important; /* <--- ESTA LÍNEA LO OCULTA */
+            display: none !important;
             width: 100%;
             padding: 10px 0;
             background: linear-gradient(90deg, rgba(37,211,102,0.18), rgba(18,140,126,0.10));
@@ -243,7 +238,6 @@
             letter-spacing: 2px;
             text-transform: uppercase;
             cursor: pointer;
-            display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
@@ -263,7 +257,6 @@
             color: white; font-size: 20px; margin: 0 0 4px; line-height: 1.25;
         }
 
-        /* ── PRECIOS CON TACHADO ── */
         .precios-wrap { display: flex; align-items: baseline; gap: 10px; margin: 4px 0 10px; }
         .plato-precio {
             font-family: 'Playfair Display', serif;
@@ -285,7 +278,6 @@
             margin-bottom: 12px;
         }
 
-        /* ── ALERGENOS ── */
         .alergenos-wrap {
             display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px;
         }
@@ -296,7 +288,6 @@
             border: 1px solid rgba(255,107,53,0.25);
         }
 
-        /* ── HINT AR FIJO ── */
         .ar-hint-fijo {
             position: absolute; bottom: 20px; left: 50%;
             transform: translateX(-50%);
@@ -314,7 +305,6 @@
             50%{ opacity:0.7; transform: translateX(-50%) translateY(-2px); }
         }
 
-        /* ── NAVEGACION CARRUSEL ── */
         .carrusel-nav {
             position: absolute; top: 50%; transform: translateY(-50%);
             width: 38px; height: 38px; border-radius: 50%;
@@ -327,7 +317,6 @@
         .carrusel-nav.izq { left: 8px; }
         .carrusel-nav.der { right: 8px; }
 
-        /* ── DOTS ── */
         .carrusel-dots { display: flex; gap: 6px; margin-top: 16px; align-items: center; }
         .dot {
             width: 7px; height: 7px; border-radius: 50%;
@@ -335,13 +324,11 @@
         }
         .dot.activo { background: #25D366; width: 22px; border-radius: 4px; }
 
-        /* ── CONTADOR ── */
         .carrusel-contador {
             position: absolute; bottom: 4px; right: 30px;
             color: rgba(255,255,255,0.25); font-size: 11px; letter-spacing: 1px;
         }
 
-        /* ── BOTON VOLVER ── */
         #btn-volver {
             position: fixed; top: 18px; left: 18px;
             width: 40px; height: 40px; border-radius: 50%;
@@ -353,7 +340,6 @@
         }
         #btn-volver:active { background: #25D366; color: white; }
 
-        /* ── UI AR ── */
         #plato-info-ar {
             position: fixed; top: 50px; width: 100%; text-align: center;
             color: white; font-family: 'Poppins', sans-serif;
@@ -373,7 +359,6 @@
         .en-preparacion { color: #ff6b35 !important; animation: pulse 2s infinite; }
         @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
 
-        /* ── ANIMACION ENTRADA SLIDE ── */
         @keyframes slideEntrada {
             from { opacity: 0; transform: translateY(18px) scale(0.96); }
             to   { opacity: 1; transform: translateY(0) scale(1); }
@@ -385,14 +370,12 @@
 </head>
 <body>
 
-    <!-- ── CARGA ── -->
     <div id="loading-screen">
         <img src="logo-gusto3d.jpg" class="logo-gusto" alt="Logo Gusto3D">
         <div class="mensaje-carga">INICIALIZANDO GUSTO3D</div>
         <div class="barra-progreso"><div class="progreso-fill"></div></div>
     </div>
 
-    <!-- ── ERROR ── -->
     <div id="error-screen">
         <div class="error-icono">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -407,17 +390,13 @@
         <button class="btn-reintentar" onclick="window.location.reload()">Reintentar</button>
     </div>
 
-    <!-- ── CATEGORIAS ── -->
     <div id="pantalla-categorias" class="pantalla">
         <h1>MENU DIGITAL 3D</h1>
         <div id="nombre-restaurante"></div>
         <p>Selecciona una categoria</p>
-        <div class="grid-categorias" id="grid-categorias">
-            <!-- Se genera dinamicamente desde menu.json -->
-        </div>
+        <div class="grid-categorias" id="grid-categorias"></div>
     </div>
 
-    <!-- ── PLATOS CON CARRUSEL ── -->
     <div id="pantalla-platos" class="pantalla">
         <div class="platos-header">
             <h2 id="titulo-categoria"></h2>
@@ -445,17 +424,14 @@
         </div>
     </div>
 
-    <!-- ── BOTON VOLVER ── -->
     <button id="btn-volver">&#8592;</button>
 
-    <!-- ── UI AR ── -->
     <div id="plato-info-ar"></div>
     <div id="ui-ar">
         <button class="btn-ar" id="ar-back-list">VER LISTA</button>
         <button class="btn-ar" id="ar-back-menu">CATEGORIAS</button>
     </div>
 
-    <!-- ── ESCENA AR ── -->
     <a-scene
         mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;
                       uiLoading: no; uiScanning: no;
@@ -489,17 +465,26 @@
     /* ══════════════════════════════════════════
        ESTADO GLOBAL
     ══════════════════════════════════════════ */
-    let catalogo       = [];
-    let categorias     = [];
-    let catActual      = -1;
-    let indiceActual   = 0;
-    let platosActuales = [];
-    let touchStartX    = 0;
-    let touchStartY    = 0;
-    let arrastrando    = false;
+    let catalogo        = [];
+    let categorias      = [];
+    let catActual       = -1;
+    let platosActuales  = [];
+    let touchStartX     = 0;
+    let touchStartY     = 0;
+    let arrastrando     = false;
+    let enTransicion    = false;  // bloquea clicks rapidos durante el salto silencioso
+
+    /*
+     * ── INDICE REAL vs INDICE DE TRACK ──────────────────────────────
+     * El track tiene: [clon-ultimo] [slide-0] [slide-1] ... [slide-N-1] [clon-primero]
+     * indiceTrack = indiceReal + 1
+     * indiceReal  va de 0 a N-1 (lo que muestran dots y contador)
+     * ────────────────────────────────────────────────────────────────
+     */
+    let indiceReal  = 0;  // indice logico visible (0-based)
 
     /* ══════════════════════════════════════════
-       ICONOS SVG POR CATEGORIA (por icono slug)
+       ICONOS SVG
     ══════════════════════════════════════════ */
     const ICONOS_CAT = {
         entradas: '<path d="M2 20h20M12 4v4M8 8h8M6 12h12M4 16h16"/>',
@@ -509,22 +494,21 @@
         default:  '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>'
     };
 
-    function svgIconCategoria(iconoSlug) {
-        const paths = ICONOS_CAT[iconoSlug] || ICONOS_CAT.default;
+    function svgIconCategoria(slug) {
+        const p = ICONOS_CAT[slug] || ICONOS_CAT.default;
         return `<svg width="34" height="34" viewBox="0 0 24 24" fill="none"
                      stroke="rgba(37,211,102,0.8)" stroke-width="1.5"
-                     stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+                     stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
     }
-
-    function svgIconBotonCat(iconoSlug) {
-        const paths = ICONOS_CAT[iconoSlug] || ICONOS_CAT.default;
+    function svgIconBotonCat(slug) {
+        const p = ICONOS_CAT[slug] || ICONOS_CAT.default;
         return `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"
                      stroke="white" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+                     stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
     }
 
     /* ══════════════════════════════════════════
-       GENERAR GRID DE CATEGORIAS DINAMICAMENTE
+       GRID CATEGORIAS
     ══════════════════════════════════════════ */
     function generarGridCategorias() {
         const grid = document.getElementById('grid-categorias');
@@ -533,9 +517,7 @@
             const btn = document.createElement('button');
             btn.className = 'btn-categoria';
             btn.dataset.cat = cat.id;
-            btn.innerHTML = `
-                <div class="cat-icon">${svgIconBotonCat(cat.icono)}</div>
-                ${cat.nombre.toUpperCase()}`;
+            btn.innerHTML = `<div class="cat-icon">${svgIconBotonCat(cat.icono)}</div>${cat.nombre.toUpperCase()}`;
             btn.addEventListener('click', () => {
                 document.getElementById('pantalla-categorias').classList.remove('activa');
                 abrirCategoria(cat.id);
@@ -547,15 +529,15 @@
     /* ══════════════════════════════════════════
        CREAR SLIDE DE PLATO
     ══════════════════════════════════════════ */
-    function crearSlide(plato, idxGlobal, posicion, totalPlatos) {
+    function crearSlide(plato, idxGlobal, posicionVisual, totalPlatos) {
         const slide = document.createElement('div');
-        slide.className = 'carrusel-slide' + (posicion === 0 ? ' activo' : '');
+        slide.className = 'carrusel-slide';
+        slide.dataset.logico = posicionVisual; // posicion real (0-based)
 
         const tieneImagen = plato.imagen && plato.imagen.trim() !== '';
         const descripcion = plato.descripcion || "Delicioso plato preparado con ingredientes frescos.";
         const catIcono    = categorias.find(c => c.id === catActual)?.icono || 'default';
 
-        /* ── imagen ── */
         const imgHTML = tieneImagen
             ? `<img class="plato-imagen" loading="lazy" decoding="async"
                      src="${plato.imagen}" alt="${plato.nombre}"
@@ -563,35 +545,23 @@
                               this.style.display='none';">`
             : '';
 
-        /* ── precio con tachado ── */
         const precioHTML = plato.precio_anterior
             ? `<span class="plato-precio">$${plato.precio || 'Consultar'}</span>
                <span class="plato-precio-anterior">$${plato.precio_anterior}</span>`
             : `<span class="plato-precio">$${plato.precio || 'Consultar'}</span>`;
 
-        /* ── alergenos ── */
         let alergenosHTML = '';
         if (plato.alergenos && plato.alergenos.length > 0) {
-            const chips = plato.alergenos
-                .map(a => `<span class="alergen-chip">${a}</span>`)
-                .join('');
-            alergenosHTML = `<div class="alergenos-wrap">${chips}</div>`;
+            alergenosHTML = `<div class="alergenos-wrap">${plato.alergenos.map(a=>`<span class="alergen-chip">${a}</span>`).join('')}</div>`;
         }
 
-        /* ── badge destacado ── */
-        const badgeDestacado = plato.destacado
-            ? `<div class="badge-destacado">Recomendado</div>` : '';
-
-        /* ── badge agotado ── */
-        const badgeAgotado = (plato.disponible === false)
-            ? `<div class="badge-agotado"><span>Agotado</span></div>` : '';
-
+        const badgeDestacado = plato.destacado ? `<div class="badge-destacado">Recomendado</div>` : '';
+        const badgeAgotado   = (plato.disponible === false) ? `<div class="badge-agotado"><span>Agotado</span></div>` : '';
         const disponibleAttr = (plato.disponible === false) ? 'data-agotado="true"' : '';
 
         slide.innerHTML = `
             <div class="plato-card" data-plato-idx="${idxGlobal}" ${disponibleAttr}>
-                ${badgeAgotado}
-                ${badgeDestacado}
+                ${badgeAgotado}${badgeDestacado}
                 <div class="plato-imagen-wrap" data-plato-idx="${idxGlobal}">
                     ${imgHTML}
                     <div class="plato-imagen-placeholder"
@@ -601,7 +571,7 @@
                         <span class="placeholder-text">Toca para AR</span>
                     </div>
                     <div class="plato-shimmer"></div>
-                    <div class="plato-badge-num">${posicion + 1} / ${totalPlatos}</div>
+                    <div class="plato-badge-num">${posicionVisual + 1} / ${totalPlatos}</div>
                 </div>
                 <div class="plato-info">
                     <h3 class="plato-nombre">${plato.nombre}</h3>
@@ -622,71 +592,128 @@
                 </button>
             </div>`;
 
-        /* ── eventos ── */
         if (plato.disponible !== false) {
-            const imagenWrap = slide.querySelector('.plato-imagen-wrap');
-            imagenWrap.style.cursor = 'pointer';
-            imagenWrap.addEventListener('click', e => {
-                e.stopPropagation();
-                mostrarPlatoAR(idxGlobal);
-            });
-
+            const imagenWrap  = slide.querySelector('.plato-imagen-wrap');
             const placeholder = slide.querySelector('.plato-imagen-placeholder');
-            placeholder.addEventListener('click', e => {
-                e.stopPropagation();
-                mostrarPlatoAR(idxGlobal);
-            });
-
-            const btnAR = slide.querySelector('.btn-ver-ar');
-            btnAR.addEventListener('click', e => {
-                e.stopPropagation();
-                mostrarPlatoAR(idxGlobal);
+            const btnAR       = slide.querySelector('.btn-ver-ar');
+            imagenWrap.style.cursor = 'pointer';
+            [imagenWrap, placeholder, btnAR].forEach(el => {
+                el.addEventListener('click', e => { e.stopPropagation(); mostrarPlatoAR(idxGlobal); });
             });
         }
-
         return slide;
     }
 
     /* ══════════════════════════════════════════
-       ACTUALIZAR CARRUSEL
+       POSICIONAR EL TRACK (sin animacion)
     ══════════════════════════════════════════ */
-    function actualizarCarrusel() {
-        const total = platosActuales.length;
+    function posicionarTrackSilencioso(trackIdx) {
+        track.classList.add('sin-transicion');
+        track.style.transform = `translateX(-${trackIdx * 100}%)`;
+        // Forzar reflow para que el browser aplique el cambio antes de quitar la clase
+        void track.offsetWidth;
+        track.classList.remove('sin-transicion');
+    }
 
-        track.style.transform = `translateX(-${indiceActual * 100}%)`;
+    /* ══════════════════════════════════════════
+       ACTUALIZAR UI (dots, contador, clase activo)
+    ══════════════════════════════════════════ */
+    function actualizarUI() {
+        const total    = platosActuales.length;
+        const trackIdx = indiceReal + 1; // +1 por el clon inicial
 
-        document.querySelectorAll('.carrusel-slide').forEach((s, i) => {
-            const era = s.classList.contains('activo');
-            s.classList.toggle('activo', i === indiceActual);
-            /* Forzar re-animacion al activar */
-            if (!era && i === indiceActual) {
+        track.style.transform = `translateX(-${trackIdx * 100}%)`;
+
+        // Marcar slide activo: buscar por data-logico
+        document.querySelectorAll('.carrusel-slide').forEach(s => {
+            const logico = parseInt(s.dataset.logico, 10);
+            const eraActivo = s.classList.contains('activo');
+            const esActivo  = logico === indiceReal;
+            s.classList.toggle('activo', esActivo);
+            if (!eraActivo && esActivo) {
                 const card = s.querySelector('.plato-card');
                 if (card) { card.style.animation = 'none'; void card.offsetWidth; card.style.animation = ''; }
             }
         });
 
         document.querySelectorAll('.dot').forEach((d, i) => {
-            d.classList.toggle('activo', i === indiceActual);
+            d.classList.toggle('activo', i === indiceReal);
         });
 
-        contador.textContent = `${indiceActual + 1} / ${total}`;
-    }
-
-    /* Loop circular: nunca se bloquea en extremos */
-    function irA(idx) {
-        const total = platosActuales.length;
-        indiceActual = (idx + total) % total;
-        actualizarCarrusel();
+        contador.textContent = `${indiceReal + 1} / ${total}`;
     }
 
     /* ══════════════════════════════════════════
-       ABRIR CATEGORIA
+       NAVEGAR — LOGICA DE LOOP INFINITO
+    ══════════════════════════════════════════ */
+    function irA(nuevoIndiceReal) {
+        if (enTransicion) return;
+        const total = platosActuales.length;
+
+        /*
+         * Si solo hay 1 slide no hay nada que mover
+         */
+        if (total <= 1) return;
+
+        enTransicion = true;
+
+        const trackIdxActual = indiceReal + 1;
+        const trackIdxDestino = nuevoIndiceReal + 1;
+
+        /* Casos de salto a clones:
+         *  - Destino logico -1  => mostrar clon-ultimo (trackIdx = 0), luego saltar a real ultimo
+         *  - Destino logico N   => mostrar clon-primero (trackIdx = total+1), luego saltar a real 0
+         */
+        if (nuevoIndiceReal < 0) {
+            // Ir al clon del ultimo (posicion 0 del track)
+            track.style.transform = `translateX(0%)`;
+            // Tras la animacion, saltar silenciosamente al ultimo real
+            track.addEventListener('transitionend', function handler() {
+                track.removeEventListener('transitionend', handler);
+                indiceReal = total - 1;
+                posicionarTrackSilencioso(total); // trackIdx del ultimo real = total
+                actualizarUI();
+                enTransicion = false;
+            });
+            // Actualizar dots/contador al ultimo real inmediatamente
+            document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('activo', i === total - 1));
+            contador.textContent = `${total} / ${total}`;
+            return;
+        }
+
+        if (nuevoIndiceReal >= total) {
+            // Ir al clon del primero (posicion total+1 del track)
+            track.style.transform = `translateX(-${(total + 1) * 100}%)`;
+            track.addEventListener('transitionend', function handler() {
+                track.removeEventListener('transitionend', handler);
+                indiceReal = 0;
+                posicionarTrackSilencioso(1); // trackIdx del primero real = 1
+                actualizarUI();
+                enTransicion = false;
+            });
+            document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('activo', i === 0));
+            contador.textContent = `1 / ${total}`;
+            return;
+        }
+
+        // Navegacion normal dentro del rango
+        indiceReal = nuevoIndiceReal;
+        actualizarUI();
+        // Esperar a que termine la transicion CSS
+        track.addEventListener('transitionend', function handler() {
+            track.removeEventListener('transitionend', handler);
+            enTransicion = false;
+        });
+    }
+
+    /* ══════════════════════════════════════════
+       ABRIR CATEGORIA — construye track con clones
     ══════════════════════════════════════════ */
     function abrirCategoria(catId) {
-        catActual    = catId;
-        indiceActual = 0;
+        catActual   = catId;
+        indiceReal  = 0;
+        enTransicion = false;
 
-        /* Filtrar platos por campo "categoria" del JSON */
         platosActuales = catalogo.filter(p => p.categoria === catId);
         const total    = platosActuales.length;
 
@@ -697,12 +724,44 @@
         track.innerHTML    = '';
         dotsWrap.innerHTML = '';
 
-        /* Indice global real en catalogo */
+        /*
+         * Estructura del track:
+         * [clon del ultimo] [slide 0] [slide 1] ... [slide N-1] [clon del primero]
+         */
+        const idxGlobales = platosActuales.map(p => catalogo.indexOf(p));
+
+        // Clon del ULTIMO slide (va al inicio del track, posicion 0)
+        if (total > 0) {
+            const clonUltimo = crearSlide(
+                platosActuales[total - 1],
+                idxGlobales[total - 1],
+                total - 1,
+                total
+            );
+            clonUltimo.dataset.logico = total - 1;
+            clonUltimo.dataset.clon   = 'ultimo';
+            track.appendChild(clonUltimo);
+        }
+
+        // Slides reales
         platosActuales.forEach((plato, pos) => {
-            const idxGlobal = catalogo.indexOf(plato);
-            track.appendChild(crearSlide(plato, idxGlobal, pos, total));
+            track.appendChild(crearSlide(plato, idxGlobales[pos], pos, total));
         });
 
+        // Clon del PRIMER slide (va al final del track)
+        if (total > 0) {
+            const clonPrimero = crearSlide(
+                platosActuales[0],
+                idxGlobales[0],
+                0,
+                total
+            );
+            clonPrimero.dataset.logico = 0;
+            clonPrimero.dataset.clon   = 'primero';
+            track.appendChild(clonPrimero);
+        }
+
+        // Dots (solo los reales)
         platosActuales.forEach((_, i) => {
             const dot = document.createElement('div');
             dot.className = 'dot' + (i === 0 ? ' activo' : '');
@@ -710,7 +769,13 @@
             dotsWrap.appendChild(dot);
         });
 
-        actualizarCarrusel();
+        // Posicionar en el primer slide real SIN animacion
+        track.classList.add('sin-transicion');
+        track.style.transform = `translateX(-100%)`; // trackIdx 1 = primer real
+        void track.offsetWidth;
+        track.classList.remove('sin-transicion');
+
+        actualizarUI();
 
         document.getElementById('pantalla-platos').classList.add('activa');
         document.getElementById('btn-volver').style.display = 'flex';
@@ -728,9 +793,9 @@
         const outer = document.getElementById('carrusel-outer');
 
         outer.addEventListener('touchstart', e => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            arrastrando = false;
+            touchStartX  = e.touches[0].clientX;
+            touchStartY  = e.touches[0].clientY;
+            arrastrando  = false;
         }, { passive: true });
 
         outer.addEventListener('touchmove', e => {
@@ -743,18 +808,17 @@
             if (!arrastrando) return;
             const diff = touchStartX - e.changedTouches[0].clientX;
             if (Math.abs(diff) > 45) {
-                diff > 0 ? irA(indiceActual + 1) : irA(indiceActual - 1);
+                diff > 0 ? irA(indiceReal + 1) : irA(indiceReal - 1);
             }
             arrastrando = false;
         });
     }
 
     /* ══════════════════════════════════════════
-       PRECARGA DE MODELOS PRIORITARIOS
+       PRECARGA MODELOS
     ══════════════════════════════════════════ */
     function precargarModelos() {
-        const prioritarios = catalogo.filter(p => p.destacado).slice(0, 3);
-        prioritarios.forEach(p => {
+        catalogo.filter(p => p.destacado).slice(0, 3).forEach(p => {
             const link = document.createElement('link');
             link.rel = 'prefetch'; link.href = p.archivo;
             document.head.appendChild(link);
@@ -762,7 +826,7 @@
     }
 
     /* ══════════════════════════════════════════
-       MOSTRAR PLATO EN AR
+       AR
     ══════════════════════════════════════════ */
     visor.addEventListener('model-loaded', () => {
         const p = catalogo[window.platoSeleccionado];
@@ -808,7 +872,7 @@
     }
 
     /* ══════════════════════════════════════════
-       INIT PRINCIPAL
+       INIT
     ══════════════════════════════════════════ */
     async function init() {
         try {
@@ -819,41 +883,30 @@
             catalogo   = data.platos;
             categorias = data.categorias;
 
-            /* Nombre del restaurante */
             const nombreRest = data.restaurante?.nombre || '';
-            if (nombreRest) {
-                document.getElementById('nombre-restaurante').textContent = nombreRest;
-            }
-
-            /* Moneda dinamica (por si se quiere sobreescribir "$") */
+            if (nombreRest) document.getElementById('nombre-restaurante').textContent = nombreRest;
             window.MONEDA = data.restaurante?.moneda || 'USD';
 
-            /* Generar grid de categorias dinamicamente */
             generarGridCategorias();
-
-            /* Precarga de modelos destacados */
             precargarModelos();
 
-            /* Navegacion carrusel */
-            btnPrev.addEventListener('click', () => irA(indiceActual - 1));
-            btnNext.addEventListener('click', () => irA(indiceActual + 1));
+            btnPrev.addEventListener('click', () => irA(indiceReal - 1));
+            btnNext.addEventListener('click', () => irA(indiceReal + 1));
             initSwipe();
 
-            /* Botones AR */
             document.getElementById('ar-back-list').addEventListener('click', () => {
                 arScene.systems['mindar-image-system'].stop();
-                uiAr.style.display  = 'none';
-                info.style.display  = 'none';
+                uiAr.style.display = 'none';
+                info.style.display = 'none';
                 abrirCategoria(catActual);
             });
             document.getElementById('ar-back-menu').addEventListener('click', () => {
                 arScene.systems['mindar-image-system'].stop();
-                uiAr.style.display  = 'none';
-                info.style.display  = 'none';
+                uiAr.style.display = 'none';
+                info.style.display = 'none';
                 document.getElementById('pantalla-categorias').classList.add('activa');
             });
 
-            /* Fade out pantalla carga */
             setTimeout(() => {
                 document.getElementById('loading-screen').style.opacity = '0';
                 setTimeout(() => {
@@ -873,4 +926,3 @@
     </script>
 </body>
 </html>
-
