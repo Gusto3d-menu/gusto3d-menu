@@ -1,4 +1,3 @@
-index: 
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -648,130 +647,108 @@ index:
         return slide;
     }
 
-    let offsetInicial = 0; // 👈 NUEVA VARIABLE GLOBAL
+    /* ══════════════════════════════════════════
+       ACTUALIZAR CARRUSEL
+    ══════════════════════════════════════════ */
+    function actualizarCarrusel() {
+        const total = platosActuales.length;
 
-/* ══════════════════════════════════════════
-   ACTUALIZAR CARRUSEL INFINITO
-════════════════════════════════════════════ */
-function actualizarCarrusel() {
-    const total = platosActuales.length;
-    const totalSlides = track.children.length; // 3x el total original
-    
-    // Calcular posición real (entre 0 y total-1)
-    const posicionReal = indiceActual % total;
-    
-    track.style.transform = `translateX(-${indiceActual * 100}%)`;
+        track.style.transform = `translateX(-${indiceActual * 100}%)`;
 
-    // Actualizar slide activo (solo los originales)
-    document.querySelectorAll('.carrusel-slide').forEach((s, i) => {
-        const era = s.classList.contains('activo');
-        s.classList.toggle('activo', i === indiceActual);
-        if (!era && i === indiceActual) {
-            const card = s.querySelector('.plato-card');
-            if (card) { 
-                card.style.animation = 'none'; 
-                void card.offsetWidth; 
-                card.style.animation = ''; 
+        document.querySelectorAll('.carrusel-slide').forEach((s, i) => {
+            const era = s.classList.contains('activo');
+            s.classList.toggle('activo', i === indiceActual);
+            /* Forzar re-animacion al activar */
+            if (!era && i === indiceActual) {
+                const card = s.querySelector('.plato-card');
+                if (card) { card.style.animation = 'none'; void card.offsetWidth; card.style.animation = ''; }
             }
-        }
-    });
+        });
 
-    // Dots solo para posiciones reales
-    document.querySelectorAll('.dot').forEach((d, i) => {
-        d.classList.toggle('activo', i === posicionReal);
-    });
+        document.querySelectorAll('.dot').forEach((d, i) => {
+            d.classList.toggle('activo', i === indiceActual);
+        });
 
-    contador.textContent = `${posicionReal + 1} / ${total}`;
-}
-
-/* ══════════════════════════════════════════
-   MOVIMIENTO CONTINUO INFINITO
-════════════════════════════════════════════ */
-function irA(direction) { // Ahora recibe dirección (+1 o -1)
-    const total = platosActuales.length;
-    const totalSlides = track.children.length;
-    
-    indiceActual += direction;
-    
-    // Reiniciar suavemente cuando llega al final del buffer
-    if (indiceActual >= totalSlides - total) {
-        indiceActual = total; // Salta al medio del buffer duplicado
-        track.style.transition = 'none';
-        track.style.transform = `translateX(-${indiceActual * 100}%)`;
-        // Forzar reflow
-        void track.offsetWidth;
-        track.style.transition = '';
-    } else if (indiceActual < 0) {
-        indiceActual = totalSlides - total - 1; // Salta al final del buffer
-        track.style.transition = 'none';
-        track.style.transform = `translateX(-${indiceActual * 100}%)`;
-        void track.offsetWidth;
-        track.style.transition = '';
+        contador.textContent = `${indiceActual + 1} / ${total}`;
     }
-    
-    actualizarCarrusel();
-}
+
+    /* Loop circular: nunca se bloquea en extremos */
+    function irA(idx) {
+        const total = platosActuales.length;
+        indiceActual = (idx + total) % total;
+        actualizarCarrusel();
+    }
 
     /* ══════════════════════════════════════════
-   ABRIR CATEGORIA - CARRUSEL INFINITO
-════════════════════════════════════════════ */
-function abrirCategoria(catId) {
-    catActual    = catId;
-    indiceActual = 0;
+       ABRIR CATEGORIA
+    ══════════════════════════════════════════ */
+    function abrirCategoria(catId) {
+        catActual    = catId;
+        indiceActual = 0;
 
-    /* Filtrar platos por campo "categoria" del JSON */
-    platosActuales = catalogo.filter(p => p.categoria === catId);
-    const total    = platosActuales.length;
+        /* Filtrar platos por campo "categoria" del JSON */
+        platosActuales = catalogo.filter(p => p.categoria === catId);
+        const total    = platosActuales.length;
 
-    const catNombre = categorias.find(c => c.id === catId)?.nombre || 'Menu';
-    document.getElementById('titulo-categoria').textContent = catNombre;
-    document.getElementById('badge-cantidad').textContent   = `${total} plato${total !== 1 ? 's' : ''}`;
+        const catNombre = categorias.find(c => c.id === catId)?.nombre || 'Menu';
+        document.getElementById('titulo-categoria').textContent = catNombre;
+        document.getElementById('badge-cantidad').textContent   = `${total} plato${total !== 1 ? 's' : ''}`;
 
-    track.innerHTML    = '';
-    dotsWrap.innerHTML = '';
+        track.innerHTML    = '';
+        dotsWrap.innerHTML = '';
 
-    /* 🎯 DUPLICAR SLIDES PARA LOOP SUAVE */
-    // Agregar slides duplicados al inicio y final
-    const slidesDuplicados = [...platosActuales, ...platosActuales, ...platosActuales];
-    
-    // Indice global real en catalogo
-    slidesDuplicados.forEach((plato, pos) => {
-        const idxGlobal = catalogo.indexOf(plato);
-        const posicionReal = pos % total; // Posición real para contador
-        track.appendChild(crearSlide(plato, idxGlobal, posicionReal, total));
-    });
+        /* Indice global real en catalogo */
+        platosActuales.forEach((plato, pos) => {
+            const idxGlobal = catalogo.indexOf(plato);
+            track.appendChild(crearSlide(plato, idxGlobal, pos, total));
+        });
 
-    // Crear dots solo para platos únicos
-    platosActuales.forEach((_, i) => {
-        const dot = document.createElement('div');
-        dot.className = 'dot' + (i === 0 ? ' activo' : '');
-        dot.addEventListener('click', () => irA(i));
-        dotsWrap.appendChild(dot);
-    });
+        platosActuales.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'dot' + (i === 0 ? ' activo' : '');
+            dot.addEventListener('click', () => irA(i));
+            dotsWrap.appendChild(dot);
+        });
 
-    actualizarCarrusel();
+        actualizarCarrusel();
 
-    document.getElementById('pantalla-platos').classList.add('activa');
-    document.getElementById('btn-volver').style.display = 'flex';
-    document.getElementById('btn-volver').onclick = () => {
-        document.getElementById('pantalla-platos').classList.remove('activa');
-        document.getElementById('pantalla-categorias').classList.add('activa');
-        document.getElementById('btn-volver').style.display = 'none';
-    };
-}
+        document.getElementById('pantalla-platos').classList.add('activa');
+        document.getElementById('btn-volver').style.display = 'flex';
+        document.getElementById('btn-volver').onclick = () => {
+            document.getElementById('pantalla-platos').classList.remove('activa');
+            document.getElementById('pantalla-categorias').classList.add('activa');
+            document.getElementById('btn-volver').style.display = 'none';
+        };
+    }
 
     /* ══════════════════════════════════════════
        SWIPE TOUCH
     ══════════════════════════════════════════ */
-    outer.addEventListener('touchend', e => {
-    if (!arrastrando) return;
-    const diff = touchStartX - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 45) {
-        diff > 0 ? irA(+1) : irA(-1); // Dirección continua
+    function initSwipe() {
+        const outer = document.getElementById('carrusel-outer');
+
+        outer.addEventListener('touchstart', e => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            arrastrando = false;
+        }, { passive: true });
+
+        outer.addEventListener('touchmove', e => {
+            const dx = Math.abs(e.touches[0].clientX - touchStartX);
+            const dy = Math.abs(e.touches[0].clientY - touchStartY);
+            if (dx > dy && dx > 8) arrastrando = true;
+        }, { passive: true });
+
+        outer.addEventListener('touchend', e => {
+            if (!arrastrando) return;
+            const diff = touchStartX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 45) {
+                diff > 0 ? irA(indiceActual + 1) : irA(indiceActual - 1);
+            }
+            arrastrando = false;
+        });
     }
-    arrastrando = false;
-});
-}
+
     /* ══════════════════════════════════════════
        PRECARGA DE MODELOS PRIORITARIOS
     ══════════════════════════════════════════ */
@@ -857,11 +834,10 @@ function abrirCategoria(catId) {
             /* Precarga de modelos destacados */
             precargarModelos();
 
-           /* ══════════════════════════════════════════
-   NAVEGACION CARRUSEL
-════════════════════════════════════════════ */
-btnPrev.addEventListener('click', () => irA(-1));
-btnNext.addEventListener('click', () => irA(+1));
+            /* Navegacion carrusel */
+            btnPrev.addEventListener('click', () => irA(indiceActual - 1));
+            btnNext.addEventListener('click', () => irA(indiceActual + 1));
+            initSwipe();
 
             /* Botones AR */
             document.getElementById('ar-back-list').addEventListener('click', () => {
