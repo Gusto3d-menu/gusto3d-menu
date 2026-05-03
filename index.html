@@ -839,28 +839,29 @@
     /* ══════════════════════════════════════════
        AR
     ══════════════════════════════════════════ */
-    visorModelo.addEventListener('model-loaded', () => {
+    visorModelo.addEventListener('model-loaded', function(event) {
     const p = catalogo[window.platoSeleccionado];
     if (!p) return;
     
-    // ═══════════════════════════════════════════════
-    // CONFIGURAR PLATO PRINCIPAL (INDEPENDIENTE)
-    // ═══════════════════════════════════════════════
+    console.log(`✅ Modelo cargado: ${p.nombre}`);
+    
+    // ══ CONFIGURAR PLATO PRINCIPAL ══
     const principal = p.principal;
     principalContenedor.setAttribute("position", principal.pos || "0 0 0");
     principalContenedor.setAttribute("scale", principal.escala || "1 1 1");
     principalContenedor.setAttribute("rotation", principal.rotacion || "0 0 0");
     
-    // Animación de escala para el principal
-    principalContenedor.setAttribute("animation__escala-principal", {
+    // Animación entrada principal
+    principalContenedor.setAttribute("animation__entrada", {
         property: "scale", 
+        from: "0.8 0.8 0.8",
         to: principal.escala || "1 1 1",
-        dur: principal.anim_dur || 1100, 
+        dur: 1000, 
         easing: "easeOutElastic"
     });
     
-    // Rotación solo del principal
-    principalContenedor.setAttribute("animation__rotar-principal", {
+    // Rotación continua
+    principalContenedor.setAttribute("animation__rotar", {
         property: "rotation", 
         from: principal.rot_inicial || "0 0 0", 
         to: principal.rot_final || "0 360 0",
@@ -869,90 +870,51 @@
         easing: "linear"
     });
     
-    // ═══════════════════════════════════════════════
-    // CONFIGURAR BANDEJA (COMPLETAMENTE INDEPENDIENTE)
-    // ═══════════════════════════════════════════════
+    // ══ CONFIGURAR BANDEJA ══
     if (p.bandeja && p.bandeja.archivo) {
-        const bandejaConfig = p.bandeja;
-        
-        bandejaContenedor.setAttribute("position", bandejaConfig.pos || "0 -0.3 0");
-        bandejaContenedor.setAttribute("scale", bandejaConfig.escala || "1.1 1.1 1.1");
-        bandejaContenedor.setAttribute("rotation", bandejaConfig.rotacion || "0 0 0");
-        
-        bandejaModelo.setAttribute("gltf-model", bandejaConfig.archivo);
+        bandejaContenedor.setAttribute("position", p.bandeja.pos || "0 -0.3 0");
+        bandejaContenedor.setAttribute("scale", p.bandeja.escala || "1.1 1.1 1.1");
+        bandejaContenedor.setAttribute("rotation", p.bandeja.rotacion || "0 0 0");
         bandejaContenedor.setAttribute("visible", "true");
         
-        // Animación suave de entrada para bandeja
-        bandejaContenedor.setAttribute("animation__entrada-bandeja", {
+        // Animación entrada bandeja
+        bandejaContenedor.setAttribute("animation__bandeja", {
             property: "scale",
-            from: "0.7 0.7 0.7",
-            to: bandejaConfig.escala || "1.1 1.1 1.1",
-            dur: 1000,
+            from: "0.5 0.5 0.5",
+            to: p.bandeja.escala || "1.1 1.1 1.1",
+            dur: 1200,
             easing: "easeOutBack"
         });
-        
-        console.log(`✅ Plato: pos=${principal.pos} escala=${principal.escala}`);
-        console.log(`✅ Bandeja: pos=${bandejaConfig.pos} escala=${bandejaConfig.escala}`);
-        
     } else {
         bandejaContenedor.setAttribute("visible", "false");
     }
     
-    // Animación de entrada del contenedor principal
-    contenedor.setAttribute("animation__entrada-total", {
+    // Animación entrada TOTAL
+    contenedor.setAttribute("animation", {
         property: "scale",
         to: "1 1 1",
-        dur: 1200,
+        dur: 800,
         easing: "easeOutElastic"
     });
 });
 
-    async function mostrarPlatoAR(index) {
-    window.platoSeleccionado = index;
-    const p = catalogo[index];
-
-    // Ocultar pantallas
-    document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
-    document.getElementById('btn-volver').style.display = 'none';
-
-    // Reset completo de AMBOS modelos
+    // Función de EMERGENCIA para reset total AR
+window.resetARTotal = function() {
+    console.log("🔄 Reset total AR ejecutado");
+    const mindarSystem = arScene.systems['mindar-image-system'];
+    mindarSystem.stop();
+    
     contenedor.setAttribute("scale", "0.01 0.01 0.01");
+    contenedor.setAttribute("visible", "false");
     visorModelo.removeAttribute("gltf-model");
     bandejaModelo.removeAttribute("gltf-model");
-    bandejaContenedor.setAttribute("visible", "false");
-
-    const mindarSystem = arScene.systems['mindar-image-system'];
-    await mindarSystem.start();
-
-    try {
-        // Cargar plato PRINCIPAL
-        const resPrincipal = await fetch(p.principal.archivo, { method: 'HEAD' });
-        if (resPrincipal.ok) {
-            visorModelo.setAttribute("gltf-model", p.principal.archivo);
-        } else {
-            throw new Error('Principal no disponible');
-        }
-
-        // Cargar BANDEJA si existe
-        if (p.bandeja && p.bandeja.archivo) {
-            const resBandeja = await fetch(p.bandeja.archivo, { method: 'HEAD' });
-            if (!resBandeja.ok) {
-                console.warn(`Bandeja no disponible: ${p.bandeja.archivo}`);
-            }
-        }
-
-        info.textContent = p.nombre;
-        info.classList.remove("en-preparacion");
-        
-    } catch {
-        info.textContent = "En preparación...";
-        info.classList.add("en-preparacion");
-    }
-
-    info.style.display = 'block';
-    uiAr.style.display = 'flex';
-}
-
+    principalContenedor.removeAttribute("animation");
+    bandejaContenedor.removeAttribute("animation");
+    contenedor.removeAttribute("animation");
+    
+    info.style.display = 'none';
+    uiAr.style.display = 'none';
+};
     /* ══════════════════════════════════════════
        INIT
     ══════════════════════════════════════════ */
@@ -976,18 +938,15 @@
             btnNext.addEventListener('click', () => irA(indiceReal + 1));
             initSwipe();
 
-            document.getElementById('ar-back-list').addEventListener('click', () => {
-                arScene.systems['mindar-image-system'].stop();
-                uiAr.style.display = 'none';
-                info.style.display = 'none';
-                abrirCategoria(catActual);
-            });
+           document.getElementById('ar-back-list').addEventListener('click', () => {
+            window.resetARTotal(); // ← AGREGAR ESTA LÍNEA
+            abrirCategoria(catActual);
+        });
+
             document.getElementById('ar-back-menu').addEventListener('click', () => {
-                arScene.systems['mindar-image-system'].stop();
-                uiAr.style.display = 'none';
-                info.style.display = 'none';
-                document.getElementById('pantalla-categorias').classList.add('activa');
-            });
+            window.resetARTotal(); // ← AGREGAR ESTA LÍNEA
+            document.getElementById('pantalla-categorias').classList.add('activa');
+        });
 
             setTimeout(() => {
                 document.getElementById('loading-screen').style.opacity = '0';
