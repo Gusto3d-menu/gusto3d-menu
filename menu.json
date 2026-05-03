@@ -26,7 +26,7 @@
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.glb",
       "plato_base": "plate-b",
       "plato_base_pos": "0 -0.15 0.1",
-      "plato_base_escala": "0 0 0",
+      "plato_base_escala": "0.45 0.45 0.45",
       "plato_comida_pos": "0 0.05 0.1",
       "pos": "0 0 0.1",
       "escala": "0.4 0.4 0.4",
@@ -70,15 +70,10 @@
       "alergenos": ["gluten", "lacteos"],
       "descripcion": "Carne 100% Angus jugosa con cheddar derretido, bacon crujiente, lechuga, tomate y nuestra salsa secreta.",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato03.glb",
-      
       "plato_base": "plate-b",
       "plato_base_pos": "0 -0.1 0.1",
       "plato_base_escala": "1.6 1.6 1.6",
       "plato_comida_pos": "0 0.3 0.1",
-      "velocidad_base": 30000,
-      "rot_base_inicial": "0 0 0",
-      "rot_base_final": "0 360 0"
-      
       "pos": "0 0.2 0.1",
       "escala": "1.5 1.5 1.5",
       "rot_inicial": "90 0 0",
