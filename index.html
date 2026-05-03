@@ -194,7 +194,6 @@
             background: linear-gradient(135deg,rgba(37,211,102,0.2),rgba(18,140,126,0.1));
             border: 2px solid rgba(37,211,102,0.35);
             display: flex; align-items: center; justify-content: center;
-            transition: transform 0.2s ease;
         }
         .placeholder-text {
             color: rgba(255,255,255,0.3); font-size: 11px;
@@ -216,7 +215,7 @@
         .btn-ver-ar {
             display: none !important;
             width: 100%; padding: 10px 0;
-            background: linear-gradient(90deg,rgba(37,211,102,0.18),rgba(18,140,126,0.10));
+            background: linear-gradient(90deg, rgba(37,211,102,0.18), rgba(18,140,126,0.10));
             border: none; border-top: 1px solid rgba(37,211,102,0.25);
             color: #25D366; font-family: 'Poppins', sans-serif;
             font-size: 12px; font-weight: 600; letter-spacing: 2px;
@@ -225,7 +224,7 @@
             transition: background 0.2s ease;
         }
         .btn-ver-ar:active {
-            background: linear-gradient(90deg,rgba(37,211,102,0.35),rgba(18,140,126,0.25));
+            background: linear-gradient(90deg, rgba(37,211,102,0.35), rgba(18,140,126,0.25));
         }
 
         .plato-info {
@@ -271,8 +270,8 @@
             z-index: 15; white-space: nowrap;
         }
         @keyframes pulse-hint {
-            0%,100%{ opacity:1; transform:translateX(-50%) translateY(0px); }
-            50%{ opacity:0.7; transform:translateX(-50%) translateY(-2px); }
+            0%,100%{ opacity:1; transform: translateX(-50%) translateY(0px); }
+            50%{ opacity:0.7; transform: translateX(-50%) translateY(-2px); }
         }
 
         .carrusel-nav {
@@ -389,7 +388,7 @@
             </button>
             <div class="carrusel-dots" id="carrusel-dots"></div>
             <div class="carrusel-contador" id="carrusel-contador"></div>
-            <div class="ar-hint-fijo">Toca la imagen o "Ver en 3D" para AR</div>
+            <div class="ar-hint-fijo">Toca la imagen o Ver en 3D para AR</div>
         </div>
     </div>
 
@@ -400,12 +399,11 @@
         <button class="btn-ar" id="ar-back-menu">CATEGORIAS</button>
     </div>
 
-    <!-- ═══════════════════════════════════════════
-         A-FRAME SCENE
-         Dos entidades gltf dentro del mismo target:
-           #visor-base  → plato/bandeja (estatico)
-           #visor-comida → modelo de la comida (animado)
-    ════════════════════════════════════════════ -->
+    <!--
+        ESCENA A-FRAME
+        contenedor-base  -> plato_base.glb  (posicion/escala/rotacion propias)
+        contenedor-comida-> archivo.glb     (posicion/escala/rotacion propias)
+    -->
     <a-scene
         mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;
                       uiLoading: no; uiScanning: no;
@@ -416,12 +414,12 @@
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
         <a-entity mindar-image-target="targetIndex: 0">
 
-            <!-- Plato / bandeja base: sin rotacion animada, solo posicion fija -->
+            <!-- Contenedor del plato base -->
             <a-entity id="contenedor-base" scale="0.01 0.01 0.01">
                 <a-gltf-model id="visor-base"></a-gltf-model>
             </a-entity>
 
-            <!-- Comida: emerge con escala y gira -->
+            <!-- Contenedor de la comida -->
             <a-entity id="contenedor-comida" scale="0.01 0.01 0.01">
                 <a-gltf-model id="visor-comida"></a-gltf-model>
             </a-entity>
@@ -430,25 +428,25 @@
     </a-scene>
 
     <script>
-    /* ══════════════════════════════════════════
+    /* ═══════════════════════════════════════
        REFERENCIAS DOM
-    ══════════════════════════════════════════ */
-    const visorBase   = document.getElementById("visor-base");
-    const visorComida = document.getElementById("visor-comida");
-    const contenBase  = document.getElementById("contenedor-base");
-    const contenComida= document.getElementById("contenedor-comida");
-    const info        = document.getElementById("plato-info-ar");
-    const arScene     = document.getElementById("ar-scene");
-    const uiAr        = document.getElementById("ui-ar");
-    const track       = document.getElementById("carrusel-track");
-    const dotsWrap    = document.getElementById("carrusel-dots");
-    const contador    = document.getElementById("carrusel-contador");
-    const btnPrev     = document.getElementById("btn-prev");
-    const btnNext     = document.getElementById("btn-next");
+    ═══════════════════════════════════════ */
+    const visorBase   = document.getElementById('visor-base');
+    const visorComida = document.getElementById('visor-comida');
+    const contBase    = document.getElementById('contenedor-base');
+    const contComida  = document.getElementById('contenedor-comida');
+    const info        = document.getElementById('plato-info-ar');
+    const arScene     = document.getElementById('ar-scene');
+    const uiAr        = document.getElementById('ui-ar');
+    const track       = document.getElementById('carrusel-track');
+    const dotsWrap    = document.getElementById('carrusel-dots');
+    const contador    = document.getElementById('carrusel-contador');
+    const btnPrev     = document.getElementById('btn-prev');
+    const btnNext     = document.getElementById('btn-next');
 
-    /* ══════════════════════════════════════════
+    /* ═══════════════════════════════════════
        ESTADO GLOBAL
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════ */
     let catalogo       = [];
     let categorias     = [];
     let catActual      = -1;
@@ -459,15 +457,9 @@
     let enTransicion   = false;
     let indiceReal     = 0;
 
-    /* ══════════════════════════════════════════
-       BASE URL ASSETS
-       Apunta al repo gusto3d-assets en GitHub raw
-    ══════════════════════════════════════════ */
-    const ASSETS_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
-
-    /* ══════════════════════════════════════════
+    /* ═══════════════════════════════════════
        ICONOS SVG CATEGORIAS
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════ */
     const ICONOS_CAT = {
         entradas: '<path d="M2 20h20M12 4v4M8 8h8M6 12h12M4 16h16"/>',
         fuerte:   '<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>',
@@ -475,7 +467,6 @@
         bebidas:  '<path d="M8 2h8l1 10H7L8 2z"/><path d="M7 12c0 5 2 8 5 8s5-3 5-8"/>',
         default:  '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>'
     };
-
     function svgIconCategoria(slug) {
         const p = ICONOS_CAT[slug] || ICONOS_CAT.default;
         return `<svg width="34" height="34" viewBox="0 0 24 24" fill="none"
@@ -489,9 +480,9 @@
                      stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
     }
 
-    /* ══════════════════════════════════════════
+    /* ═══════════════════════════════════════
        GRID CATEGORIAS
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════ */
     function generarGridCategorias() {
         const grid = document.getElementById('grid-categorias');
         grid.innerHTML = '';
@@ -508,17 +499,16 @@
         });
     }
 
-    /* ══════════════════════════════════════════
+    /* ═══════════════════════════════════════
        CREAR SLIDE
-       — SIN ningun badge ni texto de tipo de plato
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════ */
     function crearSlide(plato, idxGlobal, posicionVisual, totalPlatos) {
         const slide = document.createElement('div');
         slide.className = 'carrusel-slide';
         slide.dataset.logico = posicionVisual;
 
         const tieneImagen = plato.imagen && plato.imagen.trim() !== '';
-        const descripcion = plato.descripcion || "Delicioso plato preparado con ingredientes frescos.";
+        const descripcion = plato.descripcion || 'Delicioso plato preparado con ingredientes frescos.';
         const catIcono    = categorias.find(c => c.id === catActual)?.icono || 'default';
 
         const imgHTML = tieneImagen
@@ -535,17 +525,16 @@
 
         let alergenosHTML = '';
         if (plato.alergenos && plato.alergenos.length > 0) {
-            alergenosHTML = `<div class="alergenos-wrap">${plato.alergenos.map(a=>`<span class="alergen-chip">${a}</span>`).join('')}</div>`;
+            alergenosHTML = `<div class="alergenos-wrap">${plato.alergenos.map(a =>
+                `<span class="alergen-chip">${a}</span>`).join('')}</div>`;
         }
 
         const badgeDestacado = plato.destacado
             ? `<div class="badge-destacado">Recomendado</div>` : '';
-        const badgeAgotado   = (plato.disponible === false)
+        const badgeAgotado = (plato.disponible === false)
             ? `<div class="badge-agotado"><span>Agotado</span></div>` : '';
         const disponibleAttr = (plato.disponible === false) ? 'data-agotado="true"' : '';
 
-        /* NOTA: plato-badge-num conservado (numero de posicion), pero
-           NO se muestra ningun texto sobre el tipo de plato base */
         slide.innerHTML = `
             <div class="plato-card" data-plato-idx="${idxGlobal}" ${disponibleAttr}>
                 ${badgeAgotado}${badgeDestacado}
@@ -594,9 +583,9 @@
         return slide;
     }
 
-    /* ══════════════════════════════════════════
-       TRACK helpers
-    ══════════════════════════════════════════ */
+    /* ═══════════════════════════════════════
+       TRACK HELPERS
+    ═══════════════════════════════════════ */
     function posicionarTrackSilencioso(trackIdx) {
         track.classList.add('sin-transicion');
         track.style.transform = `translateX(-${trackIdx * 100}%)`;
@@ -608,7 +597,6 @@
         const total    = platosActuales.length;
         const trackIdx = indiceReal + 1;
         track.style.transform = `translateX(-${trackIdx * 100}%)`;
-
         document.querySelectorAll('.carrusel-slide').forEach(s => {
             const logico   = parseInt(s.dataset.logico, 10);
             const eraActivo = s.classList.contains('activo');
@@ -619,7 +607,6 @@
                 if (card) { card.style.animation = 'none'; void card.offsetWidth; card.style.animation = ''; }
             }
         });
-
         document.querySelectorAll('.dot').forEach((d, i) => {
             d.classList.toggle('activo', i === indiceReal);
         });
@@ -634,8 +621,8 @@
 
         if (nuevoIndiceReal < 0) {
             track.style.transform = `translateX(0%)`;
-            track.addEventListener('transitionend', function h() {
-                track.removeEventListener('transitionend', h);
+            track.addEventListener('transitionend', function handler() {
+                track.removeEventListener('transitionend', handler);
                 indiceReal = total - 1;
                 posicionarTrackSilencioso(total);
                 actualizarUI();
@@ -645,11 +632,10 @@
             contador.textContent = `${total} / ${total}`;
             return;
         }
-
         if (nuevoIndiceReal >= total) {
             track.style.transform = `translateX(-${(total + 1) * 100}%)`;
-            track.addEventListener('transitionend', function h() {
-                track.removeEventListener('transitionend', h);
+            track.addEventListener('transitionend', function handler() {
+                track.removeEventListener('transitionend', handler);
                 indiceReal = 0;
                 posicionarTrackSilencioso(1);
                 actualizarUI();
@@ -659,25 +645,23 @@
             contador.textContent = `1 / ${total}`;
             return;
         }
-
         indiceReal = nuevoIndiceReal;
         actualizarUI();
-        track.addEventListener('transitionend', function h() {
-            track.removeEventListener('transitionend', h);
+        track.addEventListener('transitionend', function handler() {
+            track.removeEventListener('transitionend', handler);
             enTransicion = false;
         });
     }
 
-    /* ══════════════════════════════════════════
+    /* ═══════════════════════════════════════
        ABRIR CATEGORIA
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════ */
     function abrirCategoria(catId) {
         catActual    = catId;
         indiceReal   = 0;
         enTransicion = false;
-
         platosActuales = catalogo.filter(p => p.categoria === catId);
-        const total    = platosActuales.length;
+        const total  = platosActuales.length;
 
         const catNombre = categorias.find(c => c.id === catId)?.nombre || 'Menu';
         document.getElementById('titulo-categoria').textContent = catNombre;
@@ -689,16 +673,14 @@
         const idxGlobales = platosActuales.map(p => catalogo.indexOf(p));
 
         if (total > 0) {
-            const clonUltimo = crearSlide(platosActuales[total-1], idxGlobales[total-1], total-1, total);
+            const clonUltimo = crearSlide(platosActuales[total - 1], idxGlobales[total - 1], total - 1, total);
             clonUltimo.dataset.logico = total - 1;
             clonUltimo.dataset.clon   = 'ultimo';
             track.appendChild(clonUltimo);
         }
-
         platosActuales.forEach((plato, pos) => {
             track.appendChild(crearSlide(plato, idxGlobales[pos], pos, total));
         });
-
         if (total > 0) {
             const clonPrimero = crearSlide(platosActuales[0], idxGlobales[0], 0, total);
             clonPrimero.dataset.logico = 0;
@@ -721,17 +703,18 @@
         actualizarUI();
 
         document.getElementById('pantalla-platos').classList.add('activa');
-        document.getElementById('btn-volver').style.display = 'flex';
-        document.getElementById('btn-volver').onclick = () => {
+        const btnVolver = document.getElementById('btn-volver');
+        btnVolver.style.display = 'flex';
+        btnVolver.onclick = () => {
             document.getElementById('pantalla-platos').classList.remove('activa');
             document.getElementById('pantalla-categorias').classList.add('activa');
-            document.getElementById('btn-volver').style.display = 'none';
+            btnVolver.style.display = 'none';
         };
     }
 
-    /* ══════════════════════════════════════════
+    /* ═══════════════════════════════════════
        SWIPE
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════ */
     function initSwipe() {
         const outer = document.getElementById('carrusel-outer');
         outer.addEventListener('touchstart', e => {
@@ -752,9 +735,9 @@
         });
     }
 
-    /* ══════════════════════════════════════════
+    /* ═══════════════════════════════════════
        PRECARGA
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════ */
     function precargarModelos() {
         catalogo.filter(p => p.destacado).slice(0, 3).forEach(p => {
             const link = document.createElement('link');
@@ -763,151 +746,153 @@
         });
     }
 
-    /* ══════════════════════════════════════════
-       AR — MOSTRAR PLATO
-       ─────────────────────────────────────────
-       Flujo:
-       1. Limpiar ambas entidades (base + comida)
-       2. Iniciar MindAR
-       3. Verificar que ambos .glb existen (HEAD)
-       4. Asignar src — cada modelo se carga
-          independientemente
-       5. model-loaded de visor-comida: anima
-          emergencia + rotacion continua
-          model-loaded de visor-base: solo posicion
-    ══════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════════════════════
+       HELPERS PARA LIMPIAR ANIMACIONES DE UN ELEMENTO A-FRAME
+    ═══════════════════════════════════════════════════════════ */
+    function limpiarAnimaciones(el) {
+        // Elimina todos los atributos de animacion previos
+        Array.from(el.attributes)
+            .filter(a => a.name.startsWith('animation'))
+            .forEach(a => el.removeAttribute(a.name));
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       AR — MOSTRAR PLATO CON BASE
+       Carga en paralelo:
+         visor-base   <- plato_base.glb  (rotacion animada base)
+         visor-comida <- archivo.glb     (rotacion animada comida)
+    ═══════════════════════════════════════════════════════════ */
     async function mostrarPlatoAR(index) {
         window.platoSeleccionado = index;
         const p = catalogo[index];
 
-        /* Ocultar pantallas */
+        /* Ocultar pantallas UI */
         document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
         document.getElementById('btn-volver').style.display = 'none';
 
-        /* Resetear ambas entidades */
-        contenBase.setAttribute('scale',  '0.01 0.01 0.01');
-        contenComida.setAttribute('scale','0.01 0.01 0.01');
+        /* Resetear ambos contenedores a escala minima */
+        contBase.setAttribute('scale', '0.01 0.01 0.01');
+        contComida.setAttribute('scale', '0.01 0.01 0.01');
 
+        /* Limpiar modelos y animaciones anteriores */
+        limpiarAnimaciones(visorBase);
+        limpiarAnimaciones(visorComida);
         visorBase.removeAttribute('gltf-model');
         visorComida.removeAttribute('gltf-model');
-        visorBase.removeAttribute('animation__rotar');
-        visorComida.removeAttribute('animation__rotar');
-        visorComida.removeAttribute('animation__escala');
 
-        /* Iniciar camara AR */
+        /* Iniciar AR */
         const mindarSystem = arScene.systems['mindar-image-system'];
         await mindarSystem.start();
 
-        /* ── Construir URL del plato base ── */
-        const urlBase   = `${ASSETS_BASE}${p.plato_base}.glb`;
-        const urlComida = p.archivo;
+        /* ── URL del plato base ── */
+        const ASSETS_BASE = 'https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/';
+        const baseNombre  = p.plato_base || 'plate-b';
+        const urlBase     = `${ASSETS_BASE}${baseNombre}.glb`;
+        const urlComida   = p.archivo;
 
-        /* ── Verificar existencia de ambos archivos en paralelo ── */
-        let baseOk = false;
-        let comidaOk = false;
+        /* ── Posiciones y escalas ── */
+        const basePosStr   = p.plato_base_pos    || '0 -0.15 0.1';
+        const baseEscStr   = p.plato_base_escala || '0.45 0.45 0.45';
+        const comidaPosStr = p.plato_comida_pos  || p.pos || '0 0 0.1';
+        const comidaEscStr = p.escala            || '1 1 1';
 
+        /* ── Rotacion animada del PLATO BASE ──
+           Usa los mismos campos que la comida pero con
+           rot_base_inicial / rot_base_final / velocidad_base
+           Si no estan definidos, usa los mismos que la comida
+           para que ambos giren sincronizados. ── */
+        const baseRotInicial = p.rot_base_inicial || p.rot_inicial || '0 0 0';
+        const baseRotFinal   = p.rot_base_final   || p.rot_final   || '0 360 0';
+        const baseVelocidad  = p.velocidad_base   || p.velocidad   || 15000;
+        const baseAnimDur    = p.anim_dur_base     || p.anim_dur    || 1200;
+
+        /* ── Handler: plato BASE cargado ── */
+        visorBase.addEventListener('model-loaded', function handlerBase() {
+            visorBase.removeEventListener('model-loaded', handlerBase);
+
+            contBase.setAttribute('position', basePosStr);
+
+            /* Escala emergente animada */
+            contBase.setAttribute('animation__escala', {
+                property: 'scale',
+                to: baseEscStr,
+                dur: baseAnimDur,
+                easing: 'easeOutElastic'
+            });
+
+            /* Rotacion continua del plato base */
+            visorBase.setAttribute('animation__rotar', {
+                property: 'rotation',
+                from: baseRotInicial,
+                to:   baseRotFinal,
+                dur:  baseVelocidad,
+                loop: true,
+                easing: 'linear'
+            });
+        });
+
+        /* ── Handler: COMIDA cargada ── */
+        visorComida.addEventListener('model-loaded', function handlerComida() {
+            visorComida.removeEventListener('model-loaded', handlerComida);
+
+            contComida.setAttribute('position', comidaPosStr);
+
+            /* Escala emergente animada */
+            contComida.setAttribute('animation__escala', {
+                property: 'scale',
+                to: comidaEscStr,
+                dur: p.anim_dur || 1100,
+                easing: 'easeOutElastic'
+            });
+
+            /* Rotacion continua de la comida */
+            visorComida.setAttribute('animation__rotar', {
+                property: 'rotation',
+                from: p.rot_inicial || '0 0 0',
+                to:   p.rot_final   || '0 360 0',
+                dur:  p.velocidad   || 15000,
+                loop: true,
+                easing: 'linear'
+            });
+        });
+
+        /* ── Verificar y cargar ambos modelos en paralelo ── */
         try {
             const [resBase, resComida] = await Promise.all([
                 fetch(urlBase,   { method: 'HEAD' }),
                 fetch(urlComida, { method: 'HEAD' })
             ]);
-            baseOk   = resBase.ok;
-            comidaOk = resComida.ok;
-        } catch (err) {
-            console.warn('Error verificando modelos:', err);
-        }
 
-        /* ── Mostrar nombre del plato ── */
-        info.textContent = p.nombre;
-        info.classList.remove('en-preparacion');
+            if (resComida.ok) {
+                visorComida.setAttribute('gltf-model', urlComida);
+            } else {
+                throw new Error('comida no encontrada');
+            }
 
-        /* ── Cargar modelo COMIDA ── */
-        if (comidaOk) {
-            /* Handler: cuando la comida termina de cargar → animar */
-            visorComida.addEventListener('model-loaded', function handlerComida() {
-                visorComida.removeEventListener('model-loaded', handlerComida);
+            if (resBase.ok) {
+                visorBase.setAttribute('gltf-model', urlBase);
+            }
+            /* Si el plato base no existe simplemente no se carga,
+               la comida igual aparece */
 
-                /* Posicion de la comida */
-                const posComida = p.plato_comida_pos || p.pos || '0 0 0.1';
-                contenComida.setAttribute('position', posComida);
+            info.textContent = p.nombre;
+            info.classList.remove('en-preparacion');
 
-                /* Emergencia con escala */
-                contenComida.setAttribute('animation__escala', {
-                    property: 'scale',
-                    to:       p.escala || '1 1 1',
-                    dur:      p.anim_dur || 1100,
-                    easing:   'easeOutElastic'
-                });
-
-                /* Rotacion continua sobre la comida */
-                visorComida.setAttribute('animation__rotar', {
-                    property: 'rotation',
-                    from:     p.rot_inicial  || '90 0 0',
-                    to:       p.rot_final    || '90 360 0',
-                    dur:      p.velocidad    || 15000,
-                    loop:     true,
-                    easing:   'linear'
-                });
-            }, { once: true });
-
-            visorComida.setAttribute('gltf-model', urlComida);
-        } else {
+        } catch {
             info.textContent = 'En preparacion...';
             info.classList.add('en-preparacion');
-        }
-
-        /* ── Cargar modelo BASE (plato/bandeja) ── */
-        if (baseOk && p.plato_base) {
-            visorBase.addEventListener('model-loaded', function handlerBase() {
-                visorBase.removeEventListener('model-loaded', handlerBase);
-
-                /* Posicion del plato base */
-                const posBase     = p.plato_base_pos     || p.pos      || '0 0 0.1';
-                const escalaBase  = p.plato_base_escala  || p.escala   || '1 1 1';
-
-                contenBase.setAttribute('position', posBase);
-
-                /* El plato base emerge junto con la comida pero sin rotacion */
-                contenBase.setAttribute('animation__escala', {
-                    property: 'scale',
-                    to:       escalaBase,
-                    dur:      p.anim_dur || 1100,
-                    easing:   'easeOutElastic'
-                });
-            }, { once: true });
-
-            visorBase.setAttribute('gltf-model', urlBase);
         }
 
         info.style.display = 'block';
         uiAr.style.display = 'flex';
     }
 
-    /* ══════════════════════════════════════════
-       VOLVER DESDE AR — limpia todo
-    ══════════════════════════════════════════ */
-    function salirAR() {
-        arScene.systems['mindar-image-system'].stop();
-        uiAr.style.display  = 'none';
-        info.style.display  = 'none';
-
-        /* Limpiar modelos para proxima vez */
-        visorBase.removeAttribute('gltf-model');
-        visorComida.removeAttribute('gltf-model');
-        visorBase.removeAttribute('animation__rotar');
-        visorComida.removeAttribute('animation__rotar');
-        visorComida.removeAttribute('animation__escala');
-        contenBase.removeAttribute('animation__escala');
-        contenBase.setAttribute('scale',  '0.01 0.01 0.01');
-        contenComida.setAttribute('scale','0.01 0.01 0.01');
-    }
-
-    /* ══════════════════════════════════════════
+    /* ═══════════════════════════════════════
        INIT
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════ */
     async function init() {
         try {
-            const res  = await fetch('./menu.json');
+            const res = await fetch('./menu.json');
             if (!res.ok) throw new Error('HTTP ' + res.status);
             const data = await res.json();
 
@@ -925,12 +910,25 @@
             btnNext.addEventListener('click', () => irA(indiceReal + 1));
             initSwipe();
 
+            const detenerAR = () => {
+                arScene.systems['mindar-image-system'].stop();
+                uiAr.style.display  = 'none';
+                info.style.display  = 'none';
+                /* Limpiar modelos al salir de AR */
+                limpiarAnimaciones(visorBase);
+                limpiarAnimaciones(visorComida);
+                visorBase.removeAttribute('gltf-model');
+                visorComida.removeAttribute('gltf-model');
+                contBase.setAttribute('scale', '0.01 0.01 0.01');
+                contComida.setAttribute('scale', '0.01 0.01 0.01');
+            };
+
             document.getElementById('ar-back-list').addEventListener('click', () => {
-                salirAR();
+                detenerAR();
                 abrirCategoria(catActual);
             });
             document.getElementById('ar-back-menu').addEventListener('click', () => {
-                salirAR();
+                detenerAR();
                 document.getElementById('pantalla-categorias').classList.add('activa');
             });
 
