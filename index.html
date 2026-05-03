@@ -132,14 +132,10 @@
         .carrusel-track-outer { width: 100%; overflow: hidden; position: relative; }
         .carrusel-track {
             display: flex;
-            /* La transicion se activa/desactiva dinamicamente via JS */
             transition: transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94);
             will-change: transform;
         }
-        /* ── CLASE UTILITARIA: sin transicion para saltos silenciosos ── */
-        .carrusel-track.sin-transicion {
-            transition: none !important;
-        }
+        .carrusel-track.sin-transicion { transition: none !important; }
         .carrusel-slide {
             min-width: 100%; padding: 0 30px;
             display: flex; justify-content: center; align-items: center;
@@ -164,7 +160,6 @@
             text-transform: uppercase; z-index: 5;
             box-shadow: 0 2px 10px rgba(247,151,30,0.5);
         }
-
         .badge-agotado {
             position: absolute; inset: 0;
             background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
@@ -177,6 +172,18 @@
             border: 2px solid rgba(255,107,53,0.6);
             padding: 10px 24px; border-radius: 50px;
         }
+
+        /* Badge que muestra que tipo de plato base tiene el plato */
+        .badge-plato-base {
+            position: absolute; bottom: 12px; left: 12px;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.7); font-size: 9px; font-weight: 600;
+            padding: 3px 9px; border-radius: 20px; letter-spacing: 1px;
+            text-transform: uppercase; z-index: 4;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .badge-plato-base svg { flex-shrink: 0; }
 
         .plato-imagen-wrap {
             width: 100%; height: 220px;
@@ -194,7 +201,6 @@
             transition: transform 0.5s ease;
         }
         .plato-card:active .plato-imagen { transform: scale(1.04); }
-
         .plato-imagen-placeholder {
             width: 100%; height: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -205,7 +211,6 @@
             background: linear-gradient(135deg,rgba(37,211,102,0.2),rgba(18,140,126,0.1));
             border: 2px solid rgba(37,211,102,0.35);
             display: flex; align-items: center; justify-content: center;
-            transition: transform 0.2s ease;
         }
         .placeholder-text {
             color: rgba(255,255,255,0.3); font-size: 11px;
@@ -226,21 +231,13 @@
 
         .btn-ver-ar {
             display: none !important;
-            width: 100%;
-            padding: 10px 0;
+            width: 100%; padding: 10px 0;
             background: linear-gradient(90deg, rgba(37,211,102,0.18), rgba(18,140,126,0.10));
-            border: none;
-            border-top: 1px solid rgba(37,211,102,0.25);
-            color: #25D366;
-            font-family: 'Poppins', sans-serif;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            cursor: pointer;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            border: none; border-top: 1px solid rgba(37,211,102,0.25);
+            color: #25D366; font-family: 'Poppins', sans-serif;
+            font-size: 12px; font-weight: 600; letter-spacing: 2px;
+            text-transform: uppercase; cursor: pointer;
+            align-items: center; justify-content: center; gap: 8px;
             transition: background 0.2s ease;
         }
         .btn-ver-ar:active {
@@ -256,7 +253,6 @@
             font-family: 'Playfair Display', serif;
             color: white; font-size: 20px; margin: 0 0 4px; line-height: 1.25;
         }
-
         .precios-wrap { display: flex; align-items: baseline; gap: 10px; margin: 4px 0 10px; }
         .plato-precio {
             font-family: 'Playfair Display', serif;
@@ -267,20 +263,13 @@
             font-size: 14px; color: rgba(255,255,255,0.3);
             text-decoration: line-through; font-weight: 400;
         }
-
         .plato-descripcion {
-            color: rgba(255,255,255,0.75);
-            font-size: 12px; line-height: 1.45;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
+            color: rgba(255,255,255,0.75); font-size: 12px; line-height: 1.45;
+            overflow: hidden; display: -webkit-box;
+            -webkit-line-clamp: 3; -webkit-box-orient: vertical;
             margin-bottom: 12px;
         }
-
-        .alergenos-wrap {
-            display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px;
-        }
+        .alergenos-wrap { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
         .alergen-chip {
             font-size: 9px; font-weight: 600; letter-spacing: 1px;
             padding: 3px 8px; border-radius: 20px; text-transform: uppercase;
@@ -291,8 +280,7 @@
         .ar-hint-fijo {
             position: absolute; bottom: 20px; left: 50%;
             transform: translateX(-50%);
-            color: rgba(37,211,102,0.8);
-            font-size: 11px; letter-spacing: 1px;
+            color: rgba(37,211,102,0.8); font-size: 11px; letter-spacing: 1px;
             text-transform: uppercase; font-weight: 500; text-align: center;
             background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
             padding: 8px 20px; border-radius: 25px;
@@ -323,7 +311,6 @@
             background: rgba(255,255,255,0.2); transition: all 0.35s ease; cursor: pointer;
         }
         .dot.activo { background: #25D366; width: 22px; border-radius: 4px; }
-
         .carrusel-contador {
             position: absolute; bottom: 4px; right: 30px;
             color: rgba(255,255,255,0.25); font-size: 11px; letter-spacing: 1px;
@@ -346,6 +333,21 @@
             font-size: 20px; font-weight: 600; text-shadow: 0 2px 10px #000;
             z-index: 1001; display: none; letter-spacing: 0.5px;
         }
+
+        /* Indicador del tipo de base en modo AR */
+        #ar-base-indicator {
+            position: fixed; top: 85px; width: 100%; text-align: center;
+            z-index: 1001; display: none;
+        }
+        .ar-base-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.6); font-family: 'Poppins', sans-serif;
+            font-size: 10px; font-weight: 500; letter-spacing: 1.5px;
+            padding: 5px 14px; border-radius: 20px; text-transform: uppercase;
+        }
+
         #ui-ar {
             position: fixed; bottom: 40px; width: 100%;
             display: none; justify-content: center; gap: 12px; z-index: 1001;
@@ -420,18 +422,33 @@
             </button>
             <div class="carrusel-dots" id="carrusel-dots"></div>
             <div class="carrusel-contador" id="carrusel-contador"></div>
-            <div class="ar-hint-fijo">Toca la imagen o "Ver en 3D" para AR</div>
+            <div class="ar-hint-fijo">Toca la imagen para ver en AR</div>
         </div>
     </div>
 
     <button id="btn-volver">&#8592;</button>
 
     <div id="plato-info-ar"></div>
+
+    <!-- Indicador de base AR -->
+    <div id="ar-base-indicator">
+        <span class="ar-base-chip" id="ar-base-chip-text"></span>
+    </div>
+
     <div id="ui-ar">
         <button class="btn-ar" id="ar-back-list">VER LISTA</button>
         <button class="btn-ar" id="ar-back-menu">CATEGORIAS</button>
     </div>
 
+    <!--
+    ═══════════════════════════════════════════════════════════
+      A-FRAME SCENE
+      Estructura del contenedor AR:
+        contenedor-estabilizador
+          └── visor-base    (plato/bandeja — GLB de soporte)
+          └── visor-comida  (modelo 3D de la comida — GLB principal)
+    ═══════════════════════════════════════════════════════════
+    -->
     <a-scene
         mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;
                       uiLoading: no; uiScanning: no;
@@ -439,28 +456,76 @@
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
         id="ar-scene">
+
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
         <a-entity mindar-image-target="targetIndex: 0">
             <a-entity id="contenedor-estabilizador" scale="0.01 0.01 0.01">
-                <a-gltf-model id="visor"></a-gltf-model>
+
+                <!--
+                    visor-base: carga el GLB del plato/bandeja de soporte.
+                    Se escala e inicia oculto (escala 0.01) y crece con animacion.
+                    Solo rota lentamente en Y para un efecto presentacion elegante.
+                -->
+                <a-gltf-model id="visor-base"></a-gltf-model>
+
+                <!--
+                    visor-comida: carga el GLB del plato de comida.
+                    Mantiene la animacion giratoria original.
+                    Se posiciona encima del plato base via plato_base_offset_y en el JSON.
+                -->
+                <a-gltf-model id="visor-comida"></a-gltf-model>
+
             </a-entity>
         </a-entity>
     </a-scene>
 
     <script>
     /* ══════════════════════════════════════════
+       URL BASE PARA LOS MODELOS DE PLATOS
+       Apunta a tu repositorio gusto3d-assets en GitHub.
+       Ajusta esta ruta si cambias de repo o rama.
+    ══════════════════════════════════════════ */
+    const ASSETS_BASE_URL = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
+
+    /* ══════════════════════════════════════════
+       MAPEO DE NOMBRES DE PLATO BASE → ETIQUETA LEGIBLE
+    ══════════════════════════════════════════ */
+    const PLATO_BASE_LABELS = {
+        "plate-b":   "Plato blanco",
+        "plate-mad": "Tabla de madera",
+        "plate-n":   "Plato negro"
+    };
+
+    /* Icono SVG para el badge del tipo de base (en tarjeta y en AR) */
+    function svgBasePlate(tipo) {
+        const paths = {
+            "plate-b":   '<ellipse cx="12" cy="13" rx="9" ry="3"/><path d="M3 13c0-5 18-5 18 0"/>',
+            "plate-mad": '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+            "plate-n":   '<ellipse cx="12" cy="13" rx="9" ry="3"/><path d="M3 13c0-5 18-5 18 0"/><path d="M8 10h8"/>'
+        };
+        const d = paths[tipo] || paths["plate-b"];
+        return `<svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                     stroke="rgba(255,255,255,0.5)" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+    }
+
+    /* ══════════════════════════════════════════
        REFERENCIAS DOM
     ══════════════════════════════════════════ */
-    const visor      = document.getElementById("visor");
-    const contenedor = document.getElementById("contenedor-estabilizador");
-    const info       = document.getElementById("plato-info-ar");
-    const arScene    = document.getElementById("ar-scene");
-    const uiAr       = document.getElementById("ui-ar");
-    const track      = document.getElementById("carrusel-track");
-    const dotsWrap   = document.getElementById("carrusel-dots");
-    const contador   = document.getElementById("carrusel-contador");
-    const btnPrev    = document.getElementById("btn-prev");
-    const btnNext    = document.getElementById("btn-next");
+    const visorComida = document.getElementById("visor-comida");
+    const visorBase   = document.getElementById("visor-base");
+    const contenedor  = document.getElementById("contenedor-estabilizador");
+    const info        = document.getElementById("plato-info-ar");
+    const arScene     = document.getElementById("ar-scene");
+    const uiAr        = document.getElementById("ui-ar");
+    const arBaseIndicator = document.getElementById("ar-base-indicator");
+    const arBaseChipText  = document.getElementById("ar-base-chip-text");
+    const track       = document.getElementById("carrusel-track");
+    const dotsWrap    = document.getElementById("carrusel-dots");
+    const contador    = document.getElementById("carrusel-contador");
+    const btnPrev     = document.getElementById("btn-prev");
+    const btnNext     = document.getElementById("btn-next");
 
     /* ══════════════════════════════════════════
        ESTADO GLOBAL
@@ -472,19 +537,14 @@
     let touchStartX     = 0;
     let touchStartY     = 0;
     let arrastrando     = false;
-    let enTransicion    = false;  // bloquea clicks rapidos durante el salto silencioso
+    let enTransicion    = false;
+    let indiceReal      = 0;
 
-    /*
-     * ── INDICE REAL vs INDICE DE TRACK ──────────────────────────────
-     * El track tiene: [clon-ultimo] [slide-0] [slide-1] ... [slide-N-1] [clon-primero]
-     * indiceTrack = indiceReal + 1
-     * indiceReal  va de 0 a N-1 (lo que muestran dots y contador)
-     * ────────────────────────────────────────────────────────────────
-     */
-    let indiceReal  = 0;  // indice logico visible (0-based)
+    /* Rastrear si ambos modelos AR han cargado */
+    let modelosARCargados = { comida: false, base: false };
 
     /* ══════════════════════════════════════════
-       ICONOS SVG
+       ICONOS SVG CATEGORIAS
     ══════════════════════════════════════════ */
     const ICONOS_CAT = {
         entradas: '<path d="M2 20h20M12 4v4M8 8h8M6 12h12M4 16h16"/>',
@@ -532,7 +592,7 @@
     function crearSlide(plato, idxGlobal, posicionVisual, totalPlatos) {
         const slide = document.createElement('div');
         slide.className = 'carrusel-slide';
-        slide.dataset.logico = posicionVisual; // posicion real (0-based)
+        slide.dataset.logico = posicionVisual;
 
         const tieneImagen = plato.imagen && plato.imagen.trim() !== '';
         const descripcion = plato.descripcion || "Delicioso plato preparado con ingredientes frescos.";
@@ -559,6 +619,15 @@
         const badgeAgotado   = (plato.disponible === false) ? `<div class="badge-agotado"><span>Agotado</span></div>` : '';
         const disponibleAttr = (plato.disponible === false) ? 'data-agotado="true"' : '';
 
+        /* Badge del plato base asignado */
+        const tipoBase  = plato.plato_base || 'plate-b';
+        const labelBase = PLATO_BASE_LABELS[tipoBase] || tipoBase;
+        const badgePlatoBase = `
+            <div class="badge-plato-base">
+                ${svgBasePlate(tipoBase)}
+                ${labelBase}
+            </div>`;
+
         slide.innerHTML = `
             <div class="plato-card" data-plato-idx="${idxGlobal}" ${disponibleAttr}>
                 ${badgeAgotado}${badgeDestacado}
@@ -572,6 +641,7 @@
                     </div>
                     <div class="plato-shimmer"></div>
                     <div class="plato-badge-num">${posicionVisual + 1} / ${totalPlatos}</div>
+                    ${badgePlatoBase}
                 </div>
                 <div class="plato-info">
                     <h3 class="plato-nombre">${plato.nombre}</h3>
@@ -610,23 +680,20 @@
     function posicionarTrackSilencioso(trackIdx) {
         track.classList.add('sin-transicion');
         track.style.transform = `translateX(-${trackIdx * 100}%)`;
-        // Forzar reflow para que el browser aplique el cambio antes de quitar la clase
         void track.offsetWidth;
         track.classList.remove('sin-transicion');
     }
 
     /* ══════════════════════════════════════════
-       ACTUALIZAR UI (dots, contador, clase activo)
+       ACTUALIZAR UI
     ══════════════════════════════════════════ */
     function actualizarUI() {
         const total    = platosActuales.length;
-        const trackIdx = indiceReal + 1; // +1 por el clon inicial
-
+        const trackIdx = indiceReal + 1;
         track.style.transform = `translateX(-${trackIdx * 100}%)`;
 
-        // Marcar slide activo: buscar por data-logico
         document.querySelectorAll('.carrusel-slide').forEach(s => {
-            const logico = parseInt(s.dataset.logico, 10);
+            const logico  = parseInt(s.dataset.logico, 10);
             const eraActivo = s.classList.contains('activo');
             const esActivo  = logico === indiceReal;
             s.classList.toggle('activo', esActivo);
@@ -639,55 +706,38 @@
         document.querySelectorAll('.dot').forEach((d, i) => {
             d.classList.toggle('activo', i === indiceReal);
         });
-
         contador.textContent = `${indiceReal + 1} / ${total}`;
     }
 
     /* ══════════════════════════════════════════
-       NAVEGAR — LOGICA DE LOOP INFINITO
+       NAVEGAR — LOOP INFINITO
     ══════════════════════════════════════════ */
     function irA(nuevoIndiceReal) {
         if (enTransicion) return;
         const total = platosActuales.length;
-
-        /*
-         * Si solo hay 1 slide no hay nada que mover
-         */
         if (total <= 1) return;
-
         enTransicion = true;
 
-        const trackIdxActual = indiceReal + 1;
-        const trackIdxDestino = nuevoIndiceReal + 1;
-
-        /* Casos de salto a clones:
-         *  - Destino logico -1  => mostrar clon-ultimo (trackIdx = 0), luego saltar a real ultimo
-         *  - Destino logico N   => mostrar clon-primero (trackIdx = total+1), luego saltar a real 0
-         */
         if (nuevoIndiceReal < 0) {
-            // Ir al clon del ultimo (posicion 0 del track)
             track.style.transform = `translateX(0%)`;
-            // Tras la animacion, saltar silenciosamente al ultimo real
             track.addEventListener('transitionend', function handler() {
                 track.removeEventListener('transitionend', handler);
                 indiceReal = total - 1;
-                posicionarTrackSilencioso(total); // trackIdx del ultimo real = total
+                posicionarTrackSilencioso(total);
                 actualizarUI();
                 enTransicion = false;
             });
-            // Actualizar dots/contador al ultimo real inmediatamente
             document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('activo', i === total - 1));
             contador.textContent = `${total} / ${total}`;
             return;
         }
 
         if (nuevoIndiceReal >= total) {
-            // Ir al clon del primero (posicion total+1 del track)
             track.style.transform = `translateX(-${(total + 1) * 100}%)`;
             track.addEventListener('transitionend', function handler() {
                 track.removeEventListener('transitionend', handler);
                 indiceReal = 0;
-                posicionarTrackSilencioso(1); // trackIdx del primero real = 1
+                posicionarTrackSilencioso(1);
                 actualizarUI();
                 enTransicion = false;
             });
@@ -696,10 +746,8 @@
             return;
         }
 
-        // Navegacion normal dentro del rango
         indiceReal = nuevoIndiceReal;
         actualizarUI();
-        // Esperar a que termine la transicion CSS
         track.addEventListener('transitionend', function handler() {
             track.removeEventListener('transitionend', handler);
             enTransicion = false;
@@ -707,11 +755,11 @@
     }
 
     /* ══════════════════════════════════════════
-       ABRIR CATEGORIA — construye track con clones
+       ABRIR CATEGORIA
     ══════════════════════════════════════════ */
     function abrirCategoria(catId) {
-        catActual   = catId;
-        indiceReal  = 0;
+        catActual    = catId;
+        indiceReal   = 0;
         enTransicion = false;
 
         platosActuales = catalogo.filter(p => p.categoria === catId);
@@ -724,44 +772,26 @@
         track.innerHTML    = '';
         dotsWrap.innerHTML = '';
 
-        /*
-         * Estructura del track:
-         * [clon del ultimo] [slide 0] [slide 1] ... [slide N-1] [clon del primero]
-         */
         const idxGlobales = platosActuales.map(p => catalogo.indexOf(p));
 
-        // Clon del ULTIMO slide (va al inicio del track, posicion 0)
         if (total > 0) {
-            const clonUltimo = crearSlide(
-                platosActuales[total - 1],
-                idxGlobales[total - 1],
-                total - 1,
-                total
-            );
+            const clonUltimo = crearSlide(platosActuales[total - 1], idxGlobales[total - 1], total - 1, total);
             clonUltimo.dataset.logico = total - 1;
             clonUltimo.dataset.clon   = 'ultimo';
             track.appendChild(clonUltimo);
         }
 
-        // Slides reales
         platosActuales.forEach((plato, pos) => {
             track.appendChild(crearSlide(plato, idxGlobales[pos], pos, total));
         });
 
-        // Clon del PRIMER slide (va al final del track)
         if (total > 0) {
-            const clonPrimero = crearSlide(
-                platosActuales[0],
-                idxGlobales[0],
-                0,
-                total
-            );
+            const clonPrimero = crearSlide(platosActuales[0], idxGlobales[0], 0, total);
             clonPrimero.dataset.logico = 0;
             clonPrimero.dataset.clon   = 'primero';
             track.appendChild(clonPrimero);
         }
 
-        // Dots (solo los reales)
         platosActuales.forEach((_, i) => {
             const dot = document.createElement('div');
             dot.className = 'dot' + (i === 0 ? ' activo' : '');
@@ -769,9 +799,8 @@
             dotsWrap.appendChild(dot);
         });
 
-        // Posicionar en el primer slide real SIN animacion
         track.classList.add('sin-transicion');
-        track.style.transform = `translateX(-100%)`; // trackIdx 1 = primer real
+        track.style.transform = `translateX(-100%)`;
         void track.offsetWidth;
         track.classList.remove('sin-transicion');
 
@@ -791,19 +820,16 @@
     ══════════════════════════════════════════ */
     function initSwipe() {
         const outer = document.getElementById('carrusel-outer');
-
         outer.addEventListener('touchstart', e => {
-            touchStartX  = e.touches[0].clientX;
-            touchStartY  = e.touches[0].clientY;
-            arrastrando  = false;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            arrastrando = false;
         }, { passive: true });
-
         outer.addEventListener('touchmove', e => {
             const dx = Math.abs(e.touches[0].clientX - touchStartX);
             const dy = Math.abs(e.touches[0].clientY - touchStartY);
             if (dx > dy && dx > 8) arrastrando = true;
         }, { passive: true });
-
         outer.addEventListener('touchend', e => {
             if (!arrastrando) return;
             const diff = touchStartX - e.changedTouches[0].clientX;
@@ -819,55 +845,203 @@
     ══════════════════════════════════════════ */
     function precargarModelos() {
         catalogo.filter(p => p.destacado).slice(0, 3).forEach(p => {
-            const link = document.createElement('link');
-            link.rel = 'prefetch'; link.href = p.archivo;
-            document.head.appendChild(link);
+            /* Precargar modelo de comida */
+            const linkComida = document.createElement('link');
+            linkComida.rel = 'prefetch';
+            linkComida.href = p.archivo;
+            document.head.appendChild(linkComida);
+
+            /* Precargar modelo de base si tiene asignado */
+            if (p.plato_base) {
+                const linkBase = document.createElement('link');
+                linkBase.rel  = 'prefetch';
+                linkBase.href = `${ASSETS_BASE_URL}${p.plato_base}.glb`;
+                document.head.appendChild(linkBase);
+            }
         });
     }
 
     /* ══════════════════════════════════════════
-       AR
+       APLICAR ANIMACIONES AL MODELO DE COMIDA
+       Se llama cuando visor-comida termina de cargar.
     ══════════════════════════════════════════ */
-    visor.addEventListener('model-loaded', () => {
+    function aplicarAnimacionComida() {
         const p = catalogo[window.platoSeleccionado];
         if (!p) return;
-        contenedor.setAttribute("position", p.pos);
+
+        /* Posicion de la comida: usa plato_comida_pos si existe, sino pos */
+        const posComida = p.plato_comida_pos || p.pos || "0 0 0.1";
+
+        visorComida.setAttribute("position", posComida);
+
+        /* Animacion de aparicion con escala */
         contenedor.setAttribute("animation__escala", {
-            property: "scale", to: p.escala,
-            dur: p.anim_dur || 1100, easing: "easeOutElastic"
+            property: "scale",
+            to: p.escala,
+            dur: p.anim_dur || 1100,
+            easing: "easeOutElastic"
         });
-        visor.setAttribute("animation__rotar", {
-            property: "rotation", from: p.rot_inicial, to: p.rot_final,
-            dur: p.velocidad, loop: true, easing: "linear"
+
+        /* Rotacion continua de la comida */
+        visorComida.setAttribute("animation__rotar", {
+            property: "rotation",
+            from: p.rot_inicial || "90 0 0",
+            to:   p.rot_final   || "90 360 0",
+            dur:  p.velocidad   || 15000,
+            loop: true,
+            easing: "linear"
         });
+    }
+
+    /* ══════════════════════════════════════════
+       APLICAR POSICION AL MODELO BASE (plato/bandeja)
+       Se llama cuando visor-base termina de cargar.
+    ══════════════════════════════════════════ */
+    function aplicarAnimacionBase() {
+        const p = catalogo[window.platoSeleccionado];
+        if (!p) return;
+
+        /* El plato base usa su propia posicion y escala desde el JSON */
+        const posBase   = p.plato_base_pos   || "0 0 0";
+        const escalaBase = p.plato_base_escala || p.escala || "1 1 1";
+
+        visorBase.setAttribute("position", posBase);
+
+        /*
+         * El plato base aparece con la misma animacion de escala que la comida
+         * pero con su propia escala destino. Se sincroniza visualmente.
+         */
+        visorBase.setAttribute("animation__escala-base", {
+            property: "scale",
+            from: "0.01 0.01 0.01",
+            to:   escalaBase,
+            dur:  (p.anim_dur || 1100) + 100,   /* 100ms de retraso para que aparezca primero */
+            easing: "easeOutElastic"
+        });
+
+        /* Rotacion lenta opcional del plato base — sincronizada con la comida */
+        visorBase.setAttribute("animation__rotar-base", {
+            property: "rotation",
+            from: "0 0 0",
+            to:   "0 360 0",
+            dur:  p.velocidad || 15000,
+            loop: true,
+            easing: "linear"
+        });
+    }
+
+    /* ══════════════════════════════════════════
+       EVENT LISTENERS DE CARGA DE MODELOS AR
+    ══════════════════════════════════════════ */
+    visorComida.addEventListener('model-loaded', () => {
+        modelosARCargados.comida = true;
+        aplicarAnimacionComida();
+        /* Si el plato base tambien cargo, posicionar el contenedor padre */
+        if (modelosARCargados.base || !catalogo[window.platoSeleccionado]?.plato_base) {
+            aplicarPosicionContenedor();
+        }
     });
 
+    visorBase.addEventListener('model-loaded', () => {
+        modelosARCargados.base = true;
+        aplicarAnimacionBase();
+    });
+
+    function aplicarPosicionContenedor() {
+        const p = catalogo[window.platoSeleccionado];
+        if (!p) return;
+        contenedor.setAttribute("position", p.pos || "0 0 0.1");
+    }
+
+    /* ══════════════════════════════════════════
+       LIMPAR MODELOS AR (al cerrar AR o cambiar plato)
+    ══════════════════════════════════════════ */
+    function limpiarModelosAR() {
+        /* Resetear banderas */
+        modelosARCargados = { comida: false, base: false };
+
+        /* Quitar atributos de modelo y animaciones de comida */
+        visorComida.removeAttribute("gltf-model");
+        visorComida.removeAttribute("animation__rotar");
+        visorComida.setAttribute("position", "0 0 0");
+        visorComida.setAttribute("scale", "0.01 0.01 0.01");
+
+        /* Quitar atributos de modelo y animaciones de base */
+        visorBase.removeAttribute("gltf-model");
+        visorBase.removeAttribute("animation__rotar-base");
+        visorBase.removeAttribute("animation__escala-base");
+        visorBase.setAttribute("position", "0 0 0");
+        visorBase.setAttribute("scale", "0.01 0.01 0.01");
+
+        /* Resetear escala del contenedor */
+        contenedor.removeAttribute("animation__escala");
+        contenedor.setAttribute("scale", "0.01 0.01 0.01");
+    }
+
+    /* ══════════════════════════════════════════
+       MOSTRAR PLATO EN AR
+       Carga en paralelo el GLB de comida y el GLB del plato base.
+    ══════════════════════════════════════════ */
     async function mostrarPlatoAR(index) {
         window.platoSeleccionado = index;
         const p = catalogo[index];
 
+        /* Ocultar pantallas del menu */
         document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
         document.getElementById('btn-volver').style.display = 'none';
 
-        contenedor.setAttribute("scale", "0.01 0.01 0.01");
-        visor.removeAttribute("gltf-model");
+        /* Limpiar modelos anteriores */
+        limpiarModelosAR();
 
+        /* Iniciar AR */
         const mindarSystem = arScene.systems['mindar-image-system'];
         await mindarSystem.start();
 
+        /* Construir URL del plato base */
+        const tipoBase  = p.plato_base || 'plate-b';
+        const urlBase   = `${ASSETS_BASE_URL}${tipoBase}.glb`;
+        const labelBase = PLATO_BASE_LABELS[tipoBase] || tipoBase;
+
+        /* Verificar disponibilidad de ambos GLB en paralelo */
         try {
-            const res = await fetch(p.archivo, { method: 'HEAD' });
-            if (res.ok) {
-                visor.setAttribute("gltf-model", p.archivo);
+            const [resComida, resBase] = await Promise.all([
+                fetch(p.archivo, { method: 'HEAD' }),
+                fetch(urlBase,   { method: 'HEAD' })
+            ]);
+
+            if (resComida.ok) {
+                /* Cargar modelo de comida */
+                visorComida.setAttribute("gltf-model", p.archivo);
                 info.textContent = p.nombre;
                 info.classList.remove("en-preparacion");
-            } else { throw new Error(); }
-        } catch {
+            } else {
+                throw new Error("Modelo de comida no disponible");
+            }
+
+            if (resBase.ok) {
+                /* Cargar modelo de plato base */
+                visorBase.setAttribute("gltf-model", urlBase);
+            } else {
+                /*
+                 * Si el plato base no existe en el servidor, continuar solo con la comida.
+                 * No lanzar error, simplemente loguear y marcar base como sin modelo.
+                 */
+                console.warn(`Plato base no encontrado: ${urlBase}. Solo se mostrara la comida.`);
+                modelosARCargados.base = true; /* Marcar como "listo" para no bloquear */
+            }
+
+        } catch (err) {
+            console.error("Error cargando modelos AR:", err);
             info.textContent = "En preparacion...";
             info.classList.add("en-preparacion");
+            /* Intentar al menos la comida sin head-check */
+            visorComida.setAttribute("gltf-model", p.archivo);
         }
 
+        /* Mostrar UI AR con el indicador de tipo de base */
         info.style.display = 'block';
+        arBaseIndicator.style.display = 'block';
+        arBaseChipText.innerHTML = `${svgBasePlate(tipoBase)} ${labelBase}`;
         uiAr.style.display = 'flex';
     }
 
@@ -896,14 +1070,19 @@
 
             document.getElementById('ar-back-list').addEventListener('click', () => {
                 arScene.systems['mindar-image-system'].stop();
+                limpiarModelosAR();
                 uiAr.style.display = 'none';
                 info.style.display = 'none';
+                arBaseIndicator.style.display = 'none';
                 abrirCategoria(catActual);
             });
+
             document.getElementById('ar-back-menu').addEventListener('click', () => {
                 arScene.systems['mindar-image-system'].stop();
+                limpiarModelosAR();
                 uiAr.style.display = 'none';
                 info.style.display = 'none';
+                arBaseIndicator.style.display = 'none';
                 document.getElementById('pantalla-categorias').classList.add('activa');
             });
 
