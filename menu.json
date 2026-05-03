@@ -23,13 +23,22 @@
       "destacado": true,
       "alergenos": ["gluten", "mariscos"],
       "descripcion": "Fideos japoneses en caldo de pollo con huevo, cebollin, nori y lonchas de cerdo marinado. Autentico sabor del Japon.",
-      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.glb",
-      "pos": "0 0 0.1",
-      "escala": "0.4 0.4 0.4",
-      "rot_inicial": "90 0 0",
-      "rot_final": "90 360 0",
-      "velocidad": 20000,
-      "anim_dur": 1100
+      "principal": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.glb",
+        "pos": "0 0.15 0.05",
+        "escala": "0.4 0.4 0.4",
+        "rotacion": "0 0 0",
+        "rot_inicial": "90 0 0",
+        "rot_final": "90 360 0",
+        "velocidad": 20000,
+        "anim_dur": 1100
+      },
+      "bandeja": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plate-n.glb",
+        "pos": "0 -0.25 0",
+        "escala": "1.2 0.12 1.2",
+        "rotacion": "0 0 0"
+      }
     },
     {
       "id": "p002",
@@ -42,13 +51,22 @@
       "destacado": false,
       "alergenos": ["pescado"],
       "descripcion": "Conserva premium de atun en aceite de oliva virgen extra. Perfecto para ensaladas, pastas o directo del envase.",
-      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato02.glb",
-      "pos": "0 0 0.1",
-      "escala": "5 5 5",
-      "rot_inicial": "90 0 0",
-      "rot_final": "90 360 0",
-      "velocidad": 14000,
-      "anim_dur": 1200
+      "principal": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato02.glb",
+        "pos": "0 0.10 0.03",
+        "escala": "5 5 5",
+        "rotacion": "0 45 0",
+        "rot_inicial": "90 0 0",
+        "rot_final": "90 360 0",
+        "velocidad": 14000,
+        "anim_dur": 1200
+      },
+      "bandeja": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plate-b.glb",
+        "pos": "0 -0.30 0.01",
+        "escala": "1.1 0.10 1.1",
+        "rotacion": "0 30 0"
+      }
     },
     {
       "id": "p003",
@@ -61,13 +79,22 @@
       "destacado": true,
       "alergenos": ["gluten", "lacteos"],
       "descripcion": "Carne 100% Angus jugosa con cheddar derretido, bacon crujiente, lechuga, tomate y nuestra salsa secreta.",
-      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato03.glb",
-      "pos": "0 0.2 0.1",
-      "escala": "1.5 1.5 1.5",
-      "rot_inicial": "90 0 0",
-      "rot_final": "90 360 0",
-      "velocidad": 13000,
-      "anim_dur": 1300
+      "principal": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato03.glb",
+        "pos": "0 0.25 0.08",
+        "escala": "1.5 1.5 1.5",
+        "rotacion": "2 0 0",
+        "rot_inicial": "90 0 0",
+        "rot_final": "90 360 0",
+        "velocidad": 13000,
+        "anim_dur": 1300
+      },
+      "bandeja": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plate-mad.glb",
+        "pos": "0 -0.20 0.02",
+        "escala": "1.4 0.14 1.4",
+        "rotacion": "0 45 0"
+      }
     },
     {
       "id": "p004",
@@ -80,13 +107,22 @@
       "destacado": false,
       "alergenos": ["gluten", "huevo"],
       "descripcion": "Pechuga de pollo empanizada con nuestra receta secreta coreana. Crujiente por fuera, jugosa por dentro.",
-      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato04.glb",
-      "pos": "-0.3 4 -4",
-      "escala": "2 2 2",
-      "rot_inicial": "90 0 0",
-      "rot_final": "90 360 0",
-      "velocidad": 15000,
-      "anim_dur": 1400
+      "principal": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato04.glb",
+        "pos": "0 0.18 0.06",
+        "escala": "2 2 2",
+        "rotacion": "0 0 0",
+        "rot_inicial": "90 0 0",
+        "rot_final": "90 360 0",
+        "velocidad": 15000,
+        "anim_dur": 1400
+      },
+      "bandeja": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plate-b.glb",
+        "pos": "0 -0.28 0",
+        "escala": "1.3 0.13 1.3",
+        "rotacion": "0 0 0"
+      }
     },
     {
       "id": "p005",
@@ -99,13 +135,22 @@
       "destacado": true,
       "alergenos": ["gluten", "lacteos", "huevo"],
       "descripcion": "Cupcake de chocolate intenso con corazon de marshmallow y cobertura de ganache. Pecado delicioso.",
-      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato05.glb",
-      "pos": "0 4 -4",
-      "escala": "0.5 0.5 0.5",
-      "rot_inicial": "90 0 0",
-      "rot_final": "90 360 0",
-      "velocidad": 11000,
-      "anim_dur": 1000
+      "principal": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato05.glb",
+        "pos": "0 0.12 0.04",
+        "escala": "0.5 0.5 0.5",
+        "rotacion": "3 20 0",
+        "rot_inicial": "90 0 0",
+        "rot_final": "90 360 0",
+        "velocidad": 11000,
+        "anim_dur": 1000
+      },
+      "bandeja": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plate-n.glb",
+        "pos": "0 -0.22 0.01",
+        "escala": "1.0 0.09 1.0",
+        "rotacion": "0 15 0"
+      }
     },
     {
       "id": "p006",
@@ -118,13 +163,22 @@
       "destacado": false,
       "alergenos": ["gluten", "huevo", "lacteos"],
       "descripcion": "Huevos revueltos, bacon, salchichas, hash browns y pan tostado. El desayuno clasico americano.",
-      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato06.glb",
-      "pos": "0 2 -2",
-      "escala": "5.5 5.5 5.5",
-      "rot_inicial": "90 0 0",
-      "rot_final": "90 360 0",
-      "velocidad": 16000,
-      "anim_dur": 1500
+      "principal": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato06.glb",
+        "pos": "0 0.22 0.07",
+        "escala": "5.5 5.5 5.5",
+        "rotacion": "0 0 0",
+        "rot_inicial": "90 0 0",
+        "rot_final": "90 360 0",
+        "velocidad": 16000,
+        "anim_dur": 1500
+      },
+      "bandeja": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plate-mad.glb",
+        "pos": "0 -0.35 0.02",
+        "escala": "1.6 0.16 1.6",
+        "rotacion": "0 25 0"
+      }
     },
     {
       "id": "p007",
@@ -137,13 +191,22 @@
       "destacado": true,
       "alergenos": [],
       "descripcion": "Delicado bocado italiano en forma de caracola, caracterizado por su masa de hojaldre laminada y dorada al horno. Relleno con una generosa capa de crema de vainilla artesanal y terminado con una fina lluvia de azúcar glas.",
-      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato07.glb",
-      "pos": "0 0 0.1",
-      "escala": "2 2 2",
-      "rot_inicial": "90 0 0",
-      "rot_final": "90 360 0",
-      "velocidad": 12500,
-      "anim_dur": 1150
+      "principal": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato07.glb",
+        "pos": "0 0.14 0.05",
+        "escala": "2 2 2",
+        "rotacion": "1 10 0",
+        "rot_inicial": "90 0 0",
+        "rot_final": "90 360 0",
+        "velocidad": 12500,
+        "anim_dur": 1150
+      },
+      "bandeja": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plate-n.glb",
+        "pos": "0 -0.24 0",
+        "escala": "1.15 0.11 1.15",
+        "rotacion": "0 0 0"
+      }
     },
     {
       "id": "p008",
@@ -156,15 +219,24 @@
       "destacado": false,
       "alergenos": [],
       "descripcion": "Capas infinitas de hojaldre crocante y crema pastelera casera. Terminada con una lluvia de azúcar pulverizada.",
-      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato08.glb",
-      "pos": "0 0 0.1",
-      "escala": "3 3 3",
-      "rot_inicial": "90 0 0",
-      "rot_final": "90 360 0",
-      "velocidad": 17000,
-      "anim_dur": 1600
+      "principal": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato08.glb",
+        "pos": "0 0.20 0.06",
+        "escala": "3 3 3",
+        "rotacion": "0 30 0",
+        "rot_inicial": "90 0 0",
+        "rot_final": "90 360 0",
+        "velocidad": 17000,
+        "anim_dur": 1600
+      },
+      "bandeja": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plate-b.glb",
+        "pos": "0 -0.26 0.01",
+        "escala": "1.2 0.12 1.2",
+        "rotacion": "0 20 0"
+      }
     },
-     {
+    {
       "id": "p009",
       "nombre": "Profiterol",
       "categoria": 2,
@@ -175,13 +247,22 @@
       "destacado": false,
       "alergenos": [],
       "descripcion": "Delicadas esferas de masa choux, rellenos de crema de vainilla artesanal, terminados con una lluvia de chocolate fundido y azúcar glass.",
-      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato09.glb",
-      "pos": "0 0 0.1",
-      "escala": "3 3 3",
-      "rot_inicial": "90 0 0",
-      "rot_final": "90 360 0",
-      "velocidad": 17000,
-      "anim_dur": 1600
+      "principal": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato09.glb",
+        "pos": "0 0.16 0.05",
+        "escala": "3 3 3",
+        "rotacion": "2 15 0",
+        "rot_inicial": "90 0 0",
+        "rot_final": "90 360 0",
+        "velocidad": 17000,
+        "anim_dur": 1600
+      },
+      "bandeja": {
+        "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plate-mad.glb",
+        "pos": "0 -0.23 0",
+        "escala": "1.25 0.13 1.25",
+        "rotacion": "0 35 0"
+      }
     }
   ]
 }
