@@ -36,7 +36,7 @@
       "bandeja": {
         "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plate-n.glb",
         "pos": "0 -0.25 0",
-        "escala": "1.2 0.12 1.2",
+        "escala": "0.2 0.2 0.2",
         "rotacion": "0 0 0"
       }
     },
