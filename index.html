@@ -415,16 +415,15 @@
         <a-entity mindar-image-target="targetIndex: 0">
 
             <!-- Contenedor del plato base -->
-            <a-entity id="contenedor-base" scale="0.01 0.01 0.01">
-                <a-gltf-model id="visor-base"></a-gltf-model>
-            </a-entity>
+        <a-entity id="contenedor-base" scale="0.01 0.01 0.01">
+        <a-gltf-model id="visor-base" src=""></a-gltf-model>
+        </a-entity>
 
             <!-- Contenedor de la comida -->
-            <a-entity id="contenedor-comida" scale="0.01 0.01 0.01">
-                <a-gltf-model id="visor-comida"></a-gltf-model>
-            </a-entity>
-
+        <a-entity id="contenedor-comida" scale="0.01 0.01 0.01">
+        <a-gltf-model id="visor-comida" src=""></a-gltf-model>
         </a-entity>
+
     </a-scene>
 
     <script>
@@ -777,8 +776,8 @@
         /* Limpiar modelos y animaciones anteriores */
         limpiarAnimaciones(visorBase);
         limpiarAnimaciones(visorComida);
-        visorBase.removeAttribute('gltf-model');
-        visorComida.removeAttribute('gltf-model');
+        visorBase.setAttribute('src', '');
+        visorComida.setAttribute('src', '');
 
         /* Iniciar AR */
         const mindarSystem = arScene.systems['mindar-image-system'];
@@ -917,8 +916,8 @@
                 /* Limpiar modelos al salir de AR */
                 limpiarAnimaciones(visorBase);
                 limpiarAnimaciones(visorComida);
-                visorBase.removeAttribute('gltf-model');
-                visorComida.removeAttribute('gltf-model');
+                visorBase.setAttribute('src', '');
+                visorComida.setAttribute('src', '');
                 contBase.setAttribute('scale', '0.01 0.01 0.01');
                 contComida.setAttribute('scale', '0.01 0.01 0.01');
             };
