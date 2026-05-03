@@ -432,27 +432,48 @@
         <button class="btn-ar" id="ar-back-menu">CATEGORIAS</button>
     </div>
 
+    <!-- ✅ ESCENA AR CORREGIDA -->
     <a-scene
         mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;
                       uiLoading: no; uiScanning: no;
                       filterMinCF: 0.001; filterBeta: 0.01;"
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
-        id="ar-scene">
-        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        id="ar-scene"
+        embedded
+        renderer="colorManagement: true, physicallyCorrectLights: true">
+        
+        <a-assets>
+            <!-- Assets placeholder -->
+            <a-asset-item id="visor-placeholder" src=""></a-asset-item>
+            <a-asset-item id="bandeja-placeholder" src=""></a-asset-item>
+        </a-assets>
+        
+        <a-camera position="0 0 0" look-controls="enabled: false" fov="60"></a-camera>
+        
         <a-entity mindar-image-target="targetIndex: 0">
-        <a-entity id="contenedor-estabilizador" scale="0.01 0.01 0.01">
-        <!-- BANDEJA -->
-        <a-entity id="bandeja-contenedor">
-            <a-gltf-model id="bandeja"></a-gltf-model>
+            <a-plane position="0 0 0" rotation="-90 0 0" width="1" height="1" 
+                     material="color: #202020; opacity: 0.7" 
+                     visible="false"></a-plane>
+            
+            <a-entity id="contenedor-estabilizador" 
+                      position="0 0 0" 
+                      scale="0.01 0.01 0.01" 
+                      visible="false">
+                <!-- BANDEJA -->
+                <a-entity id="bandeja-contenedor" position="0 -0.3 0">
+                    <a-gltf-model id="bandeja" 
+                                  src="#bandeja-placeholder"
+                                  visible="false"></a-gltf-model>
+                </a-entity>
+                <!-- PLATO PRINCIPAL -->
+                <a-entity id="principal-contenedor" position="0 0 0">
+                    <a-gltf-model id="visor" 
+                                  src="#visor-placeholder"
+                                  visible="false"></a-gltf-model>
+                </a-entity>
+            </a-entity>
         </a-entity>
-        <!-- PLATO PRINCIPAL -->
-        <a-entity id="principal-contenedor">
-            <a-gltf-model id="visor"></a-gltf-model>
-        </a-entity>
-        </a-entity>
-        </a-entity>
-  
     </a-scene>
 
     <script>
@@ -479,20 +500,14 @@
     let catalogo        = [];
     let categorias      = [];
     let catActual       = -1;
+    let catActualGuardado = -1;
     let platosActuales  = [];
     let touchStartX     = 0;
     let touchStartY     = 0;
     let arrastrando     = false;
-    let enTransicion    = false;  // bloquea clicks rapidos durante el salto silencioso
+    let enTransicion    = false;
 
-    /*
-     * ── INDICE REAL vs INDICE DE TRACK ──────────────────────────────
-     * El track tiene: [clon-ultimo] [slide-0] [slide-1] ... [slide-N-1] [clon-primero]
-     * indiceTrack = indiceReal + 1
-     * indiceReal  va de 0 a N-1 (lo que muestran dots y contador)
-     * ────────────────────────────────────────────────────────────────
-     */
-    let indiceReal  = 0;  // indice logico visible (0-based)
+    let indiceReal  = 0;
 
     /* ══════════════════════════════════════════
        ICONOS SVG
@@ -543,7 +558,7 @@
     function crearSlide(plato, idxGlobal, posicionVisual, totalPlatos) {
         const slide = document.createElement('div');
         slide.className = 'carrusel-slide';
-        slide.dataset.logico = posicionVisual; // posicion real (0-based)
+        slide.dataset.logico = posicionVisual;
 
         const tieneImagen = plato.imagen && plato.imagen.trim() !== '';
         const descripcion = plato.descripcion || "Delicioso plato preparado con ingredientes frescos.";
@@ -603,13 +618,16 @@
                 </button>
             </div>`;
 
-        if (plato.disponible !== false) {
+        if (plato.disponible !== false && plato.archivo) {
             const imagenWrap  = slide.querySelector('.plato-imagen-wrap');
             const placeholder = slide.querySelector('.plato-imagen-placeholder');
             const btnAR       = slide.querySelector('.btn-ver-ar');
             imagenWrap.style.cursor = 'pointer';
             [imagenWrap, placeholder, btnAR].forEach(el => {
-                el.addEventListener('click', e => { e.stopPropagation(); mostrarPlatoAR(idxGlobal); });
+                el.addEventListener('click', e => { 
+                    e.stopPropagation(); 
+                    mostrarPlatoAR(idxGlobal); 
+                });
             });
         }
         return slide;
@@ -621,7 +639,6 @@
     function posicionarTrackSilencioso(trackIdx) {
         track.classList.add('sin-transicion');
         track.style.transform = `translateX(-${trackIdx * 100}%)`;
-        // Forzar reflow para que el browser aplique el cambio antes de quitar la clase
         void track.offsetWidth;
         track.classList.remove('sin-transicion');
     }
@@ -631,11 +648,10 @@
     ══════════════════════════════════════════ */
     function actualizarUI() {
         const total    = platosActuales.length;
-        const trackIdx = indiceReal + 1; // +1 por el clon inicial
+        const trackIdx = indiceReal + 1;
 
         track.style.transform = `translateX(-${trackIdx * 100}%)`;
 
-        // Marcar slide activo: buscar por data-logico
         document.querySelectorAll('.carrusel-slide').forEach(s => {
             const logico = parseInt(s.dataset.logico, 10);
             const eraActivo = s.classList.contains('activo');
@@ -661,9 +677,6 @@
         if (enTransicion) return;
         const total = platosActuales.length;
 
-        /*
-         * Si solo hay 1 slide no hay nada que mover
-         */
         if (total <= 1) return;
 
         enTransicion = true;
@@ -671,34 +684,26 @@
         const trackIdxActual = indiceReal + 1;
         const trackIdxDestino = nuevoIndiceReal + 1;
 
-        /* Casos de salto a clones:
-         *  - Destino logico -1  => mostrar clon-ultimo (trackIdx = 0), luego saltar a real ultimo
-         *  - Destino logico N   => mostrar clon-primero (trackIdx = total+1), luego saltar a real 0
-         */
         if (nuevoIndiceReal < 0) {
-            // Ir al clon del ultimo (posicion 0 del track)
             track.style.transform = `translateX(0%)`;
-            // Tras la animacion, saltar silenciosamente al ultimo real
             track.addEventListener('transitionend', function handler() {
                 track.removeEventListener('transitionend', handler);
                 indiceReal = total - 1;
-                posicionarTrackSilencioso(total); // trackIdx del ultimo real = total
+                posicionarTrackSilencioso(total);
                 actualizarUI();
                 enTransicion = false;
             });
-            // Actualizar dots/contador al ultimo real inmediatamente
             document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('activo', i === total - 1));
             contador.textContent = `${total} / ${total}`;
             return;
         }
 
         if (nuevoIndiceReal >= total) {
-            // Ir al clon del primero (posicion total+1 del track)
             track.style.transform = `translateX(-${(total + 1) * 100}%)`;
             track.addEventListener('transitionend', function handler() {
                 track.removeEventListener('transitionend', handler);
                 indiceReal = 0;
-                posicionarTrackSilencioso(1); // trackIdx del primero real = 1
+                posicionarTrackSilencioso(1);
                 actualizarUI();
                 enTransicion = false;
             });
@@ -707,10 +712,8 @@
             return;
         }
 
-        // Navegacion normal dentro del rango
         indiceReal = nuevoIndiceReal;
         actualizarUI();
-        // Esperar a que termine la transicion CSS
         track.addEventListener('transitionend', function handler() {
             track.removeEventListener('transitionend', handler);
             enTransicion = false;
@@ -722,6 +725,7 @@
     ══════════════════════════════════════════ */
     function abrirCategoria(catId) {
         catActual   = catId;
+        catActualGuardado = catId;
         indiceReal  = 0;
         enTransicion = false;
 
@@ -735,13 +739,8 @@
         track.innerHTML    = '';
         dotsWrap.innerHTML = '';
 
-        /*
-         * Estructura del track:
-         * [clon del ultimo] [slide 0] [slide 1] ... [slide N-1] [clon del primero]
-         */
         const idxGlobales = platosActuales.map(p => catalogo.indexOf(p));
 
-        // Clon del ULTIMO slide (va al inicio del track, posicion 0)
         if (total > 0) {
             const clonUltimo = crearSlide(
                 platosActuales[total - 1],
@@ -754,12 +753,10 @@
             track.appendChild(clonUltimo);
         }
 
-        // Slides reales
         platosActuales.forEach((plato, pos) => {
             track.appendChild(crearSlide(plato, idxGlobales[pos], pos, total));
         });
 
-        // Clon del PRIMER slide (va al final del track)
         if (total > 0) {
             const clonPrimero = crearSlide(
                 platosActuales[0],
@@ -772,7 +769,6 @@
             track.appendChild(clonPrimero);
         }
 
-        // Dots (solo los reales)
         platosActuales.forEach((_, i) => {
             const dot = document.createElement('div');
             dot.className = 'dot' + (i === 0 ? ' activo' : '');
@@ -780,9 +776,8 @@
             dotsWrap.appendChild(dot);
         });
 
-        // Posicionar en el primer slide real SIN animacion
         track.classList.add('sin-transicion');
-        track.style.transform = `translateX(-100%)`; // trackIdx 1 = primer real
+        track.style.transform = `translateX(-100%)`;
         void track.offsetWidth;
         track.classList.remove('sin-transicion');
 
@@ -837,84 +832,110 @@
     }
 
     /* ══════════════════════════════════════════
-       AR
+       ✅ FUNCIONES AR CORREGIDAS
     ══════════════════════════════════════════ */
-    visorModelo.addEventListener('model-loaded', function(event) {
-    const p = catalogo[window.platoSeleccionado];
-    if (!p) return;
     
-    console.log(`✅ Modelo cargado: ${p.nombre}`);
-    
-    // ══ CONFIGURAR PLATO PRINCIPAL ══
-    const principal = p.principal;
-    principalContenedor.setAttribute("position", principal.pos || "0 0 0");
-    principalContenedor.setAttribute("scale", principal.escala || "1 1 1");
-    principalContenedor.setAttribute("rotation", principal.rotacion || "0 0 0");
-    
-    // Animación entrada principal
-    principalContenedor.setAttribute("animation__entrada", {
-        property: "scale", 
-        from: "0.8 0.8 0.8",
-        to: principal.escala || "1 1 1",
-        dur: 1000, 
-        easing: "easeOutElastic"
-    });
-    
-    // Rotación continua
-    principalContenedor.setAttribute("animation__rotar", {
-        property: "rotation", 
-        from: principal.rot_inicial || "0 0 0", 
-        to: principal.rot_final || "0 360 0",
-        dur: principal.velocidad || 20000, 
-        loop: true, 
-        easing: "linear"
-    });
-    
-    // ══ CONFIGURAR BANDEJA ══
-    if (p.bandeja && p.bandeja.archivo) {
-        bandejaContenedor.setAttribute("position", p.bandeja.pos || "0 -0.3 0");
-        bandejaContenedor.setAttribute("scale", p.bandeja.escala || "1.1 1.1 1.1");
-        bandejaContenedor.setAttribute("rotation", p.bandeja.rotacion || "0 0 0");
-        bandejaContenedor.setAttribute("visible", "true");
-        
-        // Animación entrada bandeja
-        bandejaContenedor.setAttribute("animation__bandeja", {
-            property: "scale",
-            from: "0.5 0.5 0.5",
-            to: p.bandeja.escala || "1.1 1.1 1.1",
-            dur: 1200,
-            easing: "easeOutBack"
-        });
-    } else {
-        bandejaContenedor.setAttribute("visible", "false");
-    }
-    
-    // Animación entrada TOTAL
-    contenedor.setAttribute("animation", {
-        property: "scale",
-        to: "1 1 1",
-        dur: 800,
-        easing: "easeOutElastic"
-    });
-});
+    // Reset total AR
+    window.resetARTotal = function() {
+        console.log("🔄 Reset AR");
+        try {
+            const mindarSystem = arScene.systems['mindar-image-system'];
+            if (mindarSystem) mindarSystem.stop();
+            
+            contenedor.setAttribute("scale", "0.01 0.01 0.01");
+            contenedor.setAttribute("visible", "false");
+            visorModelo.removeAttribute("src");
+            bandejaModelo.removeAttribute("src");
+            
+            principalContenedor.removeAttribute("animation");
+            bandejaContenedor.removeAttribute("animation");
+            contenedor.removeAttribute("animation");
+            
+            info.style.display = 'none';
+            uiAr.style.display = 'none';
+            arScene.exitVR();
+            
+        } catch(e) {
+            console.log("Reset AR completado (modo seguro)");
+        }
+    };
 
-    // Función de EMERGENCIA para reset total AR
-window.resetARTotal = function() {
-    console.log("🔄 Reset total AR ejecutado");
-    const mindarSystem = arScene.systems['mindar-image-system'];
-    mindarSystem.stop();
-    
-    contenedor.setAttribute("scale", "0.01 0.01 0.01");
-    contenedor.setAttribute("visible", "false");
-    visorModelo.removeAttribute("gltf-model");
-    bandejaModelo.removeAttribute("gltf-model");
-    principalContenedor.removeAttribute("animation");
-    bandejaContenedor.removeAttribute("animation");
-    contenedor.removeAttribute("animation");
-    
-    info.style.display = 'none';
-    uiAr.style.display = 'none';
-};
+    // ✅ FUNCIÓN PRINCIPAL AR - ESTA INICIA LA CÁMARA
+    window.mostrarPlatoAR = async function(idxGlobal) {
+        try {
+            const plato = catalogo[idxGlobal];
+            if (!plato || !plato.archivo) {
+                console.error("❌ Plato sin modelo 3D:", plato);
+                alert("Este plato no tiene vista 3D disponible");
+                return;
+            }
+
+            console.log("🎬 Iniciando AR para:", plato.nombre);
+            
+            window.platoSeleccionado = idxGlobal;
+            catActualGuardado = catActual;
+            
+            // Ocultar menús
+            document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+            document.getElementById('btn-volver').style.display = 'none';
+            
+            // Mostrar info del plato
+            info.textContent = `${plato.nombre} - $${plato.precio || 'Consultar'}`;
+            info.style.display = 'block';
+            uiAr.style.display = 'flex';
+            
+            // Reset previo
+            window.resetARTotal();
+            
+            // CARGAR MODELOS
+            visorModelo.setAttribute('src', plato.archivo);
+            if (plato.bandeja?.archivo) {
+                bandejaModelo.setAttribute('src', plato.bandeja.archivo);
+            }
+            
+            // INICIAR MINDAR (🚀 AQUÍ SE ACTIVA LA CÁMARA)
+            const mindarSystem = arScene.systems['mindar-image-system'];
+            await mindarSystem.start();
+            arScene.enterVR();
+            
+            // Detectar target
+            const targetEntity = document.querySelector('[mindar-image-target]');
+            const handleTargetFound = () => {
+                console.log("✅ Target encontrado");
+                contenedor.setAttribute('visible', 'true');
+                targetEntity.removeEventListener('targetFound', handleTargetFound);
+            };
+            targetEntity.addEventListener('targetFound', handleTargetFound);
+            
+            console.log("✅ AR iniciado correctamente");
+            
+        } catch (error) {
+            console.error("❌ Error AR:", error);
+            alert("Error al iniciar AR. Verifica permisos de cámara e internet.");
+            document.getElementById('pantalla-platos').classList.add('activa');
+        }
+    };
+
+    // Event listener simplificado para model-loaded
+    visorModelo.addEventListener('model-loaded', function(event) {
+        console.log("✅ Modelo visor cargado");
+        const plato = catalogo[window.platoSeleccionado];
+        if (!plato) return;
+        
+        const principal = plato.principal || {};
+        principalContenedor.setAttribute("position", principal.pos || "0 0 0");
+        principalContenedor.setAttribute("scale", principal.escala || "1 1 1");
+        principalContenedor.setAttribute("rotation", principal.rotacion || "0 0 0");
+        
+        principalContenedor.setAttribute("animation__scale", {
+            property: "scale",
+            from: "0.01 0.01 0.01",
+            to: principal.escala || "1 1 1",
+            dur: 1200,
+            easing: "easeOutElastic"
+        });
+    });
+
     /* ══════════════════════════════════════════
        INIT
     ══════════════════════════════════════════ */
@@ -938,15 +959,18 @@ window.resetARTotal = function() {
             btnNext.addEventListener('click', () => irA(indiceReal + 1));
             initSwipe();
 
-           document.getElementById('ar-back-list').addEventListener('click', () => {
-            window.resetARTotal(); // ← AGREGAR ESTA LÍNEA
-            abrirCategoria(catActual);
-        });
+            // ✅ BOTONES AR CORREGIDOS
+            document.getElementById('ar-back-list').addEventListener('click', () => {
+                window.resetARTotal();
+                if (catActualGuardado !== -1) {
+                    abrirCategoria(catActualGuardado);
+                }
+            });
 
             document.getElementById('ar-back-menu').addEventListener('click', () => {
-            window.resetARTotal(); // ← AGREGAR ESTA LÍNEA
-            document.getElementById('pantalla-categorias').classList.add('activa');
-        });
+                window.resetARTotal();
+                document.getElementById('pantalla-categorias').classList.add('activa');
+            });
 
             setTimeout(() => {
                 document.getElementById('loading-screen').style.opacity = '0';
