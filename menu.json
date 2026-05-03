@@ -30,7 +30,7 @@
       "plato_comida_pos": "0 0.05 0.1",
       "pos": "0 0 0.1",
       "escala": "0.4 0.4 0.4",
-      "rot_inicial": "0 0 0",
+      "rot_inicial": "0 0 90",
       "rot_final": "0 0 0",
       "velocidad": 20000,
       "anim_dur": 1100
