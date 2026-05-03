@@ -861,11 +861,45 @@
             visorBase.addEventListener('model-loaded', function handlerBase() {
                 visorBase.removeEventListener('model-loaded', handlerBase);
 
-                /* Posicion del plato base */
-                const posBase     = p.plato_base_pos     || p.pos      || '0 0 0.1';
-                const escalaBase  = p.plato_base_escala  || p.escala   || '1 1 1';
+                // Posición y escala del plato base
+                    const posBase     = p.plato_base_pos     || p.pos      || '0 0 0.1';
+                    const escalaBase  = p.plato_base_escala  || p.escala   || '1 1 1';
+                    contenBase.setAttribute('position', posBase);
 
-                contenBase.setAttribute('position', posBase);
+                // Animación de escala (emergencia) del contenedor del base
+                    contenBase.setAttribute('animation__escala', {
+                    property: 'scale',
+                    to:       escalaBase,
+                    dur:      p.anim_dur || 1100,
+                    easing:   'easeOutElastic'
+                });
+
+        // ====== ROTACIÓN CONFIGURABLE PARA EL PLATO (visor-base) ======
+        // Parametros configurables en menu.json (opcionales):
+        //   base_rot_inicial, base_rot_final, base_velocidad
+        // Si no existen, se usan los de la comida: rot_inicial, rot_final, velocidad
+            const baseRotFrom = p.base_rot_inicial || p.rot_inicial || '90 0 0';
+            const baseRotTo   = p.base_rot_final   || p.rot_final   || '90 360 0';
+            const baseRotDur  = p.base_velocidad   || p.velocidad   || 15000;
+
+        // Fijar rotación inicial para evitar saltos
+            contenBase.setAttribute('rotation', baseRotFrom);
+
+        // Aplicar animación de rotación al visor-base (modelo)
+            visorBase.setAttribute('animation__rotar', {
+            property: 'rotation',
+            from:     baseRotFrom,
+            to:       baseRotTo,
+            dur:      baseRotDur,
+            loop:     true,
+            easing:   'linear'
+        });
+        }, { once: true });
+
+
+        // fijar rotacion inicial de la comida
+            visorComida.setAttribute('rotation', p.rot_inicial || '90 0 0');
+
 
                 /* El plato base emerge junto con la comida pero sin rotacion */
                 contenBase.setAttribute('animation__escala', {
