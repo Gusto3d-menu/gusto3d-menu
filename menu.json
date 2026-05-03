@@ -24,7 +24,7 @@
       "alergenos": ["gluten", "mariscos"],
       "descripcion": "Fideos japoneses en caldo de pollo con huevo, cebollin, nori y lonchas de cerdo marinado. Autentico sabor del Japon.",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.glb",
-      "plato_base": "plate-b",
+      "plato_base": "",
       "plato_base_pos": "0 -0.15 0.1",
       "plato_base_escala": "0.45 0.45 0.45",
       "plato_comida_pos": "0 0.05 0.1",
