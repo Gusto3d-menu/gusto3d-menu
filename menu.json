@@ -26,7 +26,7 @@
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.glb",
       "plato_base": "",
       "plato_base_pos": "0 -0.15 0.1",
-      "plato_base_escala": "0.45 0.45 0.45",
+      "plato_base_escala": "0 0 0",
       "plato_comida_pos": "0 0.05 0.1",
       "pos": "0 0 0.1",
       "escala": "0.4 0.4 0.4",
