@@ -441,18 +441,29 @@
         id="ar-scene">
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
         <a-entity mindar-image-target="targetIndex: 0">
-            <a-entity id="contenedor-estabilizador" scale="0.01 0.01 0.01">
-                <a-gltf-model id="visor"></a-gltf-model>
-            </a-entity>
+        <a-entity id="contenedor-estabilizador" scale="0.01 0.01 0.01">
+        <!-- BANDEJA -->
+        <a-entity id="bandeja-contenedor">
+            <a-gltf-model id="bandeja"></a-gltf-model>
         </a-entity>
+        <!-- PLATO PRINCIPAL -->
+        <a-entity id="principal-contenedor">
+            <a-gltf-model id="visor"></a-gltf-model>
+        </a-entity>
+        </a-entity>
+        </a-entity>
+  
     </a-scene>
 
     <script>
     /* ══════════════════════════════════════════
        REFERENCIAS DOM
     ══════════════════════════════════════════ */
-    const visor      = document.getElementById("visor");
-    const contenedor = document.getElementById("contenedor-estabilizador");
+    const visorModelo       = document.getElementById("visor");
+    const bandejaModelo     = document.getElementById("bandeja");
+    const contenedor        = document.getElementById("contenedor-estabilizador");
+    const bandejaContenedor = document.getElementById("bandeja-contenedor");
+    const principalContenedor = document.getElementById("principal-contenedor");
     const info       = document.getElementById("plato-info-ar");
     const arScene    = document.getElementById("ar-scene");
     const uiAr       = document.getElementById("ui-ar");
@@ -828,48 +839,119 @@
     /* ══════════════════════════════════════════
        AR
     ══════════════════════════════════════════ */
-    visor.addEventListener('model-loaded', () => {
-        const p = catalogo[window.platoSeleccionado];
-        if (!p) return;
-        contenedor.setAttribute("position", p.pos);
-        contenedor.setAttribute("animation__escala", {
-            property: "scale", to: p.escala,
-            dur: p.anim_dur || 1100, easing: "easeOutElastic"
-        });
-        visor.setAttribute("animation__rotar", {
-            property: "rotation", from: p.rot_inicial, to: p.rot_final,
-            dur: p.velocidad, loop: true, easing: "linear"
-        });
+    visorModelo.addEventListener('model-loaded', () => {
+    const p = catalogo[window.platoSeleccionado];
+    if (!p) return;
+    
+    // ═══════════════════════════════════════════════
+    // CONFIGURAR PLATO PRINCIPAL (INDEPENDIENTE)
+    // ═══════════════════════════════════════════════
+    const principal = p.principal;
+    principalContenedor.setAttribute("position", principal.pos || "0 0 0");
+    principalContenedor.setAttribute("scale", principal.escala || "1 1 1");
+    principalContenedor.setAttribute("rotation", principal.rotacion || "0 0 0");
+    
+    // Animación de escala para el principal
+    principalContenedor.setAttribute("animation__escala-principal", {
+        property: "scale", 
+        to: principal.escala || "1 1 1",
+        dur: principal.anim_dur || 1100, 
+        easing: "easeOutElastic"
     });
+    
+    // Rotación solo del principal
+    principalContenedor.setAttribute("animation__rotar-principal", {
+        property: "rotation", 
+        from: principal.rot_inicial || "0 0 0", 
+        to: principal.rot_final || "0 360 0",
+        dur: principal.velocidad || 20000, 
+        loop: true, 
+        easing: "linear"
+    });
+    
+    // ═══════════════════════════════════════════════
+    // CONFIGURAR BANDEJA (COMPLETAMENTE INDEPENDIENTE)
+    // ═══════════════════════════════════════════════
+    if (p.bandeja && p.bandeja.archivo) {
+        const bandejaConfig = p.bandeja;
+        
+        bandejaContenedor.setAttribute("position", bandejaConfig.pos || "0 -0.3 0");
+        bandejaContenedor.setAttribute("scale", bandejaConfig.escala || "1.1 1.1 1.1");
+        bandejaContenedor.setAttribute("rotation", bandejaConfig.rotacion || "0 0 0");
+        
+        bandejaModelo.setAttribute("gltf-model", bandejaConfig.archivo);
+        bandejaContenedor.setAttribute("visible", "true");
+        
+        // Animación suave de entrada para bandeja
+        bandejaContenedor.setAttribute("animation__entrada-bandeja", {
+            property: "scale",
+            from: "0.7 0.7 0.7",
+            to: bandejaConfig.escala || "1.1 1.1 1.1",
+            dur: 1000,
+            easing: "easeOutBack"
+        });
+        
+        console.log(`✅ Plato: pos=${principal.pos} escala=${principal.escala}`);
+        console.log(`✅ Bandeja: pos=${bandejaConfig.pos} escala=${bandejaConfig.escala}`);
+        
+    } else {
+        bandejaContenedor.setAttribute("visible", "false");
+    }
+    
+    // Animación de entrada del contenedor principal
+    contenedor.setAttribute("animation__entrada-total", {
+        property: "scale",
+        to: "1 1 1",
+        dur: 1200,
+        easing: "easeOutElastic"
+    });
+});
 
     async function mostrarPlatoAR(index) {
-        window.platoSeleccionado = index;
-        const p = catalogo[index];
+    window.platoSeleccionado = index;
+    const p = catalogo[index];
 
-        document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
-        document.getElementById('btn-volver').style.display = 'none';
+    // Ocultar pantallas
+    document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
+    document.getElementById('btn-volver').style.display = 'none';
 
-        contenedor.setAttribute("scale", "0.01 0.01 0.01");
-        visor.removeAttribute("gltf-model");
+    // Reset completo de AMBOS modelos
+    contenedor.setAttribute("scale", "0.01 0.01 0.01");
+    visorModelo.removeAttribute("gltf-model");
+    bandejaModelo.removeAttribute("gltf-model");
+    bandejaContenedor.setAttribute("visible", "false");
 
-        const mindarSystem = arScene.systems['mindar-image-system'];
-        await mindarSystem.start();
+    const mindarSystem = arScene.systems['mindar-image-system'];
+    await mindarSystem.start();
 
-        try {
-            const res = await fetch(p.archivo, { method: 'HEAD' });
-            if (res.ok) {
-                visor.setAttribute("gltf-model", p.archivo);
-                info.textContent = p.nombre;
-                info.classList.remove("en-preparacion");
-            } else { throw new Error(); }
-        } catch {
-            info.textContent = "En preparacion...";
-            info.classList.add("en-preparacion");
+    try {
+        // Cargar plato PRINCIPAL
+        const resPrincipal = await fetch(p.principal.archivo, { method: 'HEAD' });
+        if (resPrincipal.ok) {
+            visorModelo.setAttribute("gltf-model", p.principal.archivo);
+        } else {
+            throw new Error('Principal no disponible');
         }
 
-        info.style.display = 'block';
-        uiAr.style.display = 'flex';
+        // Cargar BANDEJA si existe
+        if (p.bandeja && p.bandeja.archivo) {
+            const resBandeja = await fetch(p.bandeja.archivo, { method: 'HEAD' });
+            if (!resBandeja.ok) {
+                console.warn(`Bandeja no disponible: ${p.bandeja.archivo}`);
+            }
+        }
+
+        info.textContent = p.nombre;
+        info.classList.remove("en-preparacion");
+        
+    } catch {
+        info.textContent = "En preparación...";
+        info.classList.add("en-preparacion");
     }
+
+    info.style.display = 'block';
+    uiAr.style.display = 'flex';
+}
 
     /* ══════════════════════════════════════════
        INIT
