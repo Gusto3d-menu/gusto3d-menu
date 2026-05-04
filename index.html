@@ -863,8 +863,8 @@ async function mostrarPlatoAR(index) {
             });
 
             // === ROTACIÓN INDEPENDIENTE DEL PLATO BASE ===
-            const baseRotFrom = p.base_rot_inicial || '0 0 0';
-            const baseRotTo   = p.base_rot_final   || '0 360 0';
+            const baseRotFrom = p.base_rot_inicial || '90 0 0';
+            const baseRotTo   = p.base_rot_final   || '90 360 0';
             const baseRotDur  = p.base_velocidad   || 20000;
 
             // Fijar rotación inicial
