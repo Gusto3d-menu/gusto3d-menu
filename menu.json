@@ -31,7 +31,7 @@
       "pos": "0 0 0",
       "escala": "0.5 0.5 0.5",
       "rot_inicial": "90 0 0",
-      "rot_final": "90 0 360",
+      "rot_final": "450 0 0",
       "velocidad": 20000,
       "anim_dur": 1100
     },
