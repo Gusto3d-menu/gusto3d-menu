@@ -891,48 +891,49 @@ async function mostrarPlatoAR(index) {
        plato_comida_pos, escala (o pos/escala legacy)
        rot_inicial, rot_final, velocidad
        ════════════════════════════════════════ */
-    if (comidaOk) {
-        visorComida.addEventListener('model-loaded', function handlerComida() {
-            visorComida.removeEventListener('model-loaded', handlerComida);
+    /* ════════════════════════════════════════
+   CARGAR MODELO COMIDA (Corrección de Rotación)
+   ════════════════════════════════════════ */
+if (comidaOk) {
+    visorComida.addEventListener('model-loaded', function handlerComida() {
+        visorComida.removeEventListener('model-loaded', handlerComida);
 
-            // === ATRIBUTOS DE LA COMIDA ===
-            const posComida = p.plato_comida_pos || p.pos || '0 0 0.01';
-            const escalaComida = p.escala || '1 1 1';
+        const posComida = p.plato_comida_pos || p.pos || '0 0 0.01';
+        const escalaComida = p.escala || '1 1 1';
 
-            // === POSICION Y ESCALA ===
-            contenComida.setAttribute('position', posComida);
-            contenComida.setAttribute('scale', escalaComida);
+        contenComida.setAttribute('position', posComida);
+        contenComida.setAttribute('scale', escalaComida);
 
-            // === ANIMACIÓN EMERGENCIA ===
-            contenComida.setAttribute('animation__escala', {
-                property: 'scale',
-                from: '0.01 0.01 0.01',
-                to: escalaComida,
-                dur: p.anim_dur || 1100,
-                easing: 'easeOutElastic'
-            });
+        // Animación de escala (Entrada)
+        contenComida.setAttribute('animation__escala', {
+            property: 'scale',
+            from: '0.01 0.01 0.01',
+            to: escalaComida,
+            dur: p.anim_dur || 1100,
+            easing: 'easeOutElastic'
+        });
 
-            // === ROTACIÓN INDEPENDIENTE DE LA COMIDA ===
-            const rotFrom = p.rot_inicial || '90 0 0';
-            const rotTo   = p.rot_final   || '90 360 0';
-            const rotDur  = p.velocidad   || 15000;
+        // --- CORRECCIÓN DE ROTACIÓN ---
+        const rotFrom = p.rot_inicial || '0 0 0';
+        const rotTo   = p.rot_final   || '0 360 0';
+        const rotDur  = p.velocidad   || 15000;
 
-            // Fijar rotación inicial
-            contenComida.setAttribute('rotation', rotFrom);
+        // Limpiamos cualquier animación previa antes de asignar la nueva
+        contenComida.removeAttribute('animation__rotar');
+        
+        contenComida.setAttribute('animation__rotar', {
+            property: 'rotation', 
+            from: rotFrom,
+            to: rotTo,
+            dur: rotDur,
+            loop: true,
+            easing: 'linear'
+        });
 
-            // Animación de rotación CONTINUA
-            contenComida.setAttribute('animation__rotar', {
-                property: 'rotation',
-                from: rotFrom,
-                to: rotTo,
-                dur: rotDur,
-                loop: true,
-                easing: 'linear'
-            });
+    }, { once: true });
 
-        }, { once: true });
-
-        visorComida.setAttribute('gltf-model', urlComida);
+    visorComida.setAttribute('gltf-model', urlComida);
+    
     } else {
         info.textContent = 'En preparacion...';
         info.classList.add('en-preparacion');
