@@ -76,14 +76,14 @@
       "descripcion": "Carne 100% Angus jugosa con cheddar derretido, bacon crujiente, lechuga, tomate y nuestra salsa secreta.",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato03.glb",
       "plato_base": "plate-b",
-      "plato_base_pos": "0 -0.2 -0.2",
+      "plato_base_pos": "0 -0.2 -0.3",
       "plato_base_escala": "1.2 1.2 1.2",
 
       "base_rot_inicial": "0 90 0",
       "base_rot_final": "0 90 0",
       "base_velocidad": 13000,
       
-      "plato_comida_pos": "0 0.3 0.1",
+      "plato_comida_pos": "0 0.4 0.2",
       "pos": "0 0.2 0.1",
       "escala": "1.1 1.1 1.1",
       "rot_inicial": "90 0 0",
