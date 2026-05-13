@@ -762,261 +762,252 @@
             document.head.appendChild(link);
         });
     }
- 
+
+    /* ══════════════════════════════════════════
+       AR — MOSTRAR PLATO
+       ─────────────────────────────────────────
+       Flujo:
+       1. Limpiar ambas entidades (base + comida)
+       2. Iniciar MindAR
+       3. Verificar que ambos .glb existen (HEAD)
+       4. Asignar src — cada modelo se carga
+          independientemente
+       5. model-loaded de visor-comida: anima
+          emergencia + rotacion continua
+          model-loaded de visor-base: solo posicion
+    ══════════════════════════════════════════ */
 /* ══════════════════════════════════════════
-AR — MOSTRAR PLATO (Corrección Eje Z Puro)
+   AR — MOSTRAR PLATO
+   ─────────────────────────────────────────
+   Flujo:
+   1. Limpiar ambas entidades (base + comida)
+   2. Iniciar MindAR
+   3. Verificar que ambos .glb existen (HEAD)
+   4. Asignar src — cada modelo se carga independientemente
+   5. model-loaded de cada uno: configura sus atributos INDEPENDIENTES
 ══════════════════════════════════════════ */
 async function mostrarPlatoAR(index) {
-  window.platoSeleccionado = index;
-  const p = catalogo[index];
+    window.platoSeleccionado = index;
+    const p = catalogo[index];
 
-  document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
-  document.getElementById('btn-volver').style.display = 'none';
+    /* Ocultar pantallas */
+    document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
+    document.getElementById('btn-volver').style.display = 'none';
 
-  // 🔹 Reset profundo (incluye rotaciones internas)
-  const reset = (cont, visor) => {
-    cont.removeAttribute('animation__escala');
-    cont.removeAttribute('animation__rotar');
-    cont.removeAttribute('position');
-    cont.removeAttribute('rotation');
-    cont.setAttribute('scale', '0.001 0.001 0.001');
-    visor.removeAttribute('rotation'); // ← Clave: limpiar inclinación previa
-    visor.removeAttribute('gltf-model');
-  };
-  reset(contenBase, visorBase);
-  reset(contenComida, visorComida);
+    /* Resetear ambas entidades */
+    contenBase.setAttribute('scale',  '0.01 0.01 0.01');
+    contenComida.setAttribute('scale','0.01 0.01 0.01');
+    contenBase.removeAttribute('position');
+    contenComida.removeAttribute('position');
 
-  const mindarSystem = arScene.systems['mindar-image-system'];
-  await mindarSystem.start();
+    visorBase.removeAttribute('gltf-model');
+    visorComida.removeAttribute('gltf-model');
+    visorBase.removeAttribute('animation__rotar');
+    visorComida.removeAttribute('animation__rotar');
+    visorComida.removeAttribute('animation__escala');
+    contenBase.removeAttribute('animation__escala');
+    contenBase.removeAttribute('rotation');
 
-  const platoBaseNombre = (p.plato_base || '').trim();
-  const urlBase   = platoBaseNombre ? `${ASSETS_BASE}${platoBaseNombre}.glb` : null;
-  const urlComida = (p.archivo || '').trim();
+    /* Iniciar camara AR */
+    const mindarSystem = arScene.systems['mindar-image-system'];
+    await mindarSystem.start();
 
-  const checkHead = async url => url ? (await fetch(url, { method: 'HEAD' })).ok : false;
-  const [baseOk, comidaOk] = await Promise.all([checkHead(urlBase), checkHead(urlComida)]);
+    /* ── Construir URLs ── */
+    const urlBase   = `${ASSETS_BASE}${p.plato_base}.glb`;
+    const urlComida = p.archivo;
 
-  info.textContent = p.nombre;
-  info.classList.remove('en-preparacion');
+    /* ── Verificar existencia de ambos archivos en paralelo ── */
+    let baseOk = false;
+    let comidaOk = false;
 
-  // ── BASE ──
-  if (baseOk) {
-    visorBase.addEventListener('model-loaded', () => {
-      const pos = p.plato_base_pos || '0 0 0';
-      const scale = p.plato_base_escala || '1 1 1';
-      const tilt = (p.base_rot_inicial || '0 0 0').trim();
-      const durRot = p.base_velocidad || 20000;
+    try {
+        const [resBase, resComida] = await Promise.all([
+            fetch(urlBase,   { method: 'HEAD' }),
+            fetch(urlComida, { method: 'HEAD' })
+        ]);
+        baseOk   = resBase.ok;
+        comidaOk = resComida.ok;
+    } catch (err) {
+        console.warn('Error verificando modelos:', err);
+    }
 
-      contenBase.setAttribute('position', pos);
-      contenBase.setAttribute('animation__escala', { property:'scale', from:'0.001 0.001 0.001', to:scale, dur:p.anim_dur||1100, easing:'easeOutElastic' });
-      
-      // Separar inclinación del giro
-      visorBase.setAttribute('rotation', tilt);
-      contenBase.setAttribute('rotation', '0 0 0');
-      contenBase.setAttribute('animation__rotar', { property:'rotation', from:'0 0 0', to:'0 0 360', dur:durRot, loop:true, easing:'linear' });
+    /* ── Mostrar nombre del plato ── */
+    info.textContent = p.nombre;
+    info.classList.remove('en-preparacion');
+
+    /* ════════════════════════════════════════
+       CARGAR MODELO BASE (PLATO/BANDEJA)
+       Atributos INDEPENDIENTES y CONFIGURABLES:
+       plato_base_pos, plato_base_escala
+       base_rot_inicial, base_rot_final, base_velocidad
+       ════════════════════════════════════════ */
+    if (baseOk && p.plato_base) {
+        visorBase.addEventListener('model-loaded', function handlerBase() {
+            visorBase.removeEventListener('model-loaded', handlerBase);
+
+            // === ATRIBUTOS DEL PLATO BASE ===
+            const posBase     = p.plato_base_pos || '0 0 0';
+            const escalaBase  = p.plato_base_escala || '1 1 1';
+            
+            // === POSICION Y ESCALA ===
+            contenBase.setAttribute('position', posBase);
+            contenBase.setAttribute('scale', escalaBase);
+
+            // === ANIMACIÓN EMERGENCIA ===
+            contenBase.setAttribute('animation__escala', {
+                property: 'scale',
+                from: '0.01 0.01 0.01',
+                to: escalaBase,
+                dur: p.anim_dur || 1100,
+                easing: 'easeOutElastic'
+            });
+
+            // === ROTACIÓN INDEPENDIENTE DEL PLATO BASE ===
+            const baseRotFrom = p.base_rot_inicial || '90 0 0';
+            const baseRotTo   = p.base_rot_final   || '90 360 0';
+            const baseRotDur  = p.base_velocidad   || 20000;
+
+            // Fijar rotación inicial
+            contenBase.setAttribute('rotation', baseRotFrom);
+
+            // Animación de rotación CONTINUA
+            contenBase.setAttribute('animation__rotar', {
+                property: 'rotation',
+                from: baseRotFrom,
+                to: baseRotTo,
+                dur: baseRotDur,
+                loop: true,
+                easing: 'linear'
+            });
+
+        }, { once: true });
+
+        visorBase.setAttribute('gltf-model', urlBase);
+    }
+
+    /* ════════════════════════════════════════
+       CARGAR MODELO COMIDA
+       Atributos INDEPENDIENTES:
+       plato_comida_pos, escala (o pos/escala legacy)
+       rot_inicial, rot_final, velocidad
+       ════════════════════════════════════════ */
+    /* ════════════════════════════════════════
+   CARGAR MODELO COMIDA (Corrección de Rotación)
+   ════════════════════════════════════════ */
+if (comidaOk) {
+    visorComida.addEventListener('model-loaded', function handlerComida() {
+        visorComida.removeEventListener('model-loaded', handlerComida);
+
+        const posComida = p.plato_comida_pos || p.pos || '0 0 0.01';
+        const escalaComida = p.escala || '1 1 1';
+
+        contenComida.setAttribute('position', posComida);
+        contenComida.setAttribute('scale', escalaComida);
+
+        // Animación de escala (Entrada)
+        contenComida.setAttribute('animation__escala', {
+            property: 'scale',
+            from: '0.01 0.01 0.01',
+            to: escalaComida,
+            dur: p.anim_dur || 1100,
+            easing: 'easeOutElastic'
+        });
+
+        // --- CORRECCIÓN DE ROTACIÓN ---
+        const rotFrom = p.rot_inicial || '0 0 0';
+        const rotTo   = p.rot_final   || '0 360 0';
+        const rotDur  = p.velocidad   || 15000;
+
+        // Limpiamos cualquier animación previa antes de asignar la nueva
+        contenComida.removeAttribute('animation__rotar');
+        
+        contenComida.setAttribute('animation__rotar', {
+            property: 'rotation', 
+            from: rotFrom,
+            to: rotTo,
+            dur: rotDur,
+            loop: true,
+            easing: 'linear'
+        });
+
     }, { once: true });
-    visorBase.setAttribute('gltf-model', urlBase);
-  }
 
-  // ── COMIDA ──
-  if (comidaOk) {
-    visorComida.addEventListener('model-loaded', () => {
-      const pos = p.plato_comida_pos || p.pos || '0 0 0.1';
-      const scale = p.escala || '1 1 1';
-      const tilt = (p.rot_inicial || '0 0 0').trim(); // ← Inclinación fija
-      const durRot = p.velocidad || 15000;
-
-      contenComida.setAttribute('position', pos);
-      contenComida.setAttribute('animation__escala', { property:'scale', from:'0.001 0.001 0.001', to:scale, dur:p.anim_dur||1100, easing:'easeOutElastic' });
-      
-      // 🔹 TRUCO: La inclinación va al modelo, el giro va al contenedor (Eje Z puro)
-      visorComida.setAttribute('rotation', tilt);
-      contenComida.setAttribute('rotation', '0 0 0');
-      contenComida.setAttribute('animation__rotar', { 
-        property: 'rotation', from: '0 0 0', to: '0 0 360', 
-        dur: durRot, loop: true, easing: 'linear' 
-      });
-    }, { once: true });
     visorComida.setAttribute('gltf-model', urlComida);
-  } else {
-    info.textContent = 'En preparacion...';
-    info.classList.add('en-preparacion');
-  }
+    
+    } else {
+        info.textContent = 'En preparacion...';
+        info.classList.add('en-preparacion');
+    }
 
-  info.style.display = 'block';
-  uiAr.style.display = 'flex';
+    info.style.display = 'block';
+    uiAr.style.display = 'flex';
 }
 
-/* ══════════════════════════════════════════
-SALIR AR (Limpieza completa)
-══════════════════════════════════════════ */
-function salirAR() {
-  arScene.systems['mindar-image-system'].stop();
-  uiAr.style.display  = 'none';
-  info.style.display  = 'none';
-  
-  const reset = (cont, visor) => {
-    cont.removeAttribute('animation__escala');
-    cont.removeAttribute('animation__rotar');
-    cont.removeAttribute('position');
-    cont.removeAttribute('rotation');
-    cont.setAttribute('scale', '0.001 0.001 0.001');
-    visor.removeAttribute('rotation');
-    visor.removeAttribute('gltf-model');
-  };
-  reset(contenBase, visorBase);
-  reset(contenComida, visorComida);
-}
-   /* ══════════════════════════════════════════
-1. INIT: Añade saneador automático de claves
-══════════════════════════════════════════ */
-async function init() {
-  try {
-    const res  = await fetch('./menu.json');
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    
-    // 🔹 Sanea automáticamente los espacios en las CLAVES del JSON
-    const sanear = o => {
-      if (!o || typeof o !== 'object') return o;
-      if (Array.isArray(o)) return o.map(sanear);
-      const limpio = {};
-      for (const k in o) limpio[k.trim()] = sanear(o[k]);
-      return limpio;
-    };
-    
-    catalogo   = sanear(data.platos);
-    categorias = sanear(data.categorias);
-    
-    const nombreRest = data.restaurante?.nombre || '';
-    if (nombreRest) document.getElementById('nombre-restaurante').textContent = nombreRest;
-    window.MONEDA = data.restaurante?.moneda || 'USD';
-    
-    generarGridCategorias();
-    precargarModelos();
-    
-    btnPrev.addEventListener('click', () => irA(indiceReal - 1));
-    btnNext.addEventListener('click', () => irA(indiceReal + 1));
-    initSwipe();
-    
-    document.getElementById('ar-back-list').addEventListener('click', () => { salirAR(); abrirCategoria(catActual); });
-    document.getElementById('ar-back-menu').addEventListener('click', () => { salirAR(); document.getElementById('pantalla-categorias').classList.add('activa'); });
-    
-    setTimeout(() => {
-      document.getElementById('loading-screen').style.opacity = '0';
-      setTimeout(() => {
-        document.getElementById('loading-screen').style.display = 'none';
-        document.getElementById('pantalla-categorias').classList.add('activa');
-      }, 1200);
-    }, 1000);
-  } catch (e) {
-    console.error('Error cargando menu.json:', e);
-    document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('error-screen').style.display   = 'flex';
-  }
-}
+    /* ══════════════════════════════════════════
+       VOLVER DESDE AR — limpia todo
+    ══════════════════════════════════════════ */
+    function salirAR() {
+        arScene.systems['mindar-image-system'].stop();
+        uiAr.style.display  = 'none';
+        info.style.display  = 'none';
 
-/* ══════════════════════════════════════════
-2. MOSTRAR PLATO AR (Corregido para cualquier eje)
-══════════════════════════════════════════ */
-async function mostrarPlatoAR(index) {
-  window.platoSeleccionado = index;
-  const p = catalogo[index];
+        /* Limpiar modelos para proxima vez */
+        visorBase.removeAttribute('gltf-model');
+        visorComida.removeAttribute('gltf-model');
+        visorBase.removeAttribute('animation__rotar');
+        visorComida.removeAttribute('animation__rotar');
+        visorComida.removeAttribute('animation__escala');
+        contenBase.removeAttribute('animation__escala');
+        contenBase.setAttribute('scale',  '0.01 0.01 0.01');
+        contenComida.setAttribute('scale','0.01 0.01 0.01');
+    }
 
-  document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
-  document.getElementById('btn-volver').style.display = 'none';
+    /* ══════════════════════════════════════════
+       INIT
+    ══════════════════════════════════════════ */
+    async function init() {
+        try {
+            const res  = await fetch('./menu.json');
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
 
-  // 🔹 Reset profundo
-  const reset = el => {
-    el.removeAttribute('animation__escala');
-    el.removeAttribute('animation__rotar');
-    el.removeAttribute('position');
-    el.removeAttribute('rotation');
-    el.setAttribute('scale', '0.001 0.001 0.001');
-  };
-  reset(contenBase); reset(contenComida);
-  visorBase.removeAttribute('gltf-model');
-  visorComida.removeAttribute('gltf-model');
+            catalogo   = data.platos;
+            categorias = data.categorias;
 
-  const mindarSystem = arScene.systems['mindar-image-system'];
-  await mindarSystem.start();
+            const nombreRest = data.restaurante?.nombre || '';
+            if (nombreRest) document.getElementById('nombre-restaurante').textContent = nombreRest;
+            window.MONEDA = data.restaurante?.moneda || 'USD';
 
-  const platoBaseNombre = (p.plato_base || '').trim();
-  const urlBase   = platoBaseNombre ? `${ASSETS_BASE}${platoBaseNombre}.glb` : null;
-  const urlComida = (p.archivo || '').trim();
+            generarGridCategorias();
+            precargarModelos();
 
-  const checkHead = async url => url ? (await fetch(url, { method: 'HEAD' })).ok : false;
-  const [baseOk, comidaOk] = await Promise.all([checkHead(urlBase), checkHead(urlComida)]);
+            btnPrev.addEventListener('click', () => irA(indiceReal - 1));
+            btnNext.addEventListener('click', () => irA(indiceReal + 1));
+            initSwipe();
 
-  info.textContent = p.nombre;
-  info.classList.remove('en-preparacion');
+            document.getElementById('ar-back-list').addEventListener('click', () => {
+                salirAR();
+                abrirCategoria(catActual);
+            });
+            document.getElementById('ar-back-menu').addEventListener('click', () => {
+                salirAR();
+                document.getElementById('pantalla-categorias').classList.add('activa');
+            });
 
-  // ── BASE ──
-  if (baseOk) {
-    visorBase.addEventListener('model-loaded', () => {
-      const pos = p.plato_base_pos || '0 0 0';
-      const scale = p.plato_base_escala || '1 1 1';
-      const rotFrom = p.base_rot_inicial || '0 0 0';
-      const rotTo = p.base_rot_final || '0 360 0';
-      const durRot = p.base_velocidad || 20000;
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loading-screen').style.display = 'none';
+                    document.getElementById('pantalla-categorias').classList.add('activa');
+                }, 1200);
+            }, 1000);
 
-      contenBase.setAttribute('position', pos);
-      contenBase.setAttribute('animation__escala', { property:'scale', from:'0.001 0.001 0.001', to:scale, dur:p.anim_dur||1100, easing:'easeOutElastic' });
-      // Pequeño delay para que A-Frame registre la posición antes de animar
-      requestAnimationFrame(() => {
-        contenBase.setAttribute('rotation', rotFrom);
-        contenBase.setAttribute('animation__rotar', { property:'rotation', from:rotFrom, to:rotTo, dur:durRot, loop:true, easing:'linear' });
-      });
-    }, { once: true });
-    visorBase.setAttribute('gltf-model', urlBase);
-  }
-
-  // ── COMIDA ──
-  if (comidaOk) {
-    visorComida.addEventListener('model-loaded', () => {
-      const pos = p.plato_comida_pos || p.pos || '0 0 0.1';
-      const scale = p.escala || '1 1 1';
-      const rotFrom = p.rot_inicial || '0 0 0';
-      const rotTo = p.rot_final || '0 360 0';
-      const durRot = p.velocidad || 15000;
-
-      contenComida.setAttribute('position', pos);
-      contenComida.setAttribute('animation__escala', { property:'scale', from:'0.001 0.001 0.001', to:scale, dur:p.anim_dur||1100, easing:'easeOutElastic' });
-      
-      requestAnimationFrame(() => {
-        contenComida.setAttribute('rotation', rotFrom);
-        contenComida.setAttribute('animation__rotar', { property:'rotation', from:rotFrom, to:rotTo, dur:durRot, loop:true, easing:'linear' });
-      });
-    }, { once: true });
-    visorComida.setAttribute('gltf-model', urlComida);
-  } else {
-    info.textContent = 'En preparacion...';
-    info.classList.add('en-preparacion');
-  }
-
-  info.style.display = 'block';
-  uiAr.style.display = 'flex';
-}
-
-/* ══════════════════════════════════════════
-3. SALIR AR (Limpieza garantizada)
-══════════════════════════════════════════ */
-function salirAR() {
-  arScene.systems['mindar-image-system'].stop();
-  uiAr.style.display  = 'none';
-  info.style.display  = 'none';
-  
-  const reset = el => {
-    el.removeAttribute('animation__escala');
-    el.removeAttribute('animation__rotar');
-    el.removeAttribute('position');
-    el.removeAttribute('rotation');
-    el.setAttribute('scale', '0.001 0.001 0.001');
-  };
-  reset(contenBase); reset(contenComida);
-  visorBase.removeAttribute('gltf-model');
-  visorComida.removeAttribute('gltf-model');
-}
+        } catch (e) {
+            console.error('Error cargando menu.json:', e);
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('error-screen').style.display   = 'flex';
+        }
+    }
 
     window.onload = init;
     </script>
