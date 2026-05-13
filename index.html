@@ -905,52 +905,156 @@ function salirAR() {
     visorComida.removeAttribute('gltf-model');
 }
 
-    /* ══════════════════════════════════════════
-       INIT
-    ══════════════════════════════════════════ */
-    async function init() {
-        try {
-            const res  = await fetch('./menu.json');
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            const data = await res.json();
+   /* ══════════════════════════════════════════
+1. INIT: Añade saneador automático de claves
+══════════════════════════════════════════ */
+async function init() {
+  try {
+    const res  = await fetch('./menu.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    
+    // 🔹 Sanea automáticamente los espacios en las CLAVES del JSON
+    const sanear = o => {
+      if (!o || typeof o !== 'object') return o;
+      if (Array.isArray(o)) return o.map(sanear);
+      const limpio = {};
+      for (const k in o) limpio[k.trim()] = sanear(o[k]);
+      return limpio;
+    };
+    
+    catalogo   = sanear(data.platos);
+    categorias = sanear(data.categorias);
+    
+    const nombreRest = data.restaurante?.nombre || '';
+    if (nombreRest) document.getElementById('nombre-restaurante').textContent = nombreRest;
+    window.MONEDA = data.restaurante?.moneda || 'USD';
+    
+    generarGridCategorias();
+    precargarModelos();
+    
+    btnPrev.addEventListener('click', () => irA(indiceReal - 1));
+    btnNext.addEventListener('click', () => irA(indiceReal + 1));
+    initSwipe();
+    
+    document.getElementById('ar-back-list').addEventListener('click', () => { salirAR(); abrirCategoria(catActual); });
+    document.getElementById('ar-back-menu').addEventListener('click', () => { salirAR(); document.getElementById('pantalla-categorias').classList.add('activa'); });
+    
+    setTimeout(() => {
+      document.getElementById('loading-screen').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('pantalla-categorias').classList.add('activa');
+      }, 1200);
+    }, 1000);
+  } catch (e) {
+    console.error('Error cargando menu.json:', e);
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('error-screen').style.display   = 'flex';
+  }
+}
 
-            catalogo   = data.platos;
-            categorias = data.categorias;
+/* ══════════════════════════════════════════
+2. MOSTRAR PLATO AR (Corregido para cualquier eje)
+══════════════════════════════════════════ */
+async function mostrarPlatoAR(index) {
+  window.platoSeleccionado = index;
+  const p = catalogo[index];
 
-            const nombreRest = data.restaurante?.nombre || '';
-            if (nombreRest) document.getElementById('nombre-restaurante').textContent = nombreRest;
-            window.MONEDA = data.restaurante?.moneda || 'USD';
+  document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
+  document.getElementById('btn-volver').style.display = 'none';
 
-            generarGridCategorias();
-            precargarModelos();
+  // 🔹 Reset profundo
+  const reset = el => {
+    el.removeAttribute('animation__escala');
+    el.removeAttribute('animation__rotar');
+    el.removeAttribute('position');
+    el.removeAttribute('rotation');
+    el.setAttribute('scale', '0.001 0.001 0.001');
+  };
+  reset(contenBase); reset(contenComida);
+  visorBase.removeAttribute('gltf-model');
+  visorComida.removeAttribute('gltf-model');
 
-            btnPrev.addEventListener('click', () => irA(indiceReal - 1));
-            btnNext.addEventListener('click', () => irA(indiceReal + 1));
-            initSwipe();
+  const mindarSystem = arScene.systems['mindar-image-system'];
+  await mindarSystem.start();
 
-            document.getElementById('ar-back-list').addEventListener('click', () => {
-                salirAR();
-                abrirCategoria(catActual);
-            });
-            document.getElementById('ar-back-menu').addEventListener('click', () => {
-                salirAR();
-                document.getElementById('pantalla-categorias').classList.add('activa');
-            });
+  const platoBaseNombre = (p.plato_base || '').trim();
+  const urlBase   = platoBaseNombre ? `${ASSETS_BASE}${platoBaseNombre}.glb` : null;
+  const urlComida = (p.archivo || '').trim();
 
-            setTimeout(() => {
-                document.getElementById('loading-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loading-screen').style.display = 'none';
-                    document.getElementById('pantalla-categorias').classList.add('activa');
-                }, 1200);
-            }, 1000);
+  const checkHead = async url => url ? (await fetch(url, { method: 'HEAD' })).ok : false;
+  const [baseOk, comidaOk] = await Promise.all([checkHead(urlBase), checkHead(urlComida)]);
 
-        } catch (e) {
-            console.error('Error cargando menu.json:', e);
-            document.getElementById('loading-screen').style.display = 'none';
-            document.getElementById('error-screen').style.display   = 'flex';
-        }
-    }
+  info.textContent = p.nombre;
+  info.classList.remove('en-preparacion');
+
+  // ── BASE ──
+  if (baseOk) {
+    visorBase.addEventListener('model-loaded', () => {
+      const pos = p.plato_base_pos || '0 0 0';
+      const scale = p.plato_base_escala || '1 1 1';
+      const rotFrom = p.base_rot_inicial || '0 0 0';
+      const rotTo = p.base_rot_final || '0 360 0';
+      const durRot = p.base_velocidad || 20000;
+
+      contenBase.setAttribute('position', pos);
+      contenBase.setAttribute('animation__escala', { property:'scale', from:'0.001 0.001 0.001', to:scale, dur:p.anim_dur||1100, easing:'easeOutElastic' });
+      // Pequeño delay para que A-Frame registre la posición antes de animar
+      requestAnimationFrame(() => {
+        contenBase.setAttribute('rotation', rotFrom);
+        contenBase.setAttribute('animation__rotar', { property:'rotation', from:rotFrom, to:rotTo, dur:durRot, loop:true, easing:'linear' });
+      });
+    }, { once: true });
+    visorBase.setAttribute('gltf-model', urlBase);
+  }
+
+  // ── COMIDA ──
+  if (comidaOk) {
+    visorComida.addEventListener('model-loaded', () => {
+      const pos = p.plato_comida_pos || p.pos || '0 0 0.1';
+      const scale = p.escala || '1 1 1';
+      const rotFrom = p.rot_inicial || '0 0 0';
+      const rotTo = p.rot_final || '0 360 0';
+      const durRot = p.velocidad || 15000;
+
+      contenComida.setAttribute('position', pos);
+      contenComida.setAttribute('animation__escala', { property:'scale', from:'0.001 0.001 0.001', to:scale, dur:p.anim_dur||1100, easing:'easeOutElastic' });
+      
+      requestAnimationFrame(() => {
+        contenComida.setAttribute('rotation', rotFrom);
+        contenComida.setAttribute('animation__rotar', { property:'rotation', from:rotFrom, to:rotTo, dur:durRot, loop:true, easing:'linear' });
+      });
+    }, { once: true });
+    visorComida.setAttribute('gltf-model', urlComida);
+  } else {
+    info.textContent = 'En preparacion...';
+    info.classList.add('en-preparacion');
+  }
+
+  info.style.display = 'block';
+  uiAr.style.display = 'flex';
+}
+
+/* ══════════════════════════════════════════
+3. SALIR AR (Limpieza garantizada)
+══════════════════════════════════════════ */
+function salirAR() {
+  arScene.systems['mindar-image-system'].stop();
+  uiAr.style.display  = 'none';
+  info.style.display  = 'none';
+  
+  const reset = el => {
+    el.removeAttribute('animation__escala');
+    el.removeAttribute('animation__rotar');
+    el.removeAttribute('position');
+    el.removeAttribute('rotation');
+    el.setAttribute('scale', '0.001 0.001 0.001');
+  };
+  reset(contenBase); reset(contenComida);
+  visorBase.removeAttribute('gltf-model');
+  visorComida.removeAttribute('gltf-model');
+}
 
     window.onload = init;
     </script>
