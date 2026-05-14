@@ -59,7 +59,7 @@
       "pos": "0 0 0.1",
       "escala": "4 4 4",
       "rot_inicial": "90 0 0",
-      "rot_final": "90 360 0",
+      "rot_final": "90 0 360",
       "velocidad": 14000,
       "anim_dur": 1200
     },
