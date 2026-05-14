@@ -810,6 +810,8 @@ async function mostrarPlatoAR(index) {
 
   await arScene.systems['mindar-image-system'].start();
 
+  arScene.style.display = 'block';
+
   const urlBase   = (p.plato_base || '').trim() ? `${ASSETS_BASE}${p.plato_base.trim()}.glb` : null;
   const urlComida = (p.archivo || '').trim();
 
