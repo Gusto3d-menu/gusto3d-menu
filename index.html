@@ -809,7 +809,7 @@ async function mostrarPlatoAR(index) {
   reset(contenComida, visorComida);
 
   await arScene.systems['mindar-image-system'].start();
-    
+
   arScene.style.display = 'block';
 
   const urlBase   = (p.plato_base || '').trim() ? `${ASSETS_BASE}${p.plato_base.trim()}.glb` : null;
@@ -915,22 +915,20 @@ function salirAR() {
   reset(contenComida, visorComida);
 }
 
+    /* ══════════════════════════════════════════
+       INIT
+    ══════════════════════════════════════════ */
 /* ══════════════════════════════════════════
-INIT — CON DEBUG VISUAL
+INIT — CORREGIDO (Restaura flujo de carga)
 ══════════════════════════════════════════ */
 async function init() {
   try {
     const res  = await fetch('./menu.json');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    
-    // Debug: Crear elemento temporal
-    const debug = document.createElement('div');
-    debug.style.cssText = 'position:fixed;top:10px;left:10px;background:rgba(0,0,0,0.8);color:#0f0;padding:10px;font-size:11px;z-index:9999;max-width:200px;';
-    debug.innerHTML = 'Cargando...';
-    document.body.appendChild(debug);
-    
-    // Saneador
+
+    // 🔹 SANEADOR: Limpia espacios en claves del JSON automáticamente
+    // (Evita fallos si tu JSON tiene "platos " en vez de "platos")
     const sanear = obj => {
       if (!obj || typeof obj !== 'object') return obj;
       if (Array.isArray(obj)) return obj.map(sanear);
@@ -938,68 +936,47 @@ async function init() {
       for (let k in obj) limpio[k.trim()] = sanear(obj[k]);
       return limpio;
     };
-    
     const jsonLimpio = sanear(data);
-    debug.innerHTML += '<br>JSON OK<br>Platos: ' + (jsonLimpio.platos?.length || 0) + '<br>Cats: ' + (jsonLimpio.categorias?.length || 0);
-    
+
     catalogo   = jsonLimpio.platos || [];
     categorias = jsonLimpio.categorias || [];
     
     const nombreRest = jsonLimpio.restaurante?.nombre || '';
     if (nombreRest) document.getElementById('nombre-restaurante').textContent = nombreRest;
     window.MONEDA = jsonLimpio.restaurante?.moneda || 'USD';
-    
+
     generarGridCategorias();
     precargarModelos();
-    
-    debug.innerHTML += '<br>Grid OK';
-    
+
+    // Botones carrusel
     btnPrev.addEventListener('click', () => irA(indiceReal - 1));
     btnNext.addEventListener('click', () => irA(indiceReal + 1));
     initSwipe();
+
+    // 🔹 BOTONES DE REGRESO AR (Corregidos para que funcionen)
+    document.getElementById('ar-back-list').addEventListener('click', () => {
+      salirAR();
+      setTimeout(() => abrirCategoria(catActual), 200);
+    });
     
-    // Botones AR
-    const btnList = document.getElementById('ar-back-list');
-    const btnMenu = document.getElementById('ar-back-menu');
-    
-    if (btnList) {
-      btnList.addEventListener('click', () => {
-        debug.innerHTML = 'Click LIST';
-        salirAR();
-        setTimeout(() => {
-          debug.innerHTML = 'Abriendo cat: ' + catActual;
-          abrirCategoria(catActual);
-        }, 200);
-      });
-    }
-    
-    if (btnMenu) {
-      btnMenu.addEventListener('click', () => {
-        debug.innerHTML = 'Click MENU';
-        salirAR();
-        setTimeout(() => {
-          document.getElementById('pantalla-categorias').classList.add('activa');
-          document.getElementById('pantalla-platos').classList.remove('activa');
-          document.getElementById('btn-volver').style.display = 'none';
-          debug.innerHTML = 'Menu mostrado';
-        }, 200);
-      });
-    }
-    
-    debug.innerHTML += '<br>Listeners OK';
-    
-    // Timer final
+    document.getElementById('ar-back-menu').addEventListener('click', () => {
+      salirAR();
+      setTimeout(() => {
+        document.getElementById('pantalla-categorias').classList.add('activa');
+        document.getElementById('pantalla-platos').classList.remove('activa');
+        document.getElementById('btn-volver').style.display = 'none';
+      }, 200);
+    });
+
+    // 🔹 TIMER FINAL: Oculta loading y muestra menú
     setTimeout(() => {
-      debug.innerHTML += '<br>Ocultando loading...';
       document.getElementById('loading-screen').style.opacity = '0';
       setTimeout(() => {
         document.getElementById('loading-screen').style.display = 'none';
         document.getElementById('pantalla-categorias').classList.add('activa');
-        debug.innerHTML += '<br>LISTO!';
-        setTimeout(() => debug.remove(), 3000);
       }, 1200);
     }, 1000);
-    
+
   } catch (e) {
     console.error('Error cargando menu.json:', e);
     document.getElementById('loading-screen').style.display = 'none';
