@@ -985,6 +985,41 @@ async function init() {
 }
 
     window.onload = init;
+
+/* ══════════════════════════════════════════
+   LÓGICA PARA LOS BOTONES DE LA CÁMARA (AR)
+   ══════════════════════════════════════════ */
+
+// Botón "VER LISTA" dentro de la cámara
+document.getElementById('ar-back-list').addEventListener('click', () => {
+    cerrarAR(); // Función para apagar la cámara
+    document.getElementById('pantalla-platos').classList.add('activa');
+    document.getElementById('btn-volver').style.display = 'flex';
+});
+
+// Botón "CATEGORIAS" dentro de la cámara
+document.getElementById('ar-back-menu').addEventListener('click', () => {
+    cerrarAR(); // Función para apagar la cámara
+    document.getElementById('pantalla-categorias').classList.add('activa');
+    document.getElementById('btn-volver').style.display = 'none';
+});
+
+// Función auxiliar para detener MindAR y limpiar la pantalla
+function cerrarAR() {
+    const arScene = document.getElementById("ar-scene");
+    const uiAr = document.getElementById("ui-ar");
+    const infoAr = document.getElementById("plato-info-ar");
+
+    // Detener el sistema de Realidad Aumentada
+    arScene.stop(); 
+    
+    // Ocultar elementos de la interfaz de la cámara
+    uiAr.style.display = "none";
+    infoAr.style.display = "none";
+}
+
+
+        
     </script>
 </body>
 </html>
