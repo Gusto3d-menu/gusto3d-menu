@@ -882,10 +882,18 @@ async function mostrarPlatoAR(index) {
   uiAr.style.display = 'flex';
 }
 
+/* ══════════════════════════════════════════
+VOLVER DESDE AR — limpia todo y libera cámara
+══════════════════════════════════════════ */
 function salirAR() {
-  arScene.systems['mindar-image-system'].stop();
+  try {
+    const arSys = arScene.systems['mindar-image-system'];
+    if (arSys && typeof arSys.stop === 'function') arSys.stop();
+  } catch (e) { console.warn('AR stop seguro:', e); }
+
   uiAr.style.display = 'none';
   info.style.display = 'none';
+  arScene.style.display = 'block'; // 🔹 Asegura que el canvas AR sea visible al entrar
 
   const reset = (cont, vis) => {
     ['animation__escala', 'animation__rotar'].forEach(k => {
@@ -925,22 +933,20 @@ function salirAR() {
             btnNext.addEventListener('click', () => irA(indiceReal + 1));
             initSwipe();
 
-            document.getElementById('ar-back-list').addEventListener('click', () => {
-                salirAR();
-                abrirCategoria(catActual);
-            });
-            document.getElementById('ar-back-menu').addEventListener('click', () => {
-                salirAR();
-                document.getElementById('pantalla-categorias').classList.add('activa');
-            });
-
-            setTimeout(() => {
-                document.getElementById('loading-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loading-screen').style.display = 'none';
-                    document.getElementById('pantalla-categorias').classList.add('activa');
-                }, 1200);
-            }, 1000);
+                // 🔹 Botones de regreso AR (con delay para evitar colisión con stop())
+    document.getElementById('ar-back-list').addEventListener('click', () => {
+      salirAR();
+      setTimeout(() => { abrirCategoria(catActual); }, 150);
+    });
+    
+    document.getElementById('ar-back-menu').addEventListener('click', () => {
+      salirAR();
+      setTimeout(() => {
+        document.getElementById('pantalla-categorias').classList.add('activa');
+        document.getElementById('pantalla-platos').classList.remove('activa');
+        document.getElementById('btn-volver').style.display = 'none';
+      }, 150);
+    });
 
         } catch (e) {
             console.error('Error cargando menu.json:', e);
