@@ -809,7 +809,7 @@ async function mostrarPlatoAR(index) {
   reset(contenComida, visorComida);
 
   await arScene.systems['mindar-image-system'].start();
-
+    
   arScene.style.display = 'block';
 
   const urlBase   = (p.plato_base || '').trim() ? `${ASSETS_BASE}${p.plato_base.trim()}.glb` : null;
@@ -926,34 +926,41 @@ async function init() {
     const res  = await fetch('./menu.json');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-
-    // 🔹 SANEADOR: Limpia espacios en claves del JSON automáticamente
-    // (Evita fallos si tu JSON tiene "platos " en vez de "platos")
+    
+    console.log('JSON cargado:', Object.keys(data)); // Debug
+    
+    // Saneador robusto
     const sanear = obj => {
       if (!obj || typeof obj !== 'object') return obj;
       if (Array.isArray(obj)) return obj.map(sanear);
       const limpio = {};
-      for (let k in obj) limpio[k.trim()] = sanear(obj[k]);
+      for (let k in obj) {
+        const keyLimpia = k.trim();
+        limpio[keyLimpia] = sanear(obj[k]);
+      }
       return limpio;
     };
+    
     const jsonLimpio = sanear(data);
-
+    
+    console.log('JSON saneado:', Object.keys(jsonLimpio)); // Debug
+    
     catalogo   = jsonLimpio.platos || [];
     categorias = jsonLimpio.categorias || [];
+    
+    console.log('Categorías:', categorias.length, 'Platos:', catalogo.length); // Debug
     
     const nombreRest = jsonLimpio.restaurante?.nombre || '';
     if (nombreRest) document.getElementById('nombre-restaurante').textContent = nombreRest;
     window.MONEDA = jsonLimpio.restaurante?.moneda || 'USD';
-
+    
     generarGridCategorias();
     precargarModelos();
-
-    // Botones carrusel
+    
     btnPrev.addEventListener('click', () => irA(indiceReal - 1));
     btnNext.addEventListener('click', () => irA(indiceReal + 1));
     initSwipe();
-
-    // 🔹 BOTONES DE REGRESO AR (Corregidos para que funcionen)
+    
     document.getElementById('ar-back-list').addEventListener('click', () => {
       salirAR();
       setTimeout(() => abrirCategoria(catActual), 200);
@@ -967,18 +974,21 @@ async function init() {
         document.getElementById('btn-volver').style.display = 'none';
       }, 200);
     });
-
-    // 🔹 TIMER FINAL: Oculta loading y muestra menú
+    
+    // Forzar ocultamiento del loading screen
     setTimeout(() => {
-      document.getElementById('loading-screen').style.opacity = '0';
+      console.log('Ocultando loading screen...'); // Debug
+      const loading = document.getElementById('loading-screen');
+      loading.style.opacity = '0';
       setTimeout(() => {
-        document.getElementById('loading-screen').style.display = 'none';
+        loading.style.display = 'none';
         document.getElementById('pantalla-categorias').classList.add('activa');
+        console.log('Menú mostrado'); // Debug
       }, 1200);
     }, 1000);
-
+    
   } catch (e) {
-    console.error('Error cargando menu.json:', e);
+    console.error('❌ Error en init:', e);
     document.getElementById('loading-screen').style.display = 'none';
     document.getElementById('error-screen').style.display = 'flex';
   }
