@@ -786,181 +786,135 @@
    4. Asignar src — cada modelo se carga independientemente
    5. model-loaded de cada uno: configura sus atributos INDEPENDIENTES
 ══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+AR — MOSTRAR PLATO (Versión Corregida)
+══════════════════════════════════════════ */
 async function mostrarPlatoAR(index) {
-    window.platoSeleccionado = index;
-    const p = catalogo[index];
+  window.platoSeleccionado = index;
+  const p = catalogo[index];
 
-    /* Ocultar pantallas */
-    document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
-    document.getElementById('btn-volver').style.display = 'none';
+  document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
+  document.getElementById('btn-volver').style.display = 'none';
 
-    /* Resetear ambas entidades */
-    contenBase.setAttribute('scale',  '0.01 0.01 0.01');
-    contenComida.setAttribute('scale','0.01 0.01 0.01');
-    contenBase.removeAttribute('position');
-    contenComida.removeAttribute('position');
+  // 🔹 LIMPIEZA SIMÉTRICA (Base + Comida) para evitar herencia de estado
+  const reset = (cont, vis) => {
+    if (cont.components['animation__escala']) cont.components['animation__escala'].stop();
+    if (cont.components['animation__rotar'])  cont.components['animation__rotar'].stop();
+    cont.removeAttribute('animation__escala');
+    cont.removeAttribute('animation__rotar');
+    cont.removeAttribute('position');
+    cont.removeAttribute('rotation');
+    cont.setAttribute('scale', '0.01 0.01 0.01');
+    vis.removeAttribute('gltf-model');
+    vis.removeAttribute('rotation');
+  };
+  reset(contenBase, visorBase);
+  reset(contenComida, visorComida);
 
-    visorBase.removeAttribute('gltf-model');
-    visorComida.removeAttribute('gltf-model');
-    visorBase.removeAttribute('animation__rotar');
-    visorComida.removeAttribute('animation__rotar');
-    visorComida.removeAttribute('animation__escala');
-    contenBase.removeAttribute('animation__escala');
-    contenBase.removeAttribute('rotation');
+  const mindarSystem = arScene.systems['mindar-image-system'];
+  await mindarSystem.start();
 
-    /* Iniciar camara AR */
-    const mindarSystem = arScene.systems['mindar-image-system'];
-    await mindarSystem.start();
+  // 🔹 .trim() automático para que los espacios del JSON no rompan nada
+  const platoBaseRaw = (p.plato_base || '').trim();
+  const urlBase   = platoBaseRaw ? `${ASSETS_BASE}${platoBaseRaw}.glb` : null;
+  const urlComida = (p.archivo || '').trim();
 
-    /* ── Construir URLs ── */
-    const urlBase   = `${ASSETS_BASE}${p.plato_base}.glb`;
-    const urlComida = p.archivo;
+  const checkUrl = async url => url ? (await fetch(url, { method: 'HEAD' })).ok : false;
+  const [baseOk, comidaOk] = await Promise.all([checkUrl(urlBase), checkUrl(urlComida)]);
 
-    /* ── Verificar existencia de ambos archivos en paralelo ── */
-    let baseOk = false;
-    let comidaOk = false;
+  info.textContent = p.nombre;
+  info.classList.remove('en-preparacion');
 
-    try {
-        const [resBase, resComida] = await Promise.all([
-            fetch(urlBase,   { method: 'HEAD' }),
-            fetch(urlComida, { method: 'HEAD' })
-        ]);
-        baseOk   = resBase.ok;
-        comidaOk = resComida.ok;
-    } catch (err) {
-        console.warn('Error verificando modelos:', err);
-    }
+  // ── 1. PLATO BASE (Hamburguesa, etc.) ──
+  if (baseOk && platoBaseRaw) {
+    visorBase.addEventListener('model-loaded', function handlerBase() {
+      visorBase.removeEventListener('model-loaded', handlerBase);
 
-    /* ── Mostrar nombre del plato ── */
-    info.textContent = p.nombre;
-    info.classList.remove('en-preparacion');
+      const posBase     = (p.plato_base_pos || '0 0 0').trim();
+      const escalaBase  = (p.plato_base_escala || '1 1 1').trim();
+      const rotFromBase = (p.base_rot_inicial || '0 0 0').trim();
+      const rotToBase   = (p.base_rot_final   || '0 360 0').trim();
+      const durBase     = p.base_velocidad    || 20000;
 
-    /* ════════════════════════════════════════
-       CARGAR MODELO BASE (PLATO/BANDEJA)
-       Atributos INDEPENDIENTES y CONFIGURABLES:
-       plato_base_pos, plato_base_escala
-       base_rot_inicial, base_rot_final, base_velocidad
-       ════════════════════════════════════════ */
-    if (baseOk && p.plato_base) {
-        visorBase.addEventListener('model-loaded', function handlerBase() {
-            visorBase.removeEventListener('model-loaded', handlerBase);
+      contenBase.setAttribute('position', posBase);
+      // ❌ ELIMINADO: setAttribute('scale', escalaBase) → Esto bloqueaba la animación
+      
+      contenBase.setAttribute('animation__escala', {
+        property: 'scale', from: '0.01 0.01 0.01', to: escalaBase,
+        dur: p.anim_dur || 1100, easing: 'easeOutElastic'
+      });
 
-            // === ATRIBUTOS DEL PLATO BASE ===
-            const posBase     = p.plato_base_pos || '0 0 0';
-            const escalaBase  = p.plato_base_escala || '1 1 1';
-            
-            // === POSICION Y ESCALA ===
-            contenBase.setAttribute('position', posBase);
-            contenBase.setAttribute('scale', escalaBase);
-
-            // === ANIMACIÓN EMERGENCIA ===
-            contenBase.setAttribute('animation__escala', {
-                property: 'scale',
-                from: '0.01 0.01 0.01',
-                to: escalaBase,
-                dur: p.anim_dur || 1100,
-                easing: 'easeOutElastic'
-            });
-
-            // === ROTACIÓN INDEPENDIENTE DEL PLATO BASE ===
-            const baseRotFrom = p.base_rot_inicial || '90 0 0';
-            const baseRotTo   = p.base_rot_final   || '90 360 0';
-            const baseRotDur  = p.base_velocidad   || 20000;
-
-            // Fijar rotación inicial
-            contenBase.setAttribute('rotation', baseRotFrom);
-
-            // Animación de rotación CONTINUA
-            contenBase.setAttribute('animation__rotar', {
-                property: 'rotation',
-                from: baseRotFrom,
-                to: baseRotTo,
-                dur: baseRotDur,
-                loop: true,
-                easing: 'linear'
-            });
-
-        }, { once: true });
-
-        visorBase.setAttribute('gltf-model', urlBase);
-    }
-
-    /* ════════════════════════════════════════
-       CARGAR MODELO COMIDA
-       Atributos INDEPENDIENTES:
-       plato_comida_pos, escala (o pos/escala legacy)
-       rot_inicial, rot_final, velocidad
-       ════════════════════════════════════════ */
-    /* ════════════════════════════════════════
-   CARGAR MODELO COMIDA (Corrección de Rotación)
-   ════════════════════════════════════════ */
-if (comidaOk) {
-    visorComida.addEventListener('model-loaded', function handlerComida() {
-        visorComida.removeEventListener('model-loaded', handlerComida);
-
-        const posComida = p.plato_comida_pos || p.pos || '0 0 0.01';
-        const escalaComida = p.escala || '1 1 1';
-
-        contenComida.setAttribute('position', posComida);
-        contenComida.setAttribute('scale', escalaComida);
-
-        // Animación de escala (Entrada)
-        contenComida.setAttribute('animation__escala', {
-            property: 'scale',
-            from: '0.01 0.01 0.01',
-            to: escalaComida,
-            dur: p.anim_dur || 1100,
-            easing: 'easeOutElastic'
+      // Pequeño delay para que A-Frame registre el 'from' antes de iniciar el loop
+      requestAnimationFrame(() => {
+        contenBase.setAttribute('rotation', rotFromBase);
+        contenBase.setAttribute('animation__rotar', {
+          property: 'rotation', from: rotFromBase, to: rotToBase,
+          dur: durBase, loop: true, easing: 'linear'
         });
-
-        // --- CORRECCIÓN DE ROTACIÓN ---
-        const rotFrom = p.rot_inicial || '0 0 0';
-        const rotTo   = p.rot_final   || '0 360 0';
-        const rotDur  = p.velocidad   || 15000;
-
-        // Limpiamos cualquier animación previa antes de asignar la nueva
-        contenComida.removeAttribute('animation__rotar');
-        
-        contenComida.setAttribute('animation__rotar', {
-            property: 'rotation', 
-            from: rotFrom,
-            to: rotTo,
-            dur: rotDur,
-            loop: true,
-            easing: 'linear'
-        });
-
+      });
     }, { once: true });
+    visorBase.setAttribute('gltf-model', urlBase);
+  }
 
+  // ── 2. COMIDA (Ramen, etc.) ──
+  if (comidaOk) {
+    visorComida.addEventListener('model-loaded', function handlerComida() {
+      visorComida.removeEventListener('model-loaded', handlerComida);
+
+      const posComida    = (p.plato_comida_pos || p.pos || '0 0 0.1').trim();
+      const escalaComida = (p.escala || '1 1 1').trim();
+      const rotFrom      = (p.rot_inicial || '0 0 0').trim();
+      const rotTo        = (p.rot_final   || '0 360 0').trim();
+      const durRot       = p.velocidad    || 15000;
+
+      contenComida.setAttribute('position', posComida);
+
+      contenComida.setAttribute('animation__escala', {
+        property: 'scale', from: '0.01 0.01 0.01', to: escalaComida,
+        dur: p.anim_dur || 1100, easing: 'easeOutElastic'
+      });
+
+      requestAnimationFrame(() => {
+        contenComida.setAttribute('rotation', rotFrom);
+        contenComida.setAttribute('animation__rotar', {
+          property: 'rotation', from: rotFrom, to: rotTo,
+          dur: durRot, loop: true, easing: 'linear'
+        });
+      });
+    }, { once: true });
     visorComida.setAttribute('gltf-model', urlComida);
-    
-    } else {
-        info.textContent = 'En preparacion...';
-        info.classList.add('en-preparacion');
-    }
+  } else {
+    info.textContent = 'En preparacion...';
+    info.classList.add('en-preparacion');
+  }
 
-    info.style.display = 'block';
-    uiAr.style.display = 'flex';
+  info.style.display = 'block';
+  uiAr.style.display = 'flex';
 }
 
-    /* ══════════════════════════════════════════
-       VOLVER DESDE AR — limpia todo
-    ══════════════════════════════════════════ */
-    function salirAR() {
-        arScene.systems['mindar-image-system'].stop();
-        uiAr.style.display  = 'none';
-        info.style.display  = 'none';
+/* ══════════════════════════════════════════
+VOLVER DESDE AR — Limpieza completa
+══════════════════════════════════════════ */
+function salirAR() {
+  arScene.systems['mindar-image-system'].stop();
+  uiAr.style.display  = 'none';
+  info.style.display  = 'none';
 
-        /* Limpiar modelos para proxima vez */
-        visorBase.removeAttribute('gltf-model');
-        visorComida.removeAttribute('gltf-model');
-        visorBase.removeAttribute('animation__rotar');
-        visorComida.removeAttribute('animation__rotar');
-        visorComida.removeAttribute('animation__escala');
-        contenBase.removeAttribute('animation__escala');
-        contenBase.setAttribute('scale',  '0.01 0.01 0.01');
-        contenComida.setAttribute('scale','0.01 0.01 0.01');
-    }
+  // Reutilizamos la misma lógica de reset para garantizar estado limpio
+  const reset = (cont, vis) => {
+    if (cont.components['animation__escala']) cont.components['animation__escala'].stop();
+    if (cont.components['animation__rotar'])  cont.components['animation__rotar'].stop();
+    cont.removeAttribute('animation__escala');
+    cont.removeAttribute('animation__rotar');
+    cont.removeAttribute('position');
+    cont.removeAttribute('rotation');
+    cont.setAttribute('scale', '0.01 0.01 0.01');
+    vis.removeAttribute('gltf-model');
+    vis.removeAttribute('rotation');
+  };
+  reset(contenBase, visorBase);
+  reset(contenComida, visorComida);
+}
 
     /* ══════════════════════════════════════════
        INIT
