@@ -883,17 +883,19 @@ async function mostrarPlatoAR(index) {
 }
 
 /* ══════════════════════════════════════════
-VOLVER DESDE AR — limpia todo y libera cámara
+SALIR AR — Oculta canvas para liberar clicks
 ══════════════════════════════════════════ */
 function salirAR() {
   try {
     const arSys = arScene.systems['mindar-image-system'];
     if (arSys && typeof arSys.stop === 'function') arSys.stop();
-  } catch (e) { console.warn('AR stop seguro:', e); }
+  } catch (e) { /* Ignorar errores si ya estaba parado */ }
 
   uiAr.style.display = 'none';
   info.style.display = 'none';
-  arScene.style.display = 'block'; // 🔹 Asegura que el canvas AR sea visible al entrar
+  
+  // 🔹 CRUCIAL: Ocultar el canvas AR para que no bloquee los botones del menú
+  arScene.style.display = 'none'; 
 
   const reset = (cont, vis) => {
     ['animation__escala', 'animation__rotar'].forEach(k => {
@@ -906,6 +908,7 @@ function salirAR() {
     vis.removeAttribute('gltf-model');
     vis.removeAttribute('rotation');
   };
+  
   reset(contenBase, visorBase);
   reset(contenComida, visorComida);
 }
@@ -913,30 +916,45 @@ function salirAR() {
     /* ══════════════════════════════════════════
        INIT
     ══════════════════════════════════════════ */
-    async function init() {
-        try {
-            const res  = await fetch('./menu.json');
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            const data = await res.json();
+/* ══════════════════════════════════════════
+INIT — CORREGIDO (Restaura flujo de carga)
+══════════════════════════════════════════ */
+async function init() {
+  try {
+    const res  = await fetch('./menu.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
 
-            catalogo   = data.platos;
-            categorias = data.categorias;
+    // 🔹 SANEADOR: Limpia espacios en claves del JSON automáticamente
+    // (Evita fallos si tu JSON tiene "platos " en vez de "platos")
+    const sanear = obj => {
+      if (!obj || typeof obj !== 'object') return obj;
+      if (Array.isArray(obj)) return obj.map(sanear);
+      const limpio = {};
+      for (let k in obj) limpio[k.trim()] = sanear(obj[k]);
+      return limpio;
+    };
+    const jsonLimpio = sanear(data);
 
-            const nombreRest = data.restaurante?.nombre || '';
-            if (nombreRest) document.getElementById('nombre-restaurante').textContent = nombreRest;
-            window.MONEDA = data.restaurante?.moneda || 'USD';
+    catalogo   = jsonLimpio.platos || [];
+    categorias = jsonLimpio.categorias || [];
+    
+    const nombreRest = jsonLimpio.restaurante?.nombre || '';
+    if (nombreRest) document.getElementById('nombre-restaurante').textContent = nombreRest;
+    window.MONEDA = jsonLimpio.restaurante?.moneda || 'USD';
 
-            generarGridCategorias();
-            precargarModelos();
+    generarGridCategorias();
+    precargarModelos();
 
-            btnPrev.addEventListener('click', () => irA(indiceReal - 1));
-            btnNext.addEventListener('click', () => irA(indiceReal + 1));
-            initSwipe();
+    // Botones carrusel
+    btnPrev.addEventListener('click', () => irA(indiceReal - 1));
+    btnNext.addEventListener('click', () => irA(indiceReal + 1));
+    initSwipe();
 
-                // 🔹 Botones de regreso AR (con delay para evitar colisión con stop())
+    // 🔹 BOTONES DE REGRESO AR (Corregidos para que funcionen)
     document.getElementById('ar-back-list').addEventListener('click', () => {
       salirAR();
-      setTimeout(() => { abrirCategoria(catActual); }, 150);
+      setTimeout(() => abrirCategoria(catActual), 200);
     });
     
     document.getElementById('ar-back-menu').addEventListener('click', () => {
@@ -945,15 +963,24 @@ function salirAR() {
         document.getElementById('pantalla-categorias').classList.add('activa');
         document.getElementById('pantalla-platos').classList.remove('activa');
         document.getElementById('btn-volver').style.display = 'none';
-      }, 150);
+      }, 200);
     });
 
-        } catch (e) {
-            console.error('Error cargando menu.json:', e);
-            document.getElementById('loading-screen').style.display = 'none';
-            document.getElementById('error-screen').style.display   = 'flex';
-        }
-    }
+    // 🔹 TIMER FINAL: Oculta loading y muestra menú
+    setTimeout(() => {
+      document.getElementById('loading-screen').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('pantalla-categorias').classList.add('activa');
+      }, 1200);
+    }, 1000);
+
+  } catch (e) {
+    console.error('Error cargando menu.json:', e);
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('error-screen').style.display = 'flex';
+  }
+}
 
     window.onload = init;
     </script>
