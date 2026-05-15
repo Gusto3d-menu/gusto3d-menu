@@ -1,1029 +1,566 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gusto3D - Menu Interactivo</title>
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap');
-
-        *, *::before, *::after { box-sizing: border-box; }
-        html, body {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            overflow: hidden; position: fixed; background: #000;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        #loading-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #000 0%, #1a1a2e 50%, #16213e 100%);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 3000; transition: opacity 1.2s ease-out;
-        }
-        .logo-gusto {
-            width: 220px; height: auto; margin-bottom: 30px;
-            filter: drop-shadow(0 0 20px rgba(37,211,102,0.5));
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float { 0%,100%{transform:translateY(0px);} 50%{transform:translateY(-10px);} }
-        .mensaje-carga {
-            color: #25D366; letter-spacing: 3px; font-size: 13px;
-            text-transform: uppercase; margin-bottom: 20px; animation: pulse-text 1.5s infinite;
-        }
-        @keyframes pulse-text { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
-        .barra-progreso { width: 200px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden; }
-        .progreso-fill {
-            height: 100%; background: linear-gradient(90deg,#25D366,#128C7E);
-            width: 0%; animation: progress-fill 4s ease-out forwards;
-        }
-        @keyframes progress-fill { 0%{width:0%;} 100%{width:100%;} }
-
-        #error-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #000 0%, #1a1a2e 50%, #16213e 100%);
-            display: none; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 3500; text-align: center; padding: 30px;
-        }
-        .error-icono {
-            width: 64px; height: 64px; border-radius: 50%;
-            background: rgba(255,107,53,0.15); border: 2px solid rgba(255,107,53,0.4);
-            display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
-        }
-        .error-titulo { color: #ff6b35; font-size: 18px; font-weight: 600; margin-bottom: 8px; }
-        .error-sub { color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 28px; }
-        .btn-reintentar {
-            padding: 14px 32px; background: linear-gradient(45deg,#25D366,#128C7E);
-            border: none; border-radius: 50px; color: white;
-            font-family: 'Poppins', sans-serif; font-weight: 600;
-            font-size: 13px; letter-spacing: 1px; cursor: pointer;
-        }
-
-        .pantalla {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: linear-gradient(160deg,#0d1117 0%,#1a1a2e 40%,#0f3460 100%);
-            z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.5s ease;
-        }
-        .pantalla.activa { opacity: 1; visibility: visible; }
-
-        #pantalla-categorias h1 {
-            font-family: 'Playfair Display', serif;
-            color: #25D366; font-size: 28px; margin-bottom: 4px; letter-spacing: 1px;
-        }
-        #nombre-restaurante {
-            color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 4px;
-            font-weight: 300; letter-spacing: 1px;
-        }
-        #pantalla-categorias > p {
-            color: rgba(255,255,255,0.4); font-size: 12px; margin-bottom: 35px;
-            letter-spacing: 2px; text-transform: uppercase;
-        }
-        .grid-categorias {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 14px; width: 88%; max-width: 360px;
-        }
-        .btn-categoria {
-            position: relative; padding: 28px 10px 22px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(37,211,102,0.25);
-            border-radius: 20px; color: white; cursor: pointer;
-            text-transform: uppercase; font-family: 'Poppins', sans-serif;
-            font-weight: 600; font-size: 12px; letter-spacing: 1.5px;
-            display: flex; flex-direction: column; align-items: center; gap: 10px;
-            transition: all 0.3s ease; overflow: hidden;
-        }
-        .btn-categoria::before {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(135deg,rgba(37,211,102,0.15),rgba(18,140,126,0.05));
-            opacity: 0; transition: opacity 0.3s;
-        }
-        .btn-categoria:active::before { opacity: 1; }
-        .btn-categoria:active { transform: scale(0.97); border-color: #25D366; }
-        .cat-icon {
-            width: 52px; height: 52px; border-radius: 14px;
-            background: linear-gradient(135deg,#25D366,#128C7E);
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        #pantalla-platos { justify-content: flex-start; padding-top: 0; overflow: hidden; }
-        .platos-header {
-            width: 100%; padding: 55px 24px 18px;
-            display: flex; align-items: center; gap: 14px;
-            background: linear-gradient(180deg,rgba(13,17,23,0.95) 70%,transparent);
-            position: relative; z-index: 10;
-        }
-        #titulo-categoria {
-            font-family: 'Playfair Display', serif;
-            color: #25D366; font-size: 24px; margin: 0; flex: 1;
-        }
-        .cat-badge {
-            font-size: 11px; color: rgba(255,255,255,0.4);
-            background: rgba(255,255,255,0.07);
-            padding: 4px 10px; border-radius: 20px; letter-spacing: 1px;
-        }
-
-        .carrusel-wrapper {
-            flex: 1; width: 100%; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; position: relative;
-            padding-bottom: 80px;
-        }
-        .carrusel-track-outer { width: 100%; overflow: hidden; position: relative; }
-        .carrusel-track {
-            display: flex;
-            transition: transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94);
-            will-change: transform;
-        }
-        .carrusel-track.sin-transicion { transition: none !important; }
-        .carrusel-slide {
-            min-width: 100%; padding: 0 30px;
-            display: flex; justify-content: center; align-items: center;
-        }
-
-        .plato-card {
-            width: 100%; max-width: 320px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 28px; overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            transform: scale(0.97); transition: transform 0.4s ease;
-            position: relative;
-        }
-        .carrusel-slide.activo .plato-card { transform: scale(1); }
-
-        .badge-destacado {
-            position: absolute; top: 12px; left: 12px;
-            background: linear-gradient(45deg,#f7971e,#ffd200);
-            color: #1a1a2e; font-size: 10px; font-weight: 700;
-            padding: 4px 10px; border-radius: 20px; letter-spacing: 1px;
-            text-transform: uppercase; z-index: 5;
-            box-shadow: 0 2px 10px rgba(247,151,30,0.5);
-        }
-        .badge-agotado {
-            position: absolute; inset: 0;
-            background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 6; border-radius: 28px;
-        }
-        .badge-agotado span {
-            color: #ff6b35; font-size: 16px; font-weight: 700;
-            letter-spacing: 3px; text-transform: uppercase;
-            border: 2px solid rgba(255,107,53,0.6);
-            padding: 10px 24px; border-radius: 50px;
-        }
-
-        .plato-imagen-wrap {
-            width: 100%; height: 220px;
-            position: relative; overflow: hidden;
-            background: linear-gradient(135deg,#1a2744 0%,#0f3460 100%);
-        }
-        .plato-imagen {
-            width: 100%; height: 100%; object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-        .plato-card:active .plato-imagen { transform: scale(1.04); }
-
-        .plato-imagen-placeholder {
-            width: 100%; height: 100%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 14px; text-align: center; padding: 20px;
-        }
-        .icono-plato-svg {
-            width: 72px; height: 72px; border-radius: 50%;
-            background: linear-gradient(135deg,rgba(37,211,102,0.2),rgba(18,140,126,0.1));
-            border: 2px solid rgba(37,211,102,0.35);
-            display: flex; align-items: center; justify-content: center;
-            transition: transform 0.2s ease;
-        }
-        .placeholder-text {
-            color: rgba(255,255,255,0.3); font-size: 11px;
-            letter-spacing: 2px; text-transform: uppercase; margin-top: 8px;
-        }
-        .plato-badge-num {
-            position: absolute; top: 12px; right: 12px;
-            background: rgba(0,0,0,0.55); backdrop-filter: blur(8px);
-            color: #25D366; font-size: 11px; font-weight: 600;
-            padding: 4px 10px; border-radius: 20px; letter-spacing: 1px; z-index: 4;
-        }
-        .plato-shimmer {
-            position: absolute; inset: 0;
-            background: linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.06) 50%,transparent 60%);
-            background-size: 200% 100%; animation: shimmer 3s infinite;
-        }
-        @keyframes shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
-
-        .btn-ver-ar {
-            display: none !important;
-            width: 100%; padding: 10px 0;
-            background: linear-gradient(90deg,rgba(37,211,102,0.18),rgba(18,140,126,0.10));
-            border: none; border-top: 1px solid rgba(37,211,102,0.25);
-            color: #25D366; font-family: 'Poppins', sans-serif;
-            font-size: 12px; font-weight: 600; letter-spacing: 2px;
-            text-transform: uppercase; cursor: pointer;
-            align-items: center; justify-content: center; gap: 8px;
-            transition: background 0.2s ease;
-        }
-        .btn-ver-ar:active {
-            background: linear-gradient(90deg,rgba(37,211,102,0.35),rgba(18,140,126,0.25));
-        }
-
-        .plato-info {
-            padding: 18px 22px 0;
-            display: flex; flex-direction: column;
-        }
-        .plato-nombre {
-            font-family: 'Playfair Display', serif;
-            color: white; font-size: 20px; margin: 0 0 4px; line-height: 1.25;
-        }
-        .precios-wrap { display: flex; align-items: baseline; gap: 10px; margin: 4px 0 10px; }
-        .plato-precio {
-            font-family: 'Playfair Display', serif;
-            color: #25D366; font-size: 24px; font-weight: 700;
-            text-shadow: 0 2px 8px rgba(37,211,102,0.3);
-        }
-        .plato-precio-anterior {
-            font-size: 14px; color: rgba(255,255,255,0.3);
-            text-decoration: line-through; font-weight: 400;
-        }
-        .plato-descripcion {
-            color: rgba(255,255,255,0.75); font-size: 12px; line-height: 1.45;
-            overflow: hidden; display: -webkit-box;
-            -webkit-line-clamp: 3; -webkit-box-orient: vertical; margin-bottom: 12px;
-        }
-        .alergenos-wrap { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
-        .alergen-chip {
-            font-size: 9px; font-weight: 600; letter-spacing: 1px;
-            padding: 3px 8px; border-radius: 20px; text-transform: uppercase;
-            background: rgba(255,107,53,0.12); color: rgba(255,107,53,0.9);
-            border: 1px solid rgba(255,107,53,0.25);
-        }
-
-        .ar-hint-fijo {
-            position: absolute; bottom: 20px; left: 50%;
-            transform: translateX(-50%);
-            color: rgba(37,211,102,0.8); font-size: 11px; letter-spacing: 1px;
-            text-transform: uppercase; font-weight: 500; text-align: center;
-            background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
-            padding: 8px 20px; border-radius: 25px;
-            border: 1px solid rgba(37,211,102,0.3);
-            animation: pulse-hint 2s infinite;
-            z-index: 15; white-space: nowrap;
-        }
-        @keyframes pulse-hint {
-            0%,100%{ opacity:1; transform:translateX(-50%) translateY(0px); }
-            50%{ opacity:0.7; transform:translateX(-50%) translateY(-2px); }
-        }
-
-        .carrusel-nav {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            width: 38px; height: 38px; border-radius: 50%;
-            background: rgba(255,255,255,0.08); backdrop-filter: blur(6px);
-            border: 1px solid rgba(255,255,255,0.15);
-            color: white; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.2s; z-index: 10;
-        }
-        .carrusel-nav:active { background: rgba(37,211,102,0.3); border-color: #25D366; }
-        .carrusel-nav.izq { left: 8px; }
-        .carrusel-nav.der { right: 8px; }
-
-        .carrusel-dots { display: flex; gap: 6px; margin-top: 16px; align-items: center; }
-        .dot {
-            width: 7px; height: 7px; border-radius: 50%;
-            background: rgba(255,255,255,0.2); transition: all 0.35s ease; cursor: pointer;
-        }
-        .dot.activo { background: #25D366; width: 22px; border-radius: 4px; }
-        .carrusel-contador {
-            position: absolute; bottom: 4px; right: 30px;
-            color: rgba(255,255,255,0.25); font-size: 11px; letter-spacing: 1px;
-        }
-
-        #btn-volver {
-            position: fixed; top: 18px; left: 18px;
-            width: 40px; height: 40px; border-radius: 50%;
-            background: rgba(37,211,102,0.15); color: #25D366;
-            border: 1.5px solid rgba(37,211,102,0.5); z-index: 2500;
-            display: none; align-items: center; justify-content: center;
-            font-size: 18px; cursor: pointer;
-            backdrop-filter: blur(8px); transition: all 0.2s;
-        }
-        #btn-volver:active { background: #25D366; color: white; }
-
-        #plato-info-ar {
-            position: fixed; top: 50px; width: 100%; text-align: center;
-            color: white; font-family: 'Poppins', sans-serif;
-            font-size: 20px; font-weight: 600; text-shadow: 0 2px 10px #000;
-            z-index: 1001; display: none; letter-spacing: 0.5px;
-        }
-        #ui-ar {
-            position: fixed; bottom: 40px; width: 100%;
-            display: none; justify-content: center; gap: 12px; z-index: 1001;
-        }
-        .btn-ar {
-            padding: 14px 22px; background: linear-gradient(45deg,#25D366,#128C7E);
-            color: white; border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50px; font-family: 'Poppins', sans-serif;
-            font-weight: 600; font-size: 12px; letter-spacing: 1px; cursor: pointer;
-        }
-        .en-preparacion { color: #ff6b35 !important; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
-
-        @keyframes slideEntrada {
-            from { opacity: 0; transform: translateY(18px) scale(0.96); }
-            to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .carrusel-slide.activo .plato-card {
-            animation: slideEntrada 0.38s ease forwards;
-        }
-
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Gusto3D - Menu Interactivo</title>
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap');
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
+margin: 0; padding: 0; width: 100%; height: 100%;
+overflow: hidden; position: fixed; background: #000;
+font-family: 'Poppins', sans-serif;
+}
+#loading-screen {
+position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+background: linear-gradient(135deg, #000 0%, #1a1a2e 50%, #16213e 100%);
+display: flex; flex-direction: column; justify-content: center; align-items: center;
+z-index: 3000; transition: opacity 1.2s ease-out;
+}
+.logo-gusto {
+width: 220px; height: auto; margin-bottom: 30px;
+filter: drop-shadow(0 0 20px rgba(37,211,102,0.5));
+animation: float 3s ease-in-out infinite;
+}
+@keyframes float { 0%,100%{transform:translateY(0px);} 50%{transform:translateY(-10px);} }
+.mensaje-carga {
+color: #25D366; letter-spacing: 3px; font-size: 13px;
+text-transform: uppercase; margin-bottom: 20px; animation: pulse-text 1.5s infinite;
+}
+@keyframes pulse-text { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+.barra-progreso { width: 200px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden; }
+.progreso-fill {
+height: 100%; background: linear-gradient(90deg,#25D366,#128C7E);
+width: 0%; animation: progress-fill 4s ease-out forwards;
+}
+@keyframes progress-fill { 0%{width:0%;} 100%{width:100%;} }
+#error-screen {
+position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+background: linear-gradient(135deg, #000 0%, #1a1a2e 50%, #16213e 100%);
+display: none; flex-direction: column; justify-content: center; align-items: center;
+z-index: 3500; text-align: center; padding: 30px;
+}
+.error-icono {
+width: 64px; height: 64px; border-radius: 50%;
+background: rgba(255,107,53,0.15); border: 2px solid rgba(255,107,53,0.4);
+display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
+}
+.error-titulo { color: #ff6b35; font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+.error-sub { color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 28px; }
+.btn-reintentar {
+padding: 14px 32px; background: linear-gradient(45deg,#25D366,#128C7E);
+border: none; border-radius: 50px; color: white;
+font-family: 'Poppins', sans-serif; font-weight: 600;
+font-size: 13px; letter-spacing: 1px; cursor: pointer;
+}
+.pantalla {
+position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+display: flex; flex-direction: column; justify-content: center; align-items: center;
+background: linear-gradient(160deg,#0d1117 0%,#1a1a2e 40%,#0f3460 100%);
+z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.5s ease;
+}
+.pantalla.activa { opacity: 1; visibility: visible; }
+#pantalla-categorias h1 {
+font-family: 'Playfair Display', serif;
+color: #25D366; font-size: 28px; margin-bottom: 4px; letter-spacing: 1px;
+}
+#nombre-restaurante {
+color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 4px;
+font-weight: 300; letter-spacing: 1px;
+}
+#pantalla-categorias > p {
+color: rgba(255,255,255,0.4); font-size: 12px; margin-bottom: 35px;
+letter-spacing: 2px; text-transform: uppercase;
+}
+.grid-categorias {
+display: grid; grid-template-columns: 1fr 1fr;
+gap: 14px; width: 88%; max-width: 360px;
+}
+.btn-categoria {
+position: relative; padding: 28px 10px 22px;
+background: rgba(255,255,255,0.04);
+border: 1px solid rgba(37,211,102,0.25);
+border-radius: 20px; color: white; cursor: pointer;
+text-transform: uppercase; font-family: 'Poppins', sans-serif;
+font-weight: 600; font-size: 12px; letter-spacing: 1.5px;
+display: flex; flex-direction: column; align-items: center; gap: 10px;
+transition: all 0.3s ease; overflow: hidden;
+}
+.btn-categoria::before {
+content: ''; position: absolute; inset: 0;
+background: linear-gradient(135deg,rgba(37,211,102,0.15),rgba(18,140,126,0.05));
+opacity: 0; transition: opacity 0.3s;
+}
+.btn-categoria:active::before { opacity: 1; }
+.btn-categoria:active { transform: scale(0.97); border-color: #25D366; }
+.cat-icon {
+width: 52px; height: 52px; border-radius: 14px;
+background: linear-gradient(135deg,#25D366,#128C7E);
+display: flex; align-items: center; justify-content: center;
+}
+#pantalla-platos { justify-content: flex-start; padding-top: 0; overflow: hidden; }
+.platos-header {
+width: 100%; padding: 55px 24px 18px;
+display: flex; align-items: center; gap: 14px;
+background: linear-gradient(180deg,rgba(13,17,23,0.95) 70%,transparent);
+position: relative; z-index: 10;
+}
+#titulo-categoria {
+font-family: 'Playfair Display', serif;
+color: #25D366; font-size: 24px; margin: 0; flex: 1;
+}
+.cat-badge {
+font-size: 11px; color: rgba(255,255,255,0.4);
+background: rgba(255,255,255,0.07);
+padding: 4px 10px; border-radius: 20px; letter-spacing: 1px;
+}
+.carrusel-wrapper {
+flex: 1; width: 100%; display: flex; flex-direction: column;
+align-items: center; justify-content: center; position: relative;
+padding-bottom: 80px;
+}
+.carrusel-track-outer { width: 100%; overflow: hidden; position: relative; }
+.carrusel-track {
+display: flex;
+transition: transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94);
+will-change: transform;
+}
+.carrusel-track.sin-transicion { transition: none !important; }
+.carrusel-slide {
+min-width: 100%; padding: 0 30px;
+display: flex; justify-content: center; align-items: center;
+}
+.plato-card {
+width: 100%; max-width: 320px;
+background: rgba(255,255,255,0.04);
+border: 1px solid rgba(255,255,255,0.1);
+border-radius: 28px; overflow: hidden;
+box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+transform: scale(0.97); transition: transform 0.4s ease;
+position: relative;
+}
+.carrusel-slide.activo .plato-card { transform: scale(1); }
+.badge-destacado {
+position: absolute; top: 12px; left: 12px;
+background: linear-gradient(45deg,#f7971e,#ffd200);
+color: #1a1a2e; font-size: 10px; font-weight: 700;
+padding: 4px 10px; border-radius: 20px; letter-spacing: 1px;
+text-transform: uppercase; z-index: 5;
+box-shadow: 0 2px 10px rgba(247,151,30,0.5);
+}
+.badge-agotado {
+position: absolute; inset: 0;
+background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
+display: flex; align-items: center; justify-content: center;
+z-index: 6; border-radius: 28px;
+}
+.badge-agotado span {
+color: #ff6b35; font-size: 16px; font-weight: 700;
+letter-spacing: 3px; text-transform: uppercase;
+border: 2px solid rgba(255,107,53,0.6);
+padding: 10px 24px; border-radius: 50px;
+}
+.plato-imagen-wrap {
+width: 100%; height: 220px;
+position: relative; overflow: hidden;
+background: linear-gradient(135deg,#1a2744 0%,#0f3460 100%);
+}
+.plato-imagen {
+width: 100%; height: 100%; object-fit: cover;
+transition: transform 0.5s ease;
+}
+.plato-card:active .plato-imagen { transform: scale(1.04); }
+.plato-imagen-placeholder {
+width: 100%; height: 100%;
+display: flex; flex-direction: column; align-items: center; justify-content: center;
+gap: 14px; text-align: center; padding: 20px;
+}
+.icono-plato-svg {
+width: 72px; height: 72px; border-radius: 50%;
+background: linear-gradient(135deg,rgba(37,211,102,0.2),rgba(18,140,126,0.1));
+border: 2px solid rgba(37,211,102,0.35);
+display: flex; align-items: center; justify-content: center;
+transition: transform 0.2s ease;
+}
+.placeholder-text {
+color: rgba(255,255,255,0.3); font-size: 11px;
+letter-spacing: 2px; text-transform: uppercase; margin-top: 8px;
+}
+.plato-badge-num {
+position: absolute; top: 12px; right: 12px;
+background: rgba(0,0,0,0.55); backdrop-filter: blur(8px);
+color: #25D366; font-size: 11px; font-weight: 600;
+padding: 4px 10px; border-radius: 20px; letter-spacing: 1px; z-index: 4;
+}
+.plato-shimmer {
+position: absolute; inset: 0;
+background: linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.06) 50%,transparent 60%);
+background-size: 200% 100%; animation: shimmer 3s infinite;
+}
+@keyframes shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+.btn-ver-ar {
+display: none !important;
+width: 100%; padding: 10px 0;
+background: linear-gradient(90deg,rgba(37,211,102,0.18),rgba(18,140,126,0.10));
+border: none; border-top: 1px solid rgba(37,211,102,0.25);
+color: #25D366; font-family: 'Poppins', sans-serif;
+font-size: 12px; font-weight: 600; letter-spacing: 2px;
+text-transform: uppercase; cursor: pointer;
+align-items: center; justify-content: center; gap: 8px;
+transition: background 0.2s ease;
+}
+.btn-ver-ar:active {
+background: linear-gradient(90deg,rgba(37,211,102,0.35),rgba(18,140,126,0.25));
+}
+.plato-info {
+padding: 18px 22px 0;
+display: flex; flex-direction: column;
+}
+.plato-nombre {
+font-family: 'Playfair Display', serif;
+color: white; font-size: 20px; margin: 0 0 4px; line-height: 1.25;
+}
+.precios-wrap { display: flex; align-items: baseline; gap: 10px; margin: 4px 0 10px; }
+.plato-precio {
+font-family: 'Playfair Display', serif;
+color: #25D366; font-size: 24px; font-weight: 700;
+text-shadow: 0 2px 8px rgba(37,211,102,0.3);
+}
+.plato-precio-anterior {
+font-size: 14px; color: rgba(255,255,255,0.3);
+text-decoration: line-through; font-weight: 400;
+}
+.plato-descripcion {
+color: rgba(255,255,255,0.75); font-size: 12px; line-height: 1.45;
+overflow: hidden; display: -webkit-box;
+-webkit-line-clamp: 3; -webkit-box-orient: vertical; margin-bottom: 12px;
+}
+.alergenos-wrap { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+.alergen-chip {
+font-size: 9px; font-weight: 600; letter-spacing: 1px;
+padding: 3px 8px; border-radius: 20px; text-transform: uppercase;
+background: rgba(255,107,53,0.12); color: rgba(255,107,53,0.9);
+border: 1px solid rgba(255,107,53,0.25);
+}
+.ar-hint-fijo {
+position: absolute; bottom: 20px; left: 50%;
+transform: translateX(-50%);
+color: rgba(37,211,102,0.8); font-size: 11px; letter-spacing: 1px;
+text-transform: uppercase; font-weight: 500; text-align: center;
+background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+padding: 8px 20px; border-radius: 25px;
+border: 1px solid rgba(37,211,102,0.3);
+animation: pulse-hint 2s infinite;
+z-index: 15; white-space: nowrap;
+}
+@keyframes pulse-hint {
+0%,100%{ opacity:1; transform:translateX(-50%) translateY(0px); }
+50%{ opacity:0.7; transform:translateX(-50%) translateY(-2px); }
+}
+.carrusel-nav {
+position: absolute; top: 50%; transform: translateY(-50%);
+width: 38px; height: 38px; border-radius: 50%;
+background: rgba(255,255,255,0.08); backdrop-filter: blur(6px);
+border: 1px solid rgba(255,255,255,0.15);
+color: white; display: flex; align-items: center; justify-content: center;
+cursor: pointer; transition: all 0.2s; z-index: 10;
+}
+.carrusel-nav:active { background: rgba(37,211,102,0.3); border-color: #25D366; }
+.carrusel-nav.izq { left: 8px; }
+.carrusel-nav.der { right: 8px; }
+.carrusel-dots { display: flex; gap: 6px; margin-top: 16px; align-items: center; }
+.dot {
+width: 7px; height: 7px; border-radius: 50%;
+background: rgba(255,255,255,0.2); transition: all 0.35s ease; cursor: pointer;
+}
+.dot.activo { background: #25D366; width: 22px; border-radius: 4px; }
+.carrusel-contador {
+position: absolute; bottom: 4px; right: 30px;
+color: rgba(255,255,255,0.25); font-size: 11px; letter-spacing: 1px;
+}
+#btn-volver {
+position: fixed; top: 18px; left: 18px;
+width: 40px; height: 40px; border-radius: 50%;
+background: rgba(37,211,102,0.15); color: #25D366;
+border: 1.5px solid rgba(37,211,102,0.5); z-index: 2500;
+display: none; align-items: center; justify-content: center;
+font-size: 18px; cursor: pointer;
+backdrop-filter: blur(8px); transition: all 0.2s;
+}
+#btn-volver:active { background: #25D366; color: white; }
+#plato-info-ar {
+position: fixed; top: 50px; width: 100%; text-align: center;
+color: white; font-family: 'Poppins', sans-serif;
+font-size: 20px; font-weight: 600; text-shadow: 0 2px 10px #000;
+z-index: 1001; display: none; letter-spacing: 0.5px;
+}
+#ui-ar {
+position: fixed; bottom: 40px; width: 100%;
+display: none; justify-content: center; gap: 12px; z-index: 1001;
+}
+.btn-ar {
+padding: 14px 22px; background: linear-gradient(45deg,#25D366,#128C7E);
+color: white; border: 2px solid rgba(255,255,255,0.3);
+border-radius: 50px; font-family: 'Poppins', sans-serif;
+font-weight: 600; font-size: 12px; letter-spacing: 1px; cursor: pointer;
+}
+.en-preparacion { color: #ff6b35 !important; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
+@keyframes slideEntrada {
+from { opacity: 0; transform: translateY(18px) scale(0.96); }
+to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.carrusel-slide.activo .plato-card {
+animation: slideEntrada 0.38s ease forwards;
+}
 /* ══════════════════════════════════════════
-   BLINDAJE CONTRA PANTALLA NEGRA
-   ══════════════════════════════════════════ */
-.pantalla.activa {
-  z-index: 2000 !important;
-  pointer-events: auto !important;
-}
-#ui-ar, #plato-info-ar {
-  z-index: 1001 !important;
-}
-a-scene {
-  z-index: 999 !important;
-  pointer-events: none !important;
-}
-a-scene:not([renderer="loaded"]) {
-  display: none !important;
-}
-
-
-
-        
-    </style>
+BLINDAJE CONTRA PANTALLA NEGRA
+══════════════════════════════════════════ */
+.pantalla.activa { z-index: 2000 !important; pointer-events: auto !important; }
+#ui-ar, #plato-info-ar { z-index: 1001 !important; }
+a-scene { z-index: 999 !important; pointer-events: none !important; }
+a-scene:not([renderer="loaded"]) { display: none !important; }
+</style>
 </head>
 <body>
 
-    <div id="loading-screen">
-        <img src="logo-gusto3d.jpg" class="logo-gusto" alt="Logo Gusto3D">
-        <div class="mensaje-carga">INICIALIZANDO GUSTO3D</div>
-        <div class="barra-progreso"><div class="progreso-fill"></div></div>
-    </div>
-
-    <div id="error-screen">
-        <div class="error-icono">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-                 stroke="#ff6b35" stroke-width="2" stroke-linecap="round">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="8" x2="12" y2="12"/>
-                <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-        </div>
-        <div class="error-titulo">Error al cargar el menu</div>
-        <div class="error-sub">Verifica tu conexion a internet<br>o que el archivo menu.json exista</div>
-        <button class="btn-reintentar" onclick="window.location.reload()">Reintentar</button>
-    </div>
-
-    <div id="pantalla-categorias" class="pantalla">
-        <h1>MENU DIGITAL 3D</h1>
-        <div id="nombre-restaurante"></div>
-        <p>Selecciona una categoria</p>
-        <div class="grid-categorias" id="grid-categorias"></div>
-    </div>
-
-    <div id="pantalla-platos" class="pantalla">
-        <div class="platos-header">
-            <h2 id="titulo-categoria"></h2>
-            <span class="cat-badge" id="badge-cantidad"></span>
-        </div>
-        <div class="carrusel-wrapper">
-            <div class="carrusel-track-outer" id="carrusel-outer">
-                <div class="carrusel-track" id="carrusel-track"></div>
-            </div>
-            <button class="carrusel-nav izq" id="btn-prev">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                    <polyline points="15 18 9 12 15 6"/>
-                </svg>
-            </button>
-            <button class="carrusel-nav der" id="btn-next">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                    <polyline points="9 18 15 12 9 6"/>
-                </svg>
-            </button>
-            <div class="carrusel-dots" id="carrusel-dots"></div>
-            <div class="carrusel-contador" id="carrusel-contador"></div>
-            <div class="ar-hint-fijo">Toca la imagen o "Ver en 3D" para AR</div>
-        </div>
-    </div>
-
-    <button id="btn-volver">&#8592;</button>
-    <div id="plato-info-ar"></div>
-    <div id="ui-ar">
-        <button class="btn-ar" id="ar-back-list">VER LISTA</button>
-        <button class="btn-ar" id="ar-back-menu">CATEGORIAS</button>
-    </div>
-
-    <!-- ═══════════════════════════════════════════
-         A-FRAME SCENE
-         Dos entidades gltf dentro del mismo target:
-           #visor-base  → plato/bandeja (estatico)
-           #visor-comida → modelo de la comida (animado)
-    ════════════════════════════════════════════ -->
-    <a-scene
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;
-                      uiLoading: no; uiScanning: no;
-                      filterMinCF: 0.001; filterBeta: 0.01;"
-        vr-mode-ui="enabled: false"
-        device-orientation-permission-ui="enabled: false"
-        id="ar-scene">
-        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-        <a-entity mindar-image-target="targetIndex: 0">
-
-            <!-- Plato / bandeja base: sin rotacion animada, solo posicion fija -->
-            <a-entity id="contenedor-base" scale="0.01 0.01 0.01">
-                <a-gltf-model id="visor-base"></a-gltf-model>
-            </a-entity>
-
-            <!-- Comida: emerge con escala y gira -->
-            <a-entity id="contenedor-comida" scale="0.01 0.01 0.01">
-                <a-gltf-model id="visor-comida"></a-gltf-model>
-            </a-entity>
-
-        </a-entity>
-    </a-scene>
-
-    <script>
-    /* ══════════════════════════════════════════
-       REFERENCIAS DOM
-    ══════════════════════════════════════════ */
-    const visorBase   = document.getElementById("visor-base");
-    const visorComida = document.getElementById("visor-comida");
-    const contenBase  = document.getElementById("contenedor-base");
-    const contenComida= document.getElementById("contenedor-comida");
-    const info        = document.getElementById("plato-info-ar");
-    const arScene     = document.getElementById("ar-scene");
-    const uiAr        = document.getElementById("ui-ar");
-    const track       = document.getElementById("carrusel-track");
-    const dotsWrap    = document.getElementById("carrusel-dots");
-    const contador    = document.getElementById("carrusel-contador");
-    const btnPrev     = document.getElementById("btn-prev");
-    const btnNext     = document.getElementById("btn-next");
-
-    /* ══════════════════════════════════════════
-       ESTADO GLOBAL
-    ══════════════════════════════════════════ */
-    let catalogo       = [];
-    let categorias     = [];
-    let catActual      = -1;
-    let platosActuales = [];
-    let touchStartX    = 0;
-    let touchStartY    = 0;
-    let arrastrando    = false;
-    let enTransicion   = false;
-    let indiceReal     = 0;
-
-    /* ══════════════════════════════════════════
-       BASE URL ASSETS
-       Apunta al repo gusto3d-assets en GitHub raw
-    ══════════════════════════════════════════ */
-    const ASSETS_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
-
-    /* ══════════════════════════════════════════
-       ICONOS SVG CATEGORIAS
-    ══════════════════════════════════════════ */
-    const ICONOS_CAT = {
-        entradas: '<path d="M2 20h20M12 4v4M8 8h8M6 12h12M4 16h16"/>',
-        fuerte:   '<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>',
-        postres:  '<circle cx="12" cy="9" r="5"/><path d="M12 14v8M8 22h8"/>',
-        bebidas:  '<path d="M8 2h8l1 10H7L8 2z"/><path d="M7 12c0 5 2 8 5 8s5-3 5-8"/>',
-        default:  '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>'
-    };
-
-    function svgIconCategoria(slug) {
-        const p = ICONOS_CAT[slug] || ICONOS_CAT.default;
-        return `<svg width="34" height="34" viewBox="0 0 24 24" fill="none"
-                     stroke="rgba(37,211,102,0.8)" stroke-width="1.5"
-                     stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
-    }
-    function svgIconBotonCat(slug) {
-        const p = ICONOS_CAT[slug] || ICONOS_CAT.default;
-        return `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"
-                     stroke="white" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
-    }
-
-    /* ══════════════════════════════════════════
-       GRID CATEGORIAS
-    ══════════════════════════════════════════ */
-    function generarGridCategorias() {
-        const grid = document.getElementById('grid-categorias');
-        grid.innerHTML = '';
-        categorias.forEach(cat => {
-            const btn = document.createElement('button');
-            btn.className = 'btn-categoria';
-            btn.dataset.cat = cat.id;
-            btn.innerHTML = `<div class="cat-icon">${svgIconBotonCat(cat.icono)}</div>${cat.nombre.toUpperCase()}`;
-            btn.addEventListener('click', () => {
-                document.getElementById('pantalla-categorias').classList.remove('activa');
-                abrirCategoria(cat.id);
-            });
-            grid.appendChild(btn);
-        });
-    }
-
-    /* ══════════════════════════════════════════
-       CREAR SLIDE
-       — SIN ningun badge ni texto de tipo de plato
-    ══════════════════════════════════════════ */
-    function crearSlide(plato, idxGlobal, posicionVisual, totalPlatos) {
-        const slide = document.createElement('div');
-        slide.className = 'carrusel-slide';
-        slide.dataset.logico = posicionVisual;
-
-        const tieneImagen = plato.imagen && plato.imagen.trim() !== '';
-        const descripcion = plato.descripcion || "Delicioso plato preparado con ingredientes frescos.";
-        const catIcono    = categorias.find(c => c.id === catActual)?.icono || 'default';
-
-        const imgHTML = tieneImagen
-            ? `<img class="plato-imagen" loading="lazy" decoding="async"
-                     src="${plato.imagen}" alt="${plato.nombre}"
-                     onerror="this.parentNode.querySelector('.plato-imagen-placeholder').style.display='flex';
-                              this.style.display='none';">`
-            : '';
-
-        const precioHTML = plato.precio_anterior
-            ? `<span class="plato-precio">$${plato.precio || 'Consultar'}</span>
-               <span class="plato-precio-anterior">$${plato.precio_anterior}</span>`
-            : `<span class="plato-precio">$${plato.precio || 'Consultar'}</span>`;
-
-        let alergenosHTML = '';
-        if (plato.alergenos && plato.alergenos.length > 0) {
-            alergenosHTML = `<div class="alergenos-wrap">${plato.alergenos.map(a=>`<span class="alergen-chip">${a}</span>`).join('')}</div>`;
-        }
-
-        const badgeDestacado = plato.destacado
-            ? `<div class="badge-destacado">Recomendado</div>` : '';
-        const badgeAgotado   = (plato.disponible === false)
-            ? `<div class="badge-agotado"><span>Agotado</span></div>` : '';
-        const disponibleAttr = (plato.disponible === false) ? 'data-agotado="true"' : '';
-
-        /* NOTA: plato-badge-num conservado (numero de posicion), pero
-           NO se muestra ningun texto sobre el tipo de plato base */
-        slide.innerHTML = `
-            <div class="plato-card" data-plato-idx="${idxGlobal}" ${disponibleAttr}>
-                ${badgeAgotado}${badgeDestacado}
-                <div class="plato-imagen-wrap" data-plato-idx="${idxGlobal}">
-                    ${imgHTML}
-                    <div class="plato-imagen-placeholder"
-                         style="display:${tieneImagen ? 'none' : 'flex'};"
-                         data-plato-idx="${idxGlobal}">
-                        <div class="icono-plato-svg">${svgIconCategoria(catIcono)}</div>
-                        <span class="placeholder-text">Toca para AR</span>
-                    </div>
-                    <div class="plato-shimmer"></div>
-                    <div class="plato-badge-num">${posicionVisual + 1} / ${totalPlatos}</div>
-                </div>
-                <div class="plato-info">
-                    <h3 class="plato-nombre">${plato.nombre}</h3>
-                    <div class="precios-wrap">${precioHTML}</div>
-                    <p class="plato-descripcion">${descripcion}</p>
-                    ${alergenosHTML}
-                </div>
-                <button class="btn-ver-ar" data-plato-idx="${idxGlobal}"
-                        ${plato.disponible === false ? 'disabled style="opacity:0.35;cursor:not-allowed;"' : ''}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                        <path d="M1 6l5-3 6 3 5-3 6 3v12l-6 3-5-3-6 3-5-3V6z"/>
-                        <line x1="7" y1="3" x2="7" y2="15"/>
-                        <line x1="12" y1="6" x2="12" y2="18"/>
-                        <line x1="17" y1="3" x2="17" y2="15"/>
-                    </svg>
-                    VER EN 3D
-                </button>
-            </div>`;
-
-        if (plato.disponible !== false) {
-            const imagenWrap  = slide.querySelector('.plato-imagen-wrap');
-            const placeholder = slide.querySelector('.plato-imagen-placeholder');
-            const btnAR       = slide.querySelector('.btn-ver-ar');
-            imagenWrap.style.cursor = 'pointer';
-            [imagenWrap, placeholder, btnAR].forEach(el => {
-                el.addEventListener('click', e => {
-                    e.stopPropagation();
-                    mostrarPlatoAR(idxGlobal);
-                });
-            });
-        }
-        return slide;
-    }
-
-    /* ══════════════════════════════════════════
-       TRACK helpers
-    ══════════════════════════════════════════ */
-    function posicionarTrackSilencioso(trackIdx) {
-        track.classList.add('sin-transicion');
-        track.style.transform = `translateX(-${trackIdx * 100}%)`;
-        void track.offsetWidth;
-        track.classList.remove('sin-transicion');
-    }
-
-    function actualizarUI() {
-        const total    = platosActuales.length;
-        const trackIdx = indiceReal + 1;
-        track.style.transform = `translateX(-${trackIdx * 100}%)`;
-
-        document.querySelectorAll('.carrusel-slide').forEach(s => {
-            const logico   = parseInt(s.dataset.logico, 10);
-            const eraActivo = s.classList.contains('activo');
-            const esActivo  = logico === indiceReal;
-            s.classList.toggle('activo', esActivo);
-            if (!eraActivo && esActivo) {
-                const card = s.querySelector('.plato-card');
-                if (card) { card.style.animation = 'none'; void card.offsetWidth; card.style.animation = ''; }
-            }
-        });
-
-        document.querySelectorAll('.dot').forEach((d, i) => {
-            d.classList.toggle('activo', i === indiceReal);
-        });
-        contador.textContent = `${indiceReal + 1} / ${total}`;
-    }
-
-    function irA(nuevoIndiceReal) {
-        if (enTransicion) return;
-        const total = platosActuales.length;
-        if (total <= 1) return;
-        enTransicion = true;
-
-        if (nuevoIndiceReal < 0) {
-            track.style.transform = `translateX(0%)`;
-            track.addEventListener('transitionend', function h() {
-                track.removeEventListener('transitionend', h);
-                indiceReal = total - 1;
-                posicionarTrackSilencioso(total);
-                actualizarUI();
-                enTransicion = false;
-            });
-            document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('activo', i === total - 1));
-            contador.textContent = `${total} / ${total}`;
-            return;
-        }
-
-        if (nuevoIndiceReal >= total) {
-            track.style.transform = `translateX(-${(total + 1) * 100}%)`;
-            track.addEventListener('transitionend', function h() {
-                track.removeEventListener('transitionend', h);
-                indiceReal = 0;
-                posicionarTrackSilencioso(1);
-                actualizarUI();
-                enTransicion = false;
-            });
-            document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('activo', i === 0));
-            contador.textContent = `1 / ${total}`;
-            return;
-        }
-
-        indiceReal = nuevoIndiceReal;
-        actualizarUI();
-        track.addEventListener('transitionend', function h() {
-            track.removeEventListener('transitionend', h);
-            enTransicion = false;
-        });
-    }
-
-    /* ══════════════════════════════════════════
-       ABRIR CATEGORIA
-    ══════════════════════════════════════════ */
-    function abrirCategoria(catId) {
-        catActual    = catId;
-        indiceReal   = 0;
-        enTransicion = false;
-
-        platosActuales = catalogo.filter(p => p.categoria === catId);
-        const total    = platosActuales.length;
-
-        const catNombre = categorias.find(c => c.id === catId)?.nombre || 'Menu';
-        document.getElementById('titulo-categoria').textContent = catNombre;
-        document.getElementById('badge-cantidad').textContent   = `${total} plato${total !== 1 ? 's' : ''}`;
-
-        track.innerHTML    = '';
-        dotsWrap.innerHTML = '';
-
-        const idxGlobales = platosActuales.map(p => catalogo.indexOf(p));
-
-        if (total > 0) {
-            const clonUltimo = crearSlide(platosActuales[total-1], idxGlobales[total-1], total-1, total);
-            clonUltimo.dataset.logico = total - 1;
-            clonUltimo.dataset.clon   = 'ultimo';
-            track.appendChild(clonUltimo);
-        }
-
-        platosActuales.forEach((plato, pos) => {
-            track.appendChild(crearSlide(plato, idxGlobales[pos], pos, total));
-        });
-
-        if (total > 0) {
-            const clonPrimero = crearSlide(platosActuales[0], idxGlobales[0], 0, total);
-            clonPrimero.dataset.logico = 0;
-            clonPrimero.dataset.clon   = 'primero';
-            track.appendChild(clonPrimero);
-        }
-
-        platosActuales.forEach((_, i) => {
-            const dot = document.createElement('div');
-            dot.className = 'dot' + (i === 0 ? ' activo' : '');
-            dot.addEventListener('click', () => irA(i));
-            dotsWrap.appendChild(dot);
-        });
-
-        track.classList.add('sin-transicion');
-        track.style.transform = `translateX(-100%)`;
-        void track.offsetWidth;
-        track.classList.remove('sin-transicion');
-
-        actualizarUI();
-
-        document.getElementById('pantalla-platos').classList.add('activa');
-        document.getElementById('btn-volver').style.display = 'flex';
-        document.getElementById('btn-volver').onclick = () => {
-            document.getElementById('pantalla-platos').classList.remove('activa');
-            document.getElementById('pantalla-categorias').classList.add('activa');
-            document.getElementById('btn-volver').style.display = 'none';
-        };
-    }
-
-    /* ══════════════════════════════════════════
-       SWIPE
-    ══════════════════════════════════════════ */
-    function initSwipe() {
-        const outer = document.getElementById('carrusel-outer');
-        outer.addEventListener('touchstart', e => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            arrastrando = false;
-        }, { passive: true });
-        outer.addEventListener('touchmove', e => {
-            const dx = Math.abs(e.touches[0].clientX - touchStartX);
-            const dy = Math.abs(e.touches[0].clientY - touchStartY);
-            if (dx > dy && dx > 8) arrastrando = true;
-        }, { passive: true });
-        outer.addEventListener('touchend', e => {
-            if (!arrastrando) return;
-            const diff = touchStartX - e.changedTouches[0].clientX;
-            if (Math.abs(diff) > 45) diff > 0 ? irA(indiceReal + 1) : irA(indiceReal - 1);
-            arrastrando = false;
-        });
-    }
-
-    /* ══════════════════════════════════════════
-       PRECARGA
-    ══════════════════════════════════════════ */
-    function precargarModelos() {
-        catalogo.filter(p => p.destacado).slice(0, 3).forEach(p => {
-            const link = document.createElement('link');
-            link.rel = 'prefetch'; link.href = p.archivo;
-            document.head.appendChild(link);
-        });
-    }
-
-    /* ══════════════════════════════════════════
-       AR — MOSTRAR PLATO
-       ─────────────────────────────────────────
-       Flujo:
-       1. Limpiar ambas entidades (base + comida)
-       2. Iniciar MindAR
-       3. Verificar que ambos .glb existen (HEAD)
-       4. Asignar src — cada modelo se carga
-          independientemente
-       5. model-loaded de visor-comida: anima
-          emergencia + rotacion continua
-          model-loaded de visor-base: solo posicion
-    ══════════════════════════════════════════ */
-/* ══════════════════════════════════════════
-   AR — MOSTRAR PLATO
-   ─────────────────────────────────────────
-   Flujo:
-   1. Limpiar ambas entidades (base + comida)
-   2. Iniciar MindAR
-   3. Verificar que ambos .glb existen (HEAD)
-   4. Asignar src — cada modelo se carga independientemente
-   5. model-loaded de cada uno: configura sus atributos INDEPENDIENTES
-══════════════════════════════════════════ */
-async function mostrarPlatoAR(index) {
-  window.platoSeleccionado = index;
-  const p = catalogo[index];
-
-  document.querySelectorAll('.pantalla').forEach(el => el.classList.remove('activa'));
-  document.getElementById('btn-volver').style.display = 'none';
-
-  // 🔹 RESET SIMÉTRICO (Evita herencia de estado entre platos)
-  const reset = (cont, vis) => {
-    ['animation__escala', 'animation__rotar'].forEach(k => {
-      if (cont.components[k]) cont.components[k].stop();
-      cont.removeAttribute(k);
-    });
-    cont.removeAttribute('position');
-    cont.removeAttribute('rotation');
-    cont.setAttribute('scale', '0.001 0.001 0.001');
-    vis.removeAttribute('gltf-model');
-    vis.removeAttribute('rotation'); // Limpia inclinación previa
-  };
-  reset(contenBase, visorBase);
-  reset(contenComida, visorComida);
-
-  await arScene.systems['mindar-image-system'].start();
-
-  arScene.style.display = 'block';
-
-  const urlBase   = (p.plato_base || '').trim() ? `${ASSETS_BASE}${p.plato_base.trim()}.glb` : null;
-  const urlComida = (p.archivo || '').trim();
-
-  const check = async u => u ? (await fetch(u, { method: 'HEAD' })).ok : false;
-  const [baseOk, comidaOk] = await Promise.all([check(urlBase), check(urlComida)]);
-
-  info.textContent = p.nombre;
-  info.classList.remove('en-preparacion');
-
-  // ── PLATO BASE ──
-  if (baseOk && urlBase) {
-    visorBase.addEventListener('model-loaded', function h() {
-      visorBase.removeEventListener('model-loaded', h);
-      const pos   = p.plato_base_pos || '0 0 0';
-      const scale = p.plato_base_escala || '1 1 1';
-      const tilt  = p.base_rot_inicial || '0 0 0';
-      const dur   = p.base_velocidad || 15000;
-
-      contenBase.setAttribute('position', pos);
-      visorBase.setAttribute('rotation', tilt);      // Inclinación fija al modelo
-      contenBase.setAttribute('rotation', '0 0 0');  // Contenedor neutro
-
-      contenBase.setAttribute('animation__escala', {
-        property: 'scale', from: '0.001 0.001 0.001', to: scale,
-        dur: p.anim_dur || 1100, easing: 'easeOutElastic'
-      });
-
-      requestAnimationFrame(() => {
-        contenBase.setAttribute('animation__rotar', {
-          property: 'rotation', from: '0 0 0', to: '0 0 360',
-          dur: dur, loop: true, easing: 'linear'
-        });
-      });
-    }, { once: true });
-    visorBase.setAttribute('gltf-model', urlBase);
-  }
-
-  // ── COMIDA ──
-  if (comidaOk) {
-    visorComida.addEventListener('model-loaded', function h() {
-      visorComida.removeEventListener('model-loaded', h);
-      const pos   = p.plato_comida_pos || p.pos || '0 0 0.1';
-      const scale = p.escala || '1 1 1';
-      const tilt  = p.rot_inicial || '0 0 0';
-      const dur   = p.velocidad || 15000;
-
-      contenComida.setAttribute('position', pos);
-      visorComida.setAttribute('rotation', tilt);      // Inclinación fija
-      contenComida.setAttribute('rotation', '0 0 0');
-
-      contenComida.setAttribute('animation__escala', {
-        property: 'scale', from: '0.001 0.001 0.001', to: scale,
-        dur: p.anim_dur || 1100, easing: 'easeOutElastic'
-      });
-
-      requestAnimationFrame(() => {
-        contenComida.setAttribute('animation__rotar', {
-          property: 'rotation', from: '0 0 0', to: '0 0 360',
-          dur: dur, loop: true, easing: 'linear'
-        });
-      });
-    }, { once: true });
-    visorComida.setAttribute('gltf-model', urlComida);
-  } else {
-    info.textContent = 'En preparacion...';
-    info.classList.add('en-preparacion');
-  }
-
-  info.style.display = 'block';
-  uiAr.style.display = 'flex';
-}
-
-function salirAR() {
-  // 1. Detener rastreo de MindAR
-  const arSys = arScene.systems['mindar-image-system'];
-  if (arSys && typeof arSys.stop === 'function') arSys.stop();
-
-  // 2. Pausar A-Frame
-  if (typeof arScene.pause === 'function') arScene.pause();
-
-  // 3. Ocultar escena AR completa
-  arScene.style.display = 'none';
-  
-  // 4. Ocultar TODOS los canvas (selector genérico + específico)
-  arScene.querySelectorAll('canvas').forEach(c => c.style.display = 'none');
-  
-  // 5. CRÍTICO: MindAR inyecta <video> de la cámara al body o al scene
-  document.querySelectorAll('video').forEach(v => {
-    if (v.srcObject || v.getAttribute('src')) {
-      v.style.display = 'none';
-      if (v.srcObject && v.srcObject.getTracks) {
-        v.srcObject.getTracks().forEach(track => track.stop());
-      }
-    }
-  });
-
-  // 6. Ocultar UI flotante de AR
-  uiAr.style.display = 'none';
-  info.style.display = 'none';
-  info.classList.remove('en-preparacion');
-
-  // 7. Resetear entidades 3D
-  const reset = (cont, vis) => {
-    ['animation__escala', 'animation__rotar'].forEach(k => {
-      if (cont.components[k]) cont.components[k].stop();
-      cont.removeAttribute(k);
-    });
-    cont.removeAttribute('position');
-    cont.removeAttribute('rotation');
-    cont.setAttribute('scale', '0.001 0.001 0.001');
-    vis.removeAttribute('gltf-model');
-    vis.removeAttribute('rotation');
-  };
-  reset(contenBase, visorBase);
-  reset(contenComida, visorComida);
-  
-  // 8. Forzar reflow para que el navegador repinte inmediatamente
-  void document.body.offsetWidth;
-}
-
-    /* ══════════════════════════════════════════
-       INIT
-    ══════════════════════════════════════════ */
-/* ══════════════════════════════════════════
-INIT — CORREGIDO (Restaura flujo de carga)
-══════════════════════════════════════════ */
-async function init() {
-  try {
-    const res  = await fetch('./menu.json');
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-
-    // 🔹 SANEADOR: Limpia espacios en claves del JSON automáticamente
-    // (Evita fallos si tu JSON tiene "platos " en vez de "platos")
-    const sanear = obj => {
-      if (!obj || typeof obj !== 'object') return obj;
-      if (Array.isArray(obj)) return obj.map(sanear);
-      const limpio = {};
-      for (let k in obj) limpio[k.trim()] = sanear(obj[k]);
-      return limpio;
-    };
-    const jsonLimpio = sanear(data);
-
-    catalogo   = jsonLimpio.platos || [];
-    categorias = jsonLimpio.categorias || [];
-    
-    const nombreRest = jsonLimpio.restaurante?.nombre || '';
-    if (nombreRest) document.getElementById('nombre-restaurante').textContent = nombreRest;
-    window.MONEDA = jsonLimpio.restaurante?.moneda || 'USD';
-
-    generarGridCategorias();
-    precargarModelos();
-
-    // Botones carrusel
-    btnPrev.addEventListener('click', () => irA(indiceReal - 1));
-    btnNext.addEventListener('click', () => irA(indiceReal + 1));
-    initSwipe();
-
-// 🔹 BOTONES DE REGRESO AR (Ejecución síncrona y segura)
-document.getElementById('ar-back-list').addEventListener('click', () => {
-  salirAR();
-  abrirCategoria(catActual); // Sin delay, ejecución inmediata
-});
-
-document.getElementById('ar-back-menu').addEventListener('click', () => {
-  salirAR();
-  document.getElementById('pantalla-categorias').classList.add('activa');
-  document.getElementById('pantalla-platos').classList.remove('activa');
-  document.getElementById('btn-volver').style.display = 'none';
-});
-
-    // 🔹 TIMER FINAL: Oculta loading y muestra menú
-    setTimeout(() => {
-      document.getElementById('loading-screen').style.opacity = '0';
-      setTimeout(() => {
-        document.getElementById('loading-screen').style.display = 'none';
-        document.getElementById('pantalla-categorias').classList.add('activa');
-      }, 1200);
-    }, 1000);
-
-  } catch (e) {
-    console.error('Error cargando menu.json:', e);
-    document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('error-screen').style.display = 'flex';
-  }
-}
-
-    window.onload = init;
-        
-    </script>
+<div id="loading-screen">
+<img src="logo-gusto3d.jpg" class="logo-gusto" alt="Logo Gusto3D">
+<div class="mensaje-carga">INICIALIZANDO GUSTO3D</div>
+<div class="barra-progreso"><div class="progreso-fill"></div></div>
+</div>
+
+<div id="error-screen">
+<div class="error-icono">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+stroke="#ff6b35" stroke-width="2" stroke-linecap="round">
+<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+</svg>
+</div>
+<div class="error-titulo">Error al cargar el menu</div>
+<div class="error-sub">Verifica tu conexion a internet<br>o que el archivo menu.json exista</div>
+<button class="btn-reintentar" onclick="window.location.reload()">Reintentar</button>
+</div>
+
+<div id="pantalla-categorias" class="pantalla">
+<h1>MENU DIGITAL 3D</h1>
+<div id="nombre-restaurante"></div>
+<p>Selecciona una categoria</p>
+<div class="grid-categorias" id="grid-categorias"></div>
+</div>
+
+<div id="pantalla-platos" class="pantalla">
+<div class="platos-header">
+<h2 id="titulo-categoria"></h2>
+<span class="cat-badge" id="badge-cantidad"></span>
+</div>
+<div class="carrusel-wrapper">
+<div class="carrusel-track-outer" id="carrusel-outer">
+<div class="carrusel-track" id="carrusel-track"></div>
+</div>
+<button class="carrusel-nav izq" id="btn-prev">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+</button>
+<button class="carrusel-nav der" id="btn-next">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+</button>
+<div class="carrusel-dots" id="carrusel-dots"></div>
+<div class="carrusel-contador" id="carrusel-contador"></div>
+<div class="ar-hint-fijo">Toca la imagen o "Ver en 3D" para AR</div>
+</div>
+</div>
+
+<button id="btn-volver">&#8592;</button>
+<div id="plato-info-ar"></div>
+<div id="ui-ar">
+<button class="btn-ar" id="ar-back-list">VER LISTA</button>
+<button class="btn-ar" id="ar-back-menu">CATEGORIAS</button>
+</div>
+
+<a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; filterMinCF: 0.001; filterBeta: 0.01;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" id="ar-scene">
+<a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+<a-entity mindar-image-target="targetIndex: 0">
+<a-entity id="contenedor-base" scale="0.01 0.01 0.01"><a-gltf-model id="visor-base"></a-gltf-model></a-entity>
+<a-entity id="contenedor-comida" scale="0.01 0.01 0.01"><a-gltf-model id="visor-comida"></a-gltf-model></a-entity>
+</a-entity>
+</a-scene>
+
+<script>
+/* ══════════════════════════════════════════ REFERENCIAS DOM ══════════════════════════════════════════ */
+const visorBase = document.getElementById("visor-base");
+const visorComida = document.getElementById("visor-comida");
+const contenBase = document.getElementById("contenedor-base");
+const contenComida = document.getElementById("contenedor-comida");
+const info = document.getElementById("plato-info-ar");
+const arScene = document.getElementById("ar-scene");
+const uiAr = document.getElementById("ui-ar");
+const track = document.getElementById("carrusel-track");
+const dotsWrap = document.getElementById("carrusel-dots");
+const contador = document.getElementById("carrusel-contador");
+const btnPrev = document.getElementById("btn-prev");
+const btnNext = document.getElementById("btn-next");
+
+/* ══════════════════════════════════════════ ESTADO GLOBAL ══════════════════════════════════════════ */
+let catalogo = [], categorias = [], catActual = -1, platosActuales = [];
+let touchStartX = 0, touchStartY = 0, arrastrando = false, enTransicion = false, indiceReal = 0;
+const ASSETS_BASE = "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/";
+
+/* ══════════════════════════════════════════ ICONOS SVG ══════════════════════════════════════════ */
+const ICONOS_CAT = {
+entradas: '<path d="M2 20h20M12 4v4M8 8h8M6 12h12M4 16h16"/>',
+fuerte: '<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>',
+postres: '<circle cx="12" cy="9" r="5"/><path d="M12 14v8M8 22h8"/>',
+bebidas: '<path d="M8 2h8l1 10H7L8 2z"/><path d="M7 12c0 5 2 8 5 8s5-3 5-8"/>',
+default: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>'
+};
+function svgIcon(slug){ const p=ICONOS_CAT[slug]||ICONOS_CAT.default; return `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(37,211,102,0.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`; }
+function svgIconBtn(slug){ const p=ICONOS_CAT[slug]||ICONOS_CAT.default; return `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`; }
+
+/* ══════════════════════════════════════════ GRID CATEGORIAS ══════════════════════════════════════════ */
+function generarGridCategorias(){
+const grid=document.getElementById('grid-categorias'); grid.innerHTML='';
+categorias.forEach(cat=>{
+const btn=document.createElement('button'); btn.className='btn-categoria'; btn.dataset.cat=cat.id;
+btn.innerHTML=`<div class="cat-icon">${svgIconBtn(cat.icono)}</div>${cat.nombre.toUpperCase()}`;
+btn.addEventListener('click',()=>{ document.getElementById('pantalla-categorias').classList.remove('activa'); abrirCategoria(cat.id); });
+grid.appendChild(btn); }); }
+
+/* ══════════════════════════════════════════ CREAR SLIDE ══════════════════════════════════════════ */
+function crearSlide(plato, idxGlobal, posVis, total){
+const slide=document.createElement('div'); slide.className='carrusel-slide'; slide.dataset.logico=posVis;
+const tieneImg=plato.imagen?.trim();
+const desc=plato.descripcion||"Delicioso plato preparado con ingredientes frescos.";
+const catIcon=categorias.find(c=>c.id===catActual)?.icono||'default';
+const imgHTML=tieneImg?`<img class="plato-imagen" loading="lazy" decoding="async" src="${plato.imagen}" alt="${plato.nombre}" onerror="this.parentNode.querySelector('.plato-imagen-placeholder').style.display='flex';this.style.display='none';">`:'';
+const precioHTML=plato.precio_anterior?`<span class="plato-precio">$${plato.precio||'Consultar'}</span><span class="plato-precio-anterior">$${plato.precio_anterior}</span>`:`<span class="plato-precio">$${plato.precio||'Consultar'}</span>`;
+const alergenosHTML=plato.alergenos?.length?`<div class="alergenos-wrap">${plato.alergenos.map(a=>`<span class="alergen-chip">${a}</span>`).join('')}</div>`:'';
+const badgeDest=plato.destacado?'<div class="badge-destacado">Recomendado</div>':'';
+const badgeAgo=(plato.disponible===false)?'<div class="badge-agotado"><span>Agotado</span></div>':'';
+const dispAttr=(plato.disponible===false)?'data-agotado="true"':'';
+slide.innerHTML=`<div class="plato-card" data-plato-idx="${idxGlobal}" ${dispAttr}>${badgeAgo}${badgeDest}
+<div class="plato-imagen-wrap" data-plato-idx="${idxGlobal}">${imgHTML}
+<div class="plato-imagen-placeholder" style="display:${tieneImg?'none':'flex'};" data-plato-idx="${idxGlobal}"><div class="icono-plato-svg">${svgIcon(catIcon)}</div><span class="placeholder-text">Toca para AR</span></div>
+<div class="plato-shimmer"></div><div class="plato-badge-num">${posVis+1}/${total}</div></div>
+<div class="plato-info"><h3 class="plato-nombre">${plato.nombre}</h3><div class="precios-wrap">${precioHTML}</div><p class="plato-descripcion">${desc}</p>${alergenosHTML}</div>
+<button class="btn-ver-ar" data-plato-idx="${idxGlobal}" ${plato.disponible===false?'disabled style="opacity:0.35;cursor:not-allowed;"':''}>
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M1 6l5-3 6 3 5-3 6 3v12l-6 3-5-3-6 3-5-3V6z"/><line x1="7" y1="3" x2="7" y2="15"/><line x1="12" y1="6" x2="12" y2="18"/><line x1="17" y1="3" x2="17" y2="15"/></svg> VER EN 3D</button></div>`;
+if(plato.disponible!==false){
+[slide.querySelector('.plato-imagen-wrap'),slide.querySelector('.plato-imagen-placeholder'),slide.querySelector('.btn-ver-ar')].forEach(el=>{
+if(el){ el.style.cursor='pointer'; el.addEventListener('click',e=>{ e.stopPropagation(); mostrarPlatoAR(idxGlobal); }); }}); }
+return slide; }
+
+/* ══════════════════════════════════════════ TRACK HELPERS ══════════════════════════════════════════ */
+function posicionarTrackSilencioso(idx){ track.classList.add('sin-transicion'); track.style.transform=`translateX(-${idx*100}%)`; void track.offsetWidth; track.classList.remove('sin-transicion'); }
+function actualizarUI(){
+const total=platosActuales.length, trackIdx=indiceReal+1; track.style.transform=`translateX(-${trackIdx*100}%)`;
+document.querySelectorAll('.carrusel-slide').forEach(s=>{
+const logico=parseInt(s.dataset.logico,10), eraAct=s.classList.contains('activo'), esAct=logico===indiceReal;
+s.classList.toggle('activo',esAct); if(!eraAct&&esAct){ const card=s.querySelector('.plato-card'); if(card){ card.style.animation='none'; void card.offsetWidth; card.style.animation=''; } } });
+document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('activo',i===indiceReal));
+contador.textContent=`${indiceReal+1}/${total}`; }
+function irA(nuevo){
+if(enTransicion)return; const total=platosActuales.length; if(total<=1)return; enTransicion=true;
+if(nuevo<0){ track.style.transform='translateX(0%)'; track.addEventListener('transitionend',function h(){ track.removeEventListener('transitionend',h); indiceReal=total-1; posicionarTrackSilencioso(total); actualizarUI(); enTransicion=false; }); document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('activo',i===total-1)); contador.textContent=`${total}/${total}`; return; }
+if(nuevo>=total){ track.style.transform=`translateX(-${(total+1)*100}%)`; track.addEventListener('transitionend',function h(){ track.removeEventListener('transitionend',h); indiceReal=0; posicionarTrackSilencioso(1); actualizarUI(); enTransicion=false; }); document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('activo',i===0)); contador.textContent=`1/${total}`; return; }
+indiceReal=nuevo; actualizarUI(); track.addEventListener('transitionend',function h(){ track.removeEventListener('transitionend',h); enTransicion=false; }); }
+
+/* ══════════════════════════════════════════ ABRIR CATEGORIA ══════════════════════════════════════════ */
+function abrirCategoria(catId){
+catActual=catId; indiceReal=0; enTransicion=false;
+platosActuales=catalogo.filter(p=>p.categoria===catId); const total=platosActuales.length;
+const catNom=categorias.find(c=>c.id===catId)?.nombre||'Menu';
+document.getElementById('titulo-categoria').textContent=catNom; document.getElementById('badge-cantidad').textContent=`${total} plato${total!==1?'s':''}`;
+track.innerHTML=''; dotsWrap.innerHTML='';
+const idxGlob=platosActuales.map(p=>catalogo.indexOf(p));
+if(total>0){ const clonU=crearSlide(platosActuales[total-1],idxGlob[total-1],total-1,total); clonU.dataset.logico=total-1; clonU.dataset.clon='ultimo'; track.appendChild(clonU); }
+platosActuales.forEach((plato,pos)=>track.appendChild(crearSlide(plato,idxGlob[pos],pos,total)));
+if(total>0){ const clonP=crearSlide(platosActuales[0],idxGlob[0],0,total); clonP.dataset.logico=0; clonP.dataset.clon='primero'; track.appendChild(clonP); }
+platosActuales.forEach((_,i)=>{ const dot=document.createElement('div'); dot.className='dot'+(i===0?' activo':''); dot.addEventListener('click',()=>irA(i)); dotsWrap.appendChild(dot); });
+track.classList.add('sin-transicion'); track.style.transform='translateX(-100%)'; void track.offsetWidth; track.classList.remove('sin-transicion'); actualizarUI();
+document.getElementById('pantalla-platos').classList.add('activa'); document.getElementById('btn-volver').style.display='flex';
+document.getElementById('btn-volver').onclick=()=>{ document.getElementById('pantalla-platos').classList.remove('activa'); document.getElementById('pantalla-categorias').classList.add('activa'); document.getElementById('btn-volver').style.display='none'; }; }
+
+/* ══════════════════════════════════════════ SWIPE ══════════════════════════════════════════ */
+function initSwipe(){
+const outer=document.getElementById('carrusel-outer');
+outer.addEventListener('touchstart',e=>{ touchStartX=e.touches[0].clientX; touchStartY=e.touches[0].clientY; arrastrando=false; },{passive:true});
+outer.addEventListener('touchmove',e=>{ const dx=Math.abs(e.touches[0].clientX-touchStartX), dy=Math.abs(e.touches[0].clientY-touchStartY); if(dx>dy&&dx>8)arrastrando=true; },{passive:true});
+outer.addEventListener('touchend',e=>{ if(!arrastrando)return; const diff=touchStartX-e.changedTouches[0].clientX; if(Math.abs(diff)>45)diff>0?irA(indiceReal+1):irA(indiceReal-1); arrastrando=false; }); }
+
+/* ══════════════════════════════════════════ PRECARGA ══════════════════════════════════════════ */
+function precargarModelos(){ catalogo.filter(p=>p.destacado).slice(0,3).forEach(p=>{ const link=document.createElement('link'); link.rel='prefetch'; link.href=p.archivo; document.head.appendChild(link); }); }
+
+/* ══════════════════════════════════════════ AR — MOSTRAR PLATO ══════════════════════════════════════════ */
+async function mostrarPlatoAR(index){
+window.platoSeleccionado=index; const p=catalogo[index];
+document.querySelectorAll('.pantalla').forEach(el=>el.classList.remove('activa')); document.getElementById('btn-volver').style.display='none';
+
+// 🔹 RESET SIMÉTRICO
+const reset=(cont,vis)=>{ ['animation__escala','animation__rotar'].forEach(k=>{ if(cont.components[k])cont.components[k].stop(); cont.removeAttribute(k); }); cont.removeAttribute('position'); cont.removeAttribute('rotation'); cont.setAttribute('scale','0.001 0.001 0.001'); vis.removeAttribute('gltf-model'); vis.removeAttribute('rotation'); };
+reset(contenBase,visorBase); reset(contenComida,visorComida);
+
+await arScene.systems['mindar-image-system'].start(); arScene.style.display='block';
+const urlBase=(p.plato_base||'').trim()?`${ASSETS_BASE}${p.plato_base.trim()}.glb`:null;
+const urlComida=(p.archivo||'').trim();
+const check=async u=>u?(await fetch(u,{method:'HEAD'})).ok:false;
+const [baseOk,comidaOk]=await Promise.all([check(urlBase),check(urlComida)]);
+
+info.textContent=p.nombre; info.classList.remove('en-preparacion');
+
+// ── PLATO BASE ──
+if(baseOk&&urlBase){
+visorBase.addEventListener('model-loaded',function h(){ visorBase.removeEventListener('model-loaded',h);
+const pos=p.plato_base_pos||'0 0 0', scale=p.plato_base_escala||'1 1 1', tilt=p.base_rot_inicial||'0 0 0', dur=p.base_velocidad||15000;
+contenBase.setAttribute('position',pos); visorBase.setAttribute('rotation',tilt); contenBase.setAttribute('rotation','0 0 0');
+contenBase.setAttribute('animation__escala',{property:'scale',from:'0.001 0.001 0.001',to:scale,dur:p.anim_dur||1100,easing:'easeOutElastic'});
+requestAnimationFrame(()=>{ contenBase.setAttribute('animation__rotar',{property:'rotation',from:'0 0 0',to:'0 0 360',dur:dur,loop:true,easing:'linear'}); });
+},{once:true}); visorBase.setAttribute('gltf-model',urlBase); }
+
+// ── COMIDA ──
+if(comidaOk){
+visorComida.addEventListener('model-loaded',function h(){ visorComida.removeEventListener('model-loaded',h);
+const pos=p.plato_comida_pos||p.pos||'0 0 0.1', scale=p.escala||'1 1 1', tilt=p.rot_inicial||'0 0 0', dur=p.velocidad||15000;
+contenComida.setAttribute('position',pos); visorComida.setAttribute('rotation',tilt); contenComida.setAttribute('rotation','0 0 0');
+contenComida.setAttribute('animation__escala',{property:'scale',from:'0.001 0.001 0.001',to:scale,dur:p.anim_dur||1100,easing:'easeOutElastic'});
+requestAnimationFrame(()=>{ contenComida.setAttribute('animation__rotar',{property:'rotation',from:'0 0 0',to:'0 0 360',dur:dur,loop:true,easing:'linear'}); });
+},{once:true}); visorComida.setAttribute('gltf-model',urlComida);
+}else{ info.textContent='En preparacion...'; info.classList.add('en-preparacion'); }
+
+info.style.display='block'; uiAr.style.display='flex'; }
+
+/* ══════════════════════════════════════════ SALIR AR — SIN PANTALLA NEGRA ══════════════════════════════════════════ */
+function salirAR(){
+const arSys=arScene.systems['mindar-image-system']; if(arSys&&typeof arSys.stop==='function')arSys.stop();
+if(typeof arScene.pause==='function')arScene.pause();
+arScene.style.display='none'; arScene.querySelectorAll('canvas').forEach(c=>c.style.display='none');
+document.querySelectorAll('video').forEach(v=>{ if(v.srcObject||v.getAttribute('src')){ v.style.display='none'; if(v.srcObject?.getTracks)v.srcObject.getTracks().forEach(t=>t.stop()); } });
+uiAr.style.display='none'; info.style.display='none'; info.classList.remove('en-preparacion');
+const reset=(cont,vis)=>{ ['animation__escala','animation__rotar'].forEach(k=>{ if(cont.components[k])cont.components[k].stop(); cont.removeAttribute(k); }); cont.removeAttribute('position'); cont.removeAttribute('rotation'); cont.setAttribute('scale','0.001 0.001 0.001'); vis.removeAttribute('gltf-model'); vis.removeAttribute('rotation'); };
+reset(contenBase,visorBase); reset(contenComida,visorComida);
+void document.body.offsetWidth; }
+
+/* ══════════════════════════════════════════ INIT ══════════════════════════════════════════ */
+async function init(){
+try{
+const res=await fetch('./menu.json'); if(!res.ok)throw new Error('HTTP '+res.status); const data=await res.json();
+const sanear=obj=>{ if(!obj||typeof obj!=='object')return obj; if(Array.isArray(obj))return obj.map(sanear); const limpio={}; for(let k in obj)limpio[k.trim()]=sanear(obj[k]); return limpio; };
+const jsonLimpio=sanear(data); catalogo=jsonLimpio.platos||[]; categorias=jsonLimpio.categorias||[];
+const nombreRest=jsonLimpio.restaurante?.nombre||''; if(nombreRest)document.getElementById('nombre-restaurante').textContent=nombreRest; window.MONEDA=jsonLimpio.restaurante?.moneda||'USD';
+generarGridCategorias(); precargarModelos();
+btnPrev.addEventListener('click',()=>irA(indiceReal-1)); btnNext.addEventListener('click',()=>irA(indiceReal+1)); initSwipe();
+
+// 🔹 BOTONES DE REGRESO AR — SIN setTimeout, SIN duplicados
+document.getElementById('ar-back-list').addEventListener('click',()=>{ salirAR(); abrirCategoria(catActual); });
+document.getElementById('ar-back-menu').addEventListener('click',()=>{ salirAR(); document.getElementById('pantalla-categorias').classList.add('activa'); document.getElementById('pantalla-platos').classList.remove('activa'); document.getElementById('btn-volver').style.display='none'; });
+
+setTimeout(()=>{ document.getElementById('loading-screen').style.opacity='0'; setTimeout(()=>{ document.getElementById('loading-screen').style.display='none'; document.getElementById('pantalla-categorias').classList.add('activa'); },1200); },1000);
+}catch(e){ console.error('Error cargando menu.json:',e); document.getElementById('loading-screen').style.display='none'; document.getElementById('error-screen').style.display='flex'; } }
+
+window.onload=init;
+/* ⚠️ NO AGREGAR NADA MÁS DESPUÉS DE window.onload */
+</script>
 </body>
 </html>
