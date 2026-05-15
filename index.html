@@ -888,31 +888,37 @@ async function mostrarPlatoAR(index) {
 SALIR AR — Oculta canvas para liberar clicks
 ══════════════════════════════════════════ */
 function salirAR() {
-  try {
+    // 1. Detener el sistema de rastreo de MindAR
     const arSys = arScene.systems['mindar-image-system'];
     if (arSys && typeof arSys.stop === 'function') arSys.stop();
-  } catch (e) { /* Ignorar errores si ya estaba parado */ }
 
-  uiAr.style.display = 'none';
-  info.style.display = 'none';
-  
-  // 🔹 CRUCIAL: Ocultar el canvas AR para que no bloquee los botones del menú
-  arScene.style.display = 'none'; 
+    // 2. Pausar el renderizado de A-Frame (libera GPU y evita canvas fantasma)
+    if (typeof arScene.pause === 'function') arScene.pause();
 
-  const reset = (cont, vis) => {
-    ['animation__escala', 'animation__rotar'].forEach(k => {
-      if (cont.components[k]) cont.components[k].stop();
-      cont.removeAttribute(k);
-    });
-    cont.removeAttribute('position');
-    cont.removeAttribute('rotation');
-    cont.setAttribute('scale', '0.001 0.001 0.001');
-    vis.removeAttribute('gltf-model');
-    vis.removeAttribute('rotation');
-  };
-  
-  reset(contenBase, visorBase);
-  reset(contenComida, visorComida);
+    // 3. Ocultar escena Y su canvas interno para liberar la capa visual
+    arScene.style.display = 'none';
+    const canvasAR = arScene.querySelector('canvas.a-canvas');
+    if (canvasAR) canvasAR.style.display = 'none';
+
+    // 4. Ocultar UI de AR
+    uiAr.style.display = 'none';
+    info.style.display = 'none';
+    info.classList.remove('en-preparacion');
+
+    // 5. Resetear entidades 3D para evitar herencia de estado entre platos
+    const reset = (cont, vis) => {
+        ['animation__escala', 'animation__rotar'].forEach(k => {
+            if (cont.components[k]) cont.components[k].stop();
+            cont.removeAttribute(k);
+        });
+        cont.removeAttribute('position');
+        cont.removeAttribute('rotation');
+        cont.setAttribute('scale', '0.001 0.001 0.001');
+        vis.removeAttribute('gltf-model');
+        vis.removeAttribute('rotation');
+    };
+    reset(contenBase, visorBase);
+    reset(contenComida, visorComida);
 }
 
     /* ══════════════════════════════════════════
@@ -956,7 +962,7 @@ async function init() {
     // 🔹 BOTONES DE REGRESO AR (Corregidos para que funcionen)
     document.getElementById('ar-back-list').addEventListener('click', () => {
       salirAR();
-      setTimeout(() => abrirCategoria(catActual), 200);
+      setTimeout(() => abrirCategoria(catActual), 150);
     });
     
     document.getElementById('ar-back-menu').addEventListener('click', () => {
@@ -965,7 +971,7 @@ async function init() {
         document.getElementById('pantalla-categorias').classList.add('activa');
         document.getElementById('pantalla-platos').classList.remove('activa');
         document.getElementById('btn-volver').style.display = 'none';
-      }, 200);
+      }, 150);
     });
 
     // 🔹 TIMER FINAL: Oculta loading y muestra menú
@@ -984,7 +990,7 @@ async function init() {
   }
 }
 
-    window.onload = init;
+
 
 /* ══════════════════════════════════════════
    LÓGICA PARA LOS BOTONES DE LA CÁMARA (AR)
@@ -1018,7 +1024,7 @@ function cerrarAR() {
     infoAr.style.display = "none";
 }
 
-
+    window.onload = init;
         
     </script>
 </body>
