@@ -1,5 +1,3 @@
-index.html - funcionan bien la rotacion de los platos
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -408,22 +406,22 @@ index.html - funcionan bien la rotacion de los platos
            #visor-base  → plato/bandeja (estatico)
            #visor-comida → modelo de la comida (animado)
     ════════════════════════════════════════════ -->
-    <a-scene
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;
-                      uiLoading: no; uiScanning: no;
-                      filterMinCF: 0.001; filterBeta: 0.01;"
-        vr-mode-ui="enabled: false"
+    <a-scene 
+        id="ar-scene"
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; filterMinCF: 0.001; filterBeta: 0.01;" 
+        vr-mode-ui="enabled: false" 
         device-orientation-permission-ui="enabled: false"
-        id="ar-scene">
-        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-        <a-entity mindar-image-target="targetIndex: 0">
+        embedded
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;">
 
-            <!-- Plato / bandeja base: sin rotacion animada, solo posicion fija -->
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <a-entity mindar-image-target="targetIndex: 0">
+            
             <a-entity id="contenedor-base" scale="0.01 0.01 0.01">
                 <a-gltf-model id="visor-base"></a-gltf-model>
             </a-entity>
 
-            <!-- Comida: emerge con escala y gira -->
             <a-entity id="contenedor-comida" scale="0.01 0.01 0.01">
                 <a-gltf-model id="visor-comida"></a-gltf-model>
             </a-entity>
@@ -1013,23 +1011,23 @@ document.getElementById('ar-back-menu').addEventListener('click', () => {
     document.getElementById('btn-volver').style.display = 'none';
 });
 
-
-// Función auxiliar para detener MindAR y limpiar la pantalla
 function cerrarAR() {
     const arScene = document.getElementById("ar-scene");
     const uiAr = document.getElementById("ui-ar");
 
-    // 1. Apagamos el motor de la cámara
-    if (arScene && arScene.systems["mindar-image-system"]) {
-        arScene.systems["mindar-image-system"].stop(); // Detiene la cámara
-        arScene.pause(); // Pausa el renderizado para que no consuma recursos
+    if (arScene) {
+        // Detenemos el motor de la cámara
+        if (arScene.systems && arScene.systems["mindar-image-system"]) {
+            arScene.systems["mindar-image-system"].stop();
+        }
+        arScene.pause(); 
+        // Esta es la clave: ocultamos la capa para que no bloquee el menú
+        arScene.style.display = "none";
     }
 
-    // 2. Ocultamos visualmente la escena de Realidad Aumentada
-    if (arScene) arScene.style.display = "none";
     if (uiAr) uiAr.style.display = "none";
 
-    // 3. Volvemos a mostrar el menú de platos (Esto quita la pantalla negra)
+    // Regresamos al menú
     document.getElementById('pantalla-platos').classList.add('activa');
     document.getElementById('btn-volver').style.display = 'flex';
 }
