@@ -335,6 +335,29 @@
         .carrusel-slide.activo .plato-card {
             animation: slideEntrada 0.38s ease forwards;
         }
+
+
+/* ══════════════════════════════════════════
+   BLINDAJE CONTRA PANTALLA NEGRA
+   ══════════════════════════════════════════ */
+.pantalla.activa {
+  z-index: 2000 !important;
+  pointer-events: auto !important;
+}
+#ui-ar, #plato-info-ar {
+  z-index: 1001 !important;
+}
+a-scene {
+  z-index: 999 !important;
+  pointer-events: none !important;
+}
+a-scene:not([renderer="loaded"]) {
+  display: none !important;
+}
+
+
+
+        
     </style>
 </head>
 <body>
@@ -885,20 +908,35 @@ async function mostrarPlatoAR(index) {
 }
 
 function salirAR() {
+  // 1. Detener rastreo de MindAR
   const arSys = arScene.systems['mindar-image-system'];
   if (arSys && typeof arSys.stop === 'function') arSys.stop();
-  
+
+  // 2. Pausar A-Frame
   if (typeof arScene.pause === 'function') arScene.pause();
-  
+
+  // 3. Ocultar escena AR completa
   arScene.style.display = 'none';
-  const canvasAR = arScene.querySelector('canvas.a-canvas');
-  if (canvasAR) canvasAR.style.display = 'none';
   
+  // 4. Ocultar TODOS los canvas (selector genérico + específico)
+  arScene.querySelectorAll('canvas').forEach(c => c.style.display = 'none');
+  
+  // 5. CRÍTICO: MindAR inyecta <video> de la cámara al body o al scene
+  document.querySelectorAll('video').forEach(v => {
+    if (v.srcObject || v.getAttribute('src')) {
+      v.style.display = 'none';
+      if (v.srcObject && v.srcObject.getTracks) {
+        v.srcObject.getTracks().forEach(track => track.stop());
+      }
+    }
+  });
+
+  // 6. Ocultar UI flotante de AR
   uiAr.style.display = 'none';
   info.style.display = 'none';
   info.classList.remove('en-preparacion');
-  
-  // Resetear entidades
+
+  // 7. Resetear entidades 3D
   const reset = (cont, vis) => {
     ['animation__escala', 'animation__rotar'].forEach(k => {
       if (cont.components[k]) cont.components[k].stop();
@@ -912,6 +950,9 @@ function salirAR() {
   };
   reset(contenBase, visorBase);
   reset(contenComida, visorComida);
+  
+  // 8. Forzar reflow para que el navegador repinte inmediatamente
+  void document.body.offsetWidth;
 }
 
     /* ══════════════════════════════════════════
@@ -952,21 +993,18 @@ async function init() {
     btnNext.addEventListener('click', () => irA(indiceReal + 1));
     initSwipe();
 
-   // 🔹 BOTONES DE REGRESO AR (Consolidado y sin conflictos)
-    document.getElementById('ar-back-list').addEventListener('click', () => {
-      salirAR();
-      // Pequeño delay para asegurar que el canvas se oculte antes de mostrar el DOM
-      setTimeout(() => abrirCategoria(catActual), 120);
-    });
+// 🔹 BOTONES DE REGRESO AR (Ejecución síncrona y segura)
+document.getElementById('ar-back-list').addEventListener('click', () => {
+  salirAR();
+  abrirCategoria(catActual); // Sin delay, ejecución inmediata
+});
 
-    document.getElementById('ar-back-menu').addEventListener('click', () => {
-      salirAR();
-      setTimeout(() => {
-        document.getElementById('pantalla-categorias').classList.add('activa');
-        document.getElementById('pantalla-platos').classList.remove('activa');
-        document.getElementById('btn-volver').style.display = 'none';
-      }, 120);
-    });
+document.getElementById('ar-back-menu').addEventListener('click', () => {
+  salirAR();
+  document.getElementById('pantalla-categorias').classList.add('activa');
+  document.getElementById('pantalla-platos').classList.remove('activa');
+  document.getElementById('btn-volver').style.display = 'none';
+});
 
     // 🔹 TIMER FINAL: Oculta loading y muestra menú
     setTimeout(() => {
