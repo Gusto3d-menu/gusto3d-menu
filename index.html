@@ -998,32 +998,40 @@ async function init() {
    LÓGICA PARA LOS BOTONES DE LA CÁMARA (AR)
    ══════════════════════════════════════════ */
 
-// Botón "VER LISTA" dentro de la cámara
+
+// Al tocar "VER LISTA", ejecutamos la limpieza que definimos arriba
 document.getElementById('ar-back-list').addEventListener('click', () => {
-    cerrarAR(); // Función para apagar la cámara
-    document.getElementById('pantalla-platos').classList.add('activa');
-    document.getElementById('btn-volver').style.display = 'flex';
+    cerrarAR(); 
 });
 
-// Botón "CATEGORIAS" dentro de la cámara
+// Al tocar "CATEGORIAS", limpiamos la cámara y saltamos directo a las categorías
 document.getElementById('ar-back-menu').addEventListener('click', () => {
-    cerrarAR(); // Función para apagar la cámara
+    cerrarAR(); 
+    // Además, ocultamos platos y mostramos categorías
+    document.getElementById('pantalla-platos').classList.remove('activa');
     document.getElementById('pantalla-categorias').classList.add('activa');
     document.getElementById('btn-volver').style.display = 'none';
 });
+
 
 // Función auxiliar para detener MindAR y limpiar la pantalla
 function cerrarAR() {
     const arScene = document.getElementById("ar-scene");
     const uiAr = document.getElementById("ui-ar");
-    const infoAr = document.getElementById("plato-info-ar");
 
-    // Detener el sistema de Realidad Aumentada
-    arScene.stop(); 
-    
-    // Ocultar elementos de la interfaz de la cámara
-    uiAr.style.display = "none";
-    infoAr.style.display = "none";
+    // 1. Apagamos el motor de la cámara
+    if (arScene && arScene.systems["mindar-image-system"]) {
+        arScene.systems["mindar-image-system"].stop(); // Detiene la cámara
+        arScene.pause(); // Pausa el renderizado para que no consuma recursos
+    }
+
+    // 2. Ocultamos visualmente la escena de Realidad Aumentada
+    if (arScene) arScene.style.display = "none";
+    if (uiAr) uiAr.style.display = "none";
+
+    // 3. Volvemos a mostrar el menú de platos (Esto quita la pantalla negra)
+    document.getElementById('pantalla-platos').classList.add('activa');
+    document.getElementById('btn-volver').style.display = 'flex';
 }
 
     window.onload = init;
