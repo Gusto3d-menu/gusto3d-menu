@@ -406,22 +406,22 @@
            #visor-base  → plato/bandeja (estatico)
            #visor-comida → modelo de la comida (animado)
     ════════════════════════════════════════════ -->
-    <a-scene 
-        id="ar-scene"
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; filterMinCF: 0.001; filterBeta: 0.01;" 
-        vr-mode-ui="enabled: false" 
+    <a-scene
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;
+                      uiLoading: no; uiScanning: no;
+                      filterMinCF: 0.001; filterBeta: 0.01;"
+        vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
-        embedded
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;">
-
+        id="ar-scene">
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
         <a-entity mindar-image-target="targetIndex: 0">
-            
+
+            <!-- Plato / bandeja base: sin rotacion animada, solo posicion fija -->
             <a-entity id="contenedor-base" scale="0.01 0.01 0.01">
                 <a-gltf-model id="visor-base"></a-gltf-model>
             </a-entity>
 
+            <!-- Comida: emerge con escala y gira -->
             <a-entity id="contenedor-comida" scale="0.01 0.01 0.01">
                 <a-gltf-model id="visor-comida"></a-gltf-model>
             </a-entity>
@@ -787,253 +787,229 @@
    5. model-loaded de cada uno: configura sus atributos INDEPENDIENTES
 ══════════════════════════════════════════ */
 async function mostrarPlatoAR(index) {
-  window.platoSeleccionado = index;
-  const p = catalogo[index];
+    window.platoSeleccionado = index;
+    const p = catalogo[index];
 
-  document.querySelectorAll('.pantalla').forEach(el => el.classList.remove('activa'));
-  document.getElementById('btn-volver').style.display = 'none';
+    /* Ocultar pantallas */
+    document.querySelectorAll('.pantalla').forEach(pan => pan.classList.remove('activa'));
+    document.getElementById('btn-volver').style.display = 'none';
 
-  // 🔹 RESET SIMÉTRICO (Evita herencia de estado entre platos)
-  const reset = (cont, vis) => {
-    ['animation__escala', 'animation__rotar'].forEach(k => {
-      if (cont.components[k]) cont.components[k].stop();
-      cont.removeAttribute(k);
-    });
-    cont.removeAttribute('position');
-    cont.removeAttribute('rotation');
-    cont.setAttribute('scale', '0.001 0.001 0.001');
-    vis.removeAttribute('gltf-model');
-    vis.removeAttribute('rotation'); // Limpia inclinación previa
-  };
-  reset(contenBase, visorBase);
-  reset(contenComida, visorComida);
+    /* Resetear ambas entidades */
+    contenBase.setAttribute('scale',  '0.01 0.01 0.01');
+    contenComida.setAttribute('scale','0.01 0.01 0.01');
+    contenBase.removeAttribute('position');
+    contenComida.removeAttribute('position');
 
-  await arScene.systems['mindar-image-system'].start();
+    visorBase.removeAttribute('gltf-model');
+    visorComida.removeAttribute('gltf-model');
+    visorBase.removeAttribute('animation__rotar');
+    visorComida.removeAttribute('animation__rotar');
+    visorComida.removeAttribute('animation__escala');
+    contenBase.removeAttribute('animation__escala');
+    contenBase.removeAttribute('rotation');
 
-  arScene.style.display = 'block';
+    /* Iniciar camara AR */
+    const mindarSystem = arScene.systems['mindar-image-system'];
+    await mindarSystem.start();
 
-  const urlBase   = (p.plato_base || '').trim() ? `${ASSETS_BASE}${p.plato_base.trim()}.glb` : null;
-  const urlComida = (p.archivo || '').trim();
+    /* ── Construir URLs ── */
+    const urlBase   = `${ASSETS_BASE}${p.plato_base}.glb`;
+    const urlComida = p.archivo;
 
-  const check = async u => u ? (await fetch(u, { method: 'HEAD' })).ok : false;
-  const [baseOk, comidaOk] = await Promise.all([check(urlBase), check(urlComida)]);
+    /* ── Verificar existencia de ambos archivos en paralelo ── */
+    let baseOk = false;
+    let comidaOk = false;
 
-  info.textContent = p.nombre;
-  info.classList.remove('en-preparacion');
+    try {
+        const [resBase, resComida] = await Promise.all([
+            fetch(urlBase,   { method: 'HEAD' }),
+            fetch(urlComida, { method: 'HEAD' })
+        ]);
+        baseOk   = resBase.ok;
+        comidaOk = resComida.ok;
+    } catch (err) {
+        console.warn('Error verificando modelos:', err);
+    }
 
-  // ── PLATO BASE ──
-  if (baseOk && urlBase) {
-    visorBase.addEventListener('model-loaded', function h() {
-      visorBase.removeEventListener('model-loaded', h);
-      const pos   = p.plato_base_pos || '0 0 0';
-      const scale = p.plato_base_escala || '1 1 1';
-      const tilt  = p.base_rot_inicial || '0 0 0';
-      const dur   = p.base_velocidad || 15000;
-
-      contenBase.setAttribute('position', pos);
-      visorBase.setAttribute('rotation', tilt);      // Inclinación fija al modelo
-      contenBase.setAttribute('rotation', '0 0 0');  // Contenedor neutro
-
-      contenBase.setAttribute('animation__escala', {
-        property: 'scale', from: '0.001 0.001 0.001', to: scale,
-        dur: p.anim_dur || 1100, easing: 'easeOutElastic'
-      });
-
-      requestAnimationFrame(() => {
-        contenBase.setAttribute('animation__rotar', {
-          property: 'rotation', from: '0 0 0', to: '0 0 360',
-          dur: dur, loop: true, easing: 'linear'
-        });
-      });
-    }, { once: true });
-    visorBase.setAttribute('gltf-model', urlBase);
-  }
-
-  // ── COMIDA ──
-  if (comidaOk) {
-    visorComida.addEventListener('model-loaded', function h() {
-      visorComida.removeEventListener('model-loaded', h);
-      const pos   = p.plato_comida_pos || p.pos || '0 0 0.1';
-      const scale = p.escala || '1 1 1';
-      const tilt  = p.rot_inicial || '0 0 0';
-      const dur   = p.velocidad || 15000;
-
-      contenComida.setAttribute('position', pos);
-      visorComida.setAttribute('rotation', tilt);      // Inclinación fija
-      contenComida.setAttribute('rotation', '0 0 0');
-
-      contenComida.setAttribute('animation__escala', {
-        property: 'scale', from: '0.001 0.001 0.001', to: scale,
-        dur: p.anim_dur || 1100, easing: 'easeOutElastic'
-      });
-
-      requestAnimationFrame(() => {
-        contenComida.setAttribute('animation__rotar', {
-          property: 'rotation', from: '0 0 0', to: '0 0 360',
-          dur: dur, loop: true, easing: 'linear'
-        });
-      });
-    }, { once: true });
-    visorComida.setAttribute('gltf-model', urlComida);
-  } else {
-    info.textContent = 'En preparacion...';
-    info.classList.add('en-preparacion');
-  }
-
-  info.style.display = 'block';
-  uiAr.style.display = 'flex';
-}
-
-/* ══════════════════════════════════════════
-SALIR AR — Oculta canvas para liberar clicks
-══════════════════════════════════════════ */
-function salirAR() {
-    // 1. Detener el sistema de rastreo de MindAR
-    const arSys = arScene.systems['mindar-image-system'];
-    if (arSys && typeof arSys.stop === 'function') arSys.stop();
-
-    // 2. Pausar el renderizado de A-Frame (libera GPU y evita canvas fantasma)
-    if (typeof arScene.pause === 'function') arScene.pause();
-
-    // 3. Ocultar escena Y su canvas interno para liberar la capa visual
-    arScene.style.display = 'none';
-    const canvasAR = arScene.querySelector('canvas.a-canvas');
-    if (canvasAR) canvasAR.style.display = 'none';
-
-    // 4. Ocultar UI de AR
-    uiAr.style.display = 'none';
-    info.style.display = 'none';
+    /* ── Mostrar nombre del plato ── */
+    info.textContent = p.nombre;
     info.classList.remove('en-preparacion');
 
-    // 5. Resetear entidades 3D para evitar herencia de estado entre platos
-    const reset = (cont, vis) => {
-        ['animation__escala', 'animation__rotar'].forEach(k => {
-            if (cont.components[k]) cont.components[k].stop();
-            cont.removeAttribute(k);
+    /* ════════════════════════════════════════
+       CARGAR MODELO BASE (PLATO/BANDEJA)
+       Atributos INDEPENDIENTES y CONFIGURABLES:
+       plato_base_pos, plato_base_escala
+       base_rot_inicial, base_rot_final, base_velocidad
+       ════════════════════════════════════════ */
+    if (baseOk && p.plato_base) {
+        visorBase.addEventListener('model-loaded', function handlerBase() {
+            visorBase.removeEventListener('model-loaded', handlerBase);
+
+            // === ATRIBUTOS DEL PLATO BASE ===
+            const posBase     = p.plato_base_pos || '0 0 0';
+            const escalaBase  = p.plato_base_escala || '1 1 1';
+            
+            // === POSICION Y ESCALA ===
+            contenBase.setAttribute('position', posBase);
+            contenBase.setAttribute('scale', escalaBase);
+
+            // === ANIMACIÓN EMERGENCIA ===
+            contenBase.setAttribute('animation__escala', {
+                property: 'scale',
+                from: '0.01 0.01 0.01',
+                to: escalaBase,
+                dur: p.anim_dur || 1100,
+                easing: 'easeOutElastic'
+            });
+
+            // === ROTACIÓN INDEPENDIENTE DEL PLATO BASE ===
+            const baseRotFrom = p.base_rot_inicial || '90 0 0';
+            const baseRotTo   = p.base_rot_final   || '90 360 0';
+            const baseRotDur  = p.base_velocidad   || 20000;
+
+            // Fijar rotación inicial
+            contenBase.setAttribute('rotation', baseRotFrom);
+
+            // Animación de rotación CONTINUA
+            contenBase.setAttribute('animation__rotar', {
+                property: 'rotation',
+                from: baseRotFrom,
+                to: baseRotTo,
+                dur: baseRotDur,
+                loop: true,
+                easing: 'linear'
+            });
+
+        }, { once: true });
+
+        visorBase.setAttribute('gltf-model', urlBase);
+    }
+
+    /* ════════════════════════════════════════
+       CARGAR MODELO COMIDA
+       Atributos INDEPENDIENTES:
+       plato_comida_pos, escala (o pos/escala legacy)
+       rot_inicial, rot_final, velocidad
+       ════════════════════════════════════════ */
+    /* ════════════════════════════════════════
+   CARGAR MODELO COMIDA (Corrección de Rotación)
+   ════════════════════════════════════════ */
+if (comidaOk) {
+    visorComida.addEventListener('model-loaded', function handlerComida() {
+        visorComida.removeEventListener('model-loaded', handlerComida);
+
+        const posComida = p.plato_comida_pos || p.pos || '0 0 0.01';
+        const escalaComida = p.escala || '1 1 1';
+
+        contenComida.setAttribute('position', posComida);
+        contenComida.setAttribute('scale', escalaComida);
+
+        // Animación de escala (Entrada)
+        contenComida.setAttribute('animation__escala', {
+            property: 'scale',
+            from: '0.01 0.01 0.01',
+            to: escalaComida,
+            dur: p.anim_dur || 1100,
+            easing: 'easeOutElastic'
         });
-        cont.removeAttribute('position');
-        cont.removeAttribute('rotation');
-        cont.setAttribute('scale', '0.001 0.001 0.001');
-        vis.removeAttribute('gltf-model');
-        vis.removeAttribute('rotation');
-    };
-    reset(contenBase, visorBase);
-    reset(contenComida, visorComida);
+
+        // --- CORRECCIÓN DE ROTACIÓN ---
+        const rotFrom = p.rot_inicial || '0 0 0';
+        const rotTo   = p.rot_final   || '0 360 0';
+        const rotDur  = p.velocidad   || 15000;
+
+        // Limpiamos cualquier animación previa antes de asignar la nueva
+        contenComida.removeAttribute('animation__rotar');
+        
+        contenComida.setAttribute('animation__rotar', {
+            property: 'rotation', 
+            from: rotFrom,
+            to: rotTo,
+            dur: rotDur,
+            loop: true,
+            easing: 'linear'
+        });
+
+    }, { once: true });
+
+    visorComida.setAttribute('gltf-model', urlComida);
+    
+    } else {
+        info.textContent = 'En preparacion...';
+        info.classList.add('en-preparacion');
+    }
+
+    info.style.display = 'block';
+    uiAr.style.display = 'flex';
 }
+
+    /* ══════════════════════════════════════════
+       VOLVER DESDE AR — limpia todo
+    ══════════════════════════════════════════ */
+    function salirAR() {
+        arScene.systems['mindar-image-system'].stop();
+        uiAr.style.display  = 'none';
+        info.style.display  = 'none';
+
+        /* Limpiar modelos para proxima vez */
+        visorBase.removeAttribute('gltf-model');
+        visorComida.removeAttribute('gltf-model');
+        visorBase.removeAttribute('animation__rotar');
+        visorComida.removeAttribute('animation__rotar');
+        visorComida.removeAttribute('animation__escala');
+        contenBase.removeAttribute('animation__escala');
+        contenBase.setAttribute('scale',  '0.01 0.01 0.01');
+        contenComida.setAttribute('scale','0.01 0.01 0.01');
+    }
 
     /* ══════════════════════════════════════════
        INIT
     ══════════════════════════════════════════ */
-/* ══════════════════════════════════════════
-INIT — CORREGIDO (Restaura flujo de carga)
-══════════════════════════════════════════ */
-async function init() {
-  try {
-    const res  = await fetch('./menu.json');
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
+    async function init() {
+        try {
+            const res  = await fetch('./menu.json');
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
 
-    // 🔹 SANEADOR: Limpia espacios en claves del JSON automáticamente
-    // (Evita fallos si tu JSON tiene "platos " en vez de "platos")
-    const sanear = obj => {
-      if (!obj || typeof obj !== 'object') return obj;
-      if (Array.isArray(obj)) return obj.map(sanear);
-      const limpio = {};
-      for (let k in obj) limpio[k.trim()] = sanear(obj[k]);
-      return limpio;
-    };
-    const jsonLimpio = sanear(data);
+            catalogo   = data.platos;
+            categorias = data.categorias;
 
-    catalogo   = jsonLimpio.platos || [];
-    categorias = jsonLimpio.categorias || [];
-    
-    const nombreRest = jsonLimpio.restaurante?.nombre || '';
-    if (nombreRest) document.getElementById('nombre-restaurante').textContent = nombreRest;
-    window.MONEDA = jsonLimpio.restaurante?.moneda || 'USD';
+            const nombreRest = data.restaurante?.nombre || '';
+            if (nombreRest) document.getElementById('nombre-restaurante').textContent = nombreRest;
+            window.MONEDA = data.restaurante?.moneda || 'USD';
 
-    generarGridCategorias();
-    precargarModelos();
+            generarGridCategorias();
+            precargarModelos();
 
-    // Botones carrusel
-    btnPrev.addEventListener('click', () => irA(indiceReal - 1));
-    btnNext.addEventListener('click', () => irA(indiceReal + 1));
-    initSwipe();
+            btnPrev.addEventListener('click', () => irA(indiceReal - 1));
+            btnNext.addEventListener('click', () => irA(indiceReal + 1));
+            initSwipe();
 
-    // 🔹 BOTONES DE REGRESO AR (Corregidos para que funcionen)
-    document.getElementById('ar-back-list').addEventListener('click', () => {
-      salirAR();
-      setTimeout(() => abrirCategoria(catActual), 150);
-    });
-    
-    document.getElementById('ar-back-menu').addEventListener('click', () => {
-      salirAR();
-      setTimeout(() => {
-        document.getElementById('pantalla-categorias').classList.add('activa');
-        document.getElementById('pantalla-platos').classList.remove('activa');
-        document.getElementById('btn-volver').style.display = 'none';
-      }, 150);
-    });
+            document.getElementById('ar-back-list').addEventListener('click', () => {
+                salirAR();
+                abrirCategoria(catActual);
+            });
+            document.getElementById('ar-back-menu').addEventListener('click', () => {
+                salirAR();
+                document.getElementById('pantalla-categorias').classList.add('activa');
+            });
 
-    // 🔹 TIMER FINAL: Oculta loading y muestra menú
-    setTimeout(() => {
-      document.getElementById('loading-screen').style.opacity = '0';
-      setTimeout(() => {
-        document.getElementById('loading-screen').style.display = 'none';
-        document.getElementById('pantalla-categorias').classList.add('activa');
-      }, 1200);
-    }, 1000);
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loading-screen').style.display = 'none';
+                    document.getElementById('pantalla-categorias').classList.add('activa');
+                }, 1200);
+            }, 1000);
 
-  } catch (e) {
-    console.error('Error cargando menu.json:', e);
-    document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('error-screen').style.display = 'flex';
-  }
-}
-
-
-
-/* ══════════════════════════════════════════
-   LÓGICA PARA LOS BOTONES DE LA CÁMARA (AR)
-   ══════════════════════════════════════════ */
-
-
-// Al tocar "VER LISTA", ejecutamos la limpieza que definimos arriba
-document.getElementById('ar-back-list').addEventListener('click', () => {
-    cerrarAR(); 
-});
-
-// Al tocar "CATEGORIAS", limpiamos la cámara y saltamos directo a las categorías
-document.getElementById('ar-back-menu').addEventListener('click', () => {
-    cerrarAR(); 
-    // Además, ocultamos platos y mostramos categorías
-    document.getElementById('pantalla-platos').classList.remove('activa');
-    document.getElementById('pantalla-categorias').classList.add('activa');
-    document.getElementById('btn-volver').style.display = 'none';
-});
-
-function cerrarAR() {
-    const arScene = document.getElementById("ar-scene");
-    const uiAr = document.getElementById("ui-ar");
-
-    if (arScene) {
-        // Detenemos el motor de la cámara
-        if (arScene.systems && arScene.systems["mindar-image-system"]) {
-            arScene.systems["mindar-image-system"].stop();
+        } catch (e) {
+            console.error('Error cargando menu.json:', e);
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('error-screen').style.display   = 'flex';
         }
-        arScene.pause(); 
-        // Esta es la clave: ocultamos la capa para que no bloquee el menú
-        arScene.style.display = "none";
     }
 
-    if (uiAr) uiAr.style.display = "none";
-
-    // Regresamos al menú
-    document.getElementById('pantalla-platos').classList.add('activa');
-    document.getElementById('btn-volver').style.display = 'flex';
-}
-
     window.onload = init;
-        
     </script>
 </body>
 </html>
