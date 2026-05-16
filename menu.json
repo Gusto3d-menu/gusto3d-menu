@@ -83,7 +83,7 @@
       "base_rot_final": "90 0 0",
       "base_velocidad": 13000,
       
-      "plato_comida_pos": "0 0.1 0.1",
+      "plato_comida_pos": "0 -0.2 0.1",
       "pos": "3 1.2 0.1",
       "escala": "1.1 1.1 1.1",
       "rot_inicial": "90 0 0",
