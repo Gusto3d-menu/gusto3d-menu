@@ -79,12 +79,12 @@
       "plato_base_pos": "0 0 -0.15",
       "plato_base_escala": "1.5 1.5 1.5",
 
-      "base_rot_inicial": "90 0 10",
-      "base_rot_final": "90 0 10",
+      "base_rot_inicial": "90 0 5",
+      "base_rot_final": "90 0 5",
       "base_velocidad": 2000,
       
       "plato_comida_pos": "0 0.1 0.1",
-      "pos": "3 1.2 0.1",
+      "pos": "3.5 1.2 0.1",
       "escala": "1.1 1.1 1.1",
       "rot_inicial": "90 0 0",
       "rot_final": "90 360 0",
