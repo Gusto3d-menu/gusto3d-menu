@@ -174,14 +174,14 @@
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato07.glb",
   
       "plato_base": "plate-b",
-      "plato_base_pos": "0 0 -1",
+      "plato_base_pos": "0 0 -0.1",
       "plato_base_escala": "1.5 1.5 1.5",
 
       "base_rot_inicial": "90 0 0",
       "base_rot_final": "90 0 0",
       "base_velocidad": 2000,
       
-      "plato_comida_pos": "0 0 -0.5",
+      "plato_comida_pos": "0 0 -1.5",
       "pos": "0 0 0",
       "escala": "3 3 3",
       "rot_inicial": "90 0 0",
