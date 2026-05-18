@@ -175,13 +175,13 @@
   
       "plato_base": "plate-b",
       "plato_base_pos": "0 0 -0.01",
-      "plato_base_escala": "1.5 1.5 1.5",
+      "plato_base_escala": "3 3 3",
 
       "base_rot_inicial": "90 0 0",
       "base_rot_final": "90 0 0",
       "base_velocidad": 2000,
       
-      "plato_comida_pos": "0 0 0.36",
+      "plato_comida_pos": "0 0 -0.5",
       "pos": "0 0 0",
       "escala": "1.1 1.1 1.1",
       "rot_inicial": "90 0 0",
