@@ -172,15 +172,15 @@
       "alergenos": [],
       "descripcion": "Delicado bocado italiano en forma de caracola, caracterizado por su masa de hojaldre laminada y dorada al horno. Relleno con una generosa capa de crema de vainilla artesanal y terminado con una fina lluvia de azucar glas.",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato07.glb",
-      "plato_base": "plate-mad",
+      "plato_base": "plate-b",
       "plato_base_pos": "0 -0.1 0.1",
-      "plato_base_escala": "2.1 2.1 2.1",
+      "plato_base_escala": "1.5 1.5 1.5",
       "plato_comida_pos": "0 0.1 0.1",
       "pos": "0 0 0.1",
       "escala": "2 2 2",
       "rot_inicial": "90 0 0",
       "rot_final": "90 360 0",
-      "velocidad": 12500,
+      "velocidad": 20000,
       "anim_dur": 1150
     },
     {
