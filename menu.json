@@ -140,7 +140,7 @@
     {
       "id": "p006",
       "nombre": "Desayuno Americano",
-      "categoria": 2,
+      "categoria": 1,
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato06.jpg",
       "precio": "14.99",
       "precio_anterior": "18.00",
