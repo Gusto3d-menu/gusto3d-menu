@@ -106,12 +106,12 @@
       "plato_base": "",
       "plato_base_pos": "0 0 0",
       "plato_base_escala": "0 0 0",
-      "plato_comida_pos": "0.1 3.5 -1",
+      "plato_comida_pos": "0.1 2 -1",
       "pos": "-0 0 0",
       "escala": "1 1 1",
       "rot_inicial": "90 0 0",
       "rot_final": "90 360 0",
-      "velocidad": 15000,
+      "velocidad": 20000,
       "anim_dur": 1400
     },
     {
