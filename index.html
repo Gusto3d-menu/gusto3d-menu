@@ -395,18 +395,9 @@
 
     <button id="btn-volver">&#8592;</button>
     <div id="plato-info-ar"></div>
-
-    <div id="ui-ar" style="display:none;">
-    <button class="btn-ar" id="ar-back-list">VER LISTA</button>
-    
-    <button class="btn-ar" id="btn-audio-mp3" style="width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.6); border: 2px solid #fff; padding: 0;">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-        </svg>
-    </button>
-
-    <button class="btn-ar" id="ar-back-menu">CATEGORIAS</button>
+    <div id="ui-ar">
+        <button class="btn-ar" id="ar-back-list">VER LISTA</button>
+        <button class="btn-ar" id="ar-back-menu">CATEGORIAS</button>
     </div>
 
     <!-- ═══════════════════════════════════════════
@@ -1019,38 +1010,242 @@ if (comidaOk) {
     }
 
     window.onload = init;
-
-
-        // --- LÓGICA DE AUDIO  ---
-let miAudio = null; // Aquí guardamos el audio que esté sonando
-
-const botonMusica = document.getElementById("btn-audio-mp3");
-
-botonMusica.addEventListener("click", () => {
-    // 1. Buscamos qué plato tienes en pantalla en este momento
-    const platoActual = platosActuales[indiceReal]; 
-    
-    // 2. Creamos la dirección de internet de tu audio
-    // Nota: El audio debe llamarse igual que el ID, por ejemplo: p001.mp3
-    const direccionAudio = `https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/${platoActual.id}.mp3`;
-
-    // 3. Si ya había un audio sonando, lo apagamos antes de empezar el nuevo
-    if (miAudio) {
-        miAudio.pause();
-        miAudio = null;
-    }
-
-    // 4. Intentamos reproducir el sonido
-    miAudio = new Audio(direccionAudio);
-    miAudio.play().catch(error => {
-        console.log("No encontré el audio o el navegador lo bloqueó");
-    });
-});
-
-// 5. Si el usuario toca "Regresar" o "Categorías", apagamos el audio
-document.getElementById("ar-back-menu").addEventListener("click", () => { if(miAudio) miAudio.pause(); });
-document.getElementById("ar-back-list").addEventListener("click", () => { if(miAudio) miAudio.pause(); });
-        
     </script>
 </body>
 </html>
+
+
+json: 
+{
+  "restaurante": {
+    "nombre": "Tu Restaurante",
+    "logo": "logo-gusto3d.jpg",
+    "color_primario": "#25D366",
+    "moneda": "USD"
+  },
+  "categorias": [
+    { "id": 0, "nombre": "Entradas",      "icono": "entradas" },
+    { "id": 1, "nombre": "Plato Fuerte",  "icono": "fuerte"   },
+    { "id": 2, "nombre": "Postres",       "icono": "postres"  },
+    { "id": 3, "nombre": "Bebidas",       "icono": "bebidas"  }
+  ],
+  "platos": [
+    {
+      "id": "p001",
+      "nombre": "Ramen",
+      "categoria": 0,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.jpg",
+      "precio": "18.99",
+      "precio_anterior": null,
+      "disponible": true,
+      "destacado": true,
+      "alergenos": ["gluten", "mariscos"],
+      "descripcion": "Fideos japoneses en caldo de pollo con huevo, cebollin, nori y lonchas de cerdo marinado. Autentico sabor del Japon.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.glb",
+      
+      "plato_base": "",
+      "plato_base_pos": "0 -0.15 0.1",
+      "plato_base_escala": "0 0 0",
+      "plato_comida_pos": "0 0.05 0.1",
+      "base_rot_inicial": "90 0 0",
+      "base_rot_final": "180 0 450",
+      "base_velocidad": 20000,
+      
+      "pos": "0 0 0",
+      "escala": "0.5 0.5 0.5",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 20000,
+      "anim_dur": 1100
+    },
+    {
+      "id": "p002",
+      "nombre": "Food Can 415g",
+      "categoria": 0,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato02.jpg",
+      "precio": "12.50",
+      "precio_anterior": "15.00",
+      "disponible": true,
+      "destacado": false,
+      "alergenos": ["pescado"],
+      "descripcion": "Conserva premium de atun en aceite de oliva virgen extra. Perfecto para ensaladas, pastas o directo del envase.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato02.glb",
+      "plato_base": "",
+      "plato_base_pos": "0 -0.5 0.1",
+      "plato_base_escala": "0 0 0",
+      "plato_comida_pos": "0 0.2 0.1",
+      "pos": "0 0 0.1",
+      "escala": "4 4 4",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 14000,
+      "anim_dur": 1200
+    },
+    {
+      "id": "p003",
+      "nombre": "Hamburguesa Angus",
+      "categoria": 1,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato03.jpg",
+      "precio": "22.90",
+      "precio_anterior": null,
+      "disponible": true,
+      "destacado": true,
+      "alergenos": ["gluten", "lacteos"],
+      "descripcion": "Carne 100% Angus jugosa con cheddar derretido, bacon crujiente, lechuga, tomate y nuestra salsa secreta.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato03.glb",
+      "plato_base": "plate-b",
+      "plato_base_pos": "0 0 0",
+      "plato_base_escala": "1.3 1.3 1.3",
+
+      "base_rot_inicial": "0 0 0",
+      "base_rot_final": "0 0 0",
+      "base_velocidad": 13000,
+      
+      "plato_comida_pos": "0 0.1 0.1",
+      "pos": "3 1.2 0.1",
+      "escala": "1.1 1.1 1.1",
+      "rot_inicial": "0 0 0",
+      "rot_final": "0 360 0",
+      "velocidad": 13000,
+      "anim_dur": 1300
+    },
+    {
+      "id": "p004",
+      "nombre": "Pollo Broster",
+      "categoria": 1,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato04.jpg",
+      "precio": "16.75",
+      "precio_anterior": null,
+      "disponible": false,
+      "destacado": false,
+      "alergenos": ["gluten", "huevo"],
+      "descripcion": "Pechuga de pollo empanizada con nuestra receta secreta coreana. Crujiente por fuera, jugosa por dentro.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato04.glb",
+      "plato_base": "plate-n",
+      "plato_base_pos": "-0.3 3.8 -4",
+      "plato_base_escala": "2.1 2.1 2.1",
+      "plato_comida_pos": "-0.3 4.2 -4",
+      "pos": "-0.3 4 -4",
+      "escala": "2 2 2",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 15000,
+      "anim_dur": 1400
+    },
+    {
+      "id": "p005",
+      "nombre": "Chocolate Marshmallow Cupcake",
+      "categoria": 2,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato05.jpg",
+      "precio": "8.50",
+      "precio_anterior": null,
+      "disponible": true,
+      "destacado": true,
+      "alergenos": ["gluten", "lacteos", "huevo"],
+      "descripcion": "Cupcake de chocolate intenso con corazon de marshmallow y cobertura de ganache. Pecado delicioso.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato05.glb",
+      "plato_base": "plate-b",
+      "plato_base_pos": "0 3.8 -4",
+      "plato_base_escala": "0.55 0.55 0.55",
+      "plato_comida_pos": "0 4.1 -4",
+      "pos": "0 4 -4",
+      "escala": "0.5 0.5 0.5",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 11000,
+      "anim_dur": 1000
+    },
+    {
+      "id": "p006",
+      "nombre": "Desayuno Americano",
+      "categoria": 2,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato06.jpg",
+      "precio": "14.99",
+      "precio_anterior": "18.00",
+      "disponible": true,
+      "destacado": false,
+      "alergenos": ["gluten", "huevo", "lacteos"],
+      "descripcion": "Huevos revueltos, bacon, salchichas, hash browns y pan tostado. El desayuno clasico americano.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato06.glb",
+      "plato_base": "plate-b",
+      "plato_base_pos": "0 1.7 -2",
+      "plato_base_escala": "5.8 5.8 5.8",
+      "plato_comida_pos": "0 2.2 -2",
+      "pos": "0 2 -2",
+      "escala": "5.5 5.5 5.5",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 16000,
+      "anim_dur": 1500
+    },
+    {
+      "id": "p007",
+      "nombre": "Cola de Langosta",
+      "categoria": 2,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato07.jpg",
+      "precio": "25.00",
+      "precio_anterior": null,
+      "disponible": true,
+      "destacado": true,
+      "alergenos": [],
+      "descripcion": "Delicado bocado italiano en forma de caracola, caracterizado por su masa de hojaldre laminada y dorada al horno. Relleno con una generosa capa de crema de vainilla artesanal y terminado con una fina lluvia de azucar glas.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato07.glb",
+      "plato_base": "plate-mad",
+      "plato_base_pos": "0 -0.1 0.1",
+      "plato_base_escala": "2.1 2.1 2.1",
+      "plato_comida_pos": "0 0.1 0.1",
+      "pos": "0 0 0.1",
+      "escala": "2 2 2",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 12500,
+      "anim_dur": 1150
+    },
+    {
+      "id": "p008",
+      "nombre": "Milhojas de Crema",
+      "categoria": 2,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato08.jpg",
+      "precio": "19.99",
+      "precio_anterior": null,
+      "disponible": true,
+      "destacado": false,
+      "alergenos": [],
+      "descripcion": "Capas infinitas de hojaldre crocante y crema pastelera casera. Terminada con una lluvia de azucar pulverizada.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato08.glb",
+      "plato_base": "plate-n",
+      "plato_base_pos": "0 -0.1 0.1",
+      "plato_base_escala": "3.1 3.1 3.1",
+      "plato_comida_pos": "0 0.1 0.1",
+      "pos": "0 0 0.1",
+      "escala": "3 3 3",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 17000,
+      "anim_dur": 1600
+    },
+    {
+      "id": "p009",
+      "nombre": "Profiterol",
+      "categoria": 2,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato09.jpg",
+      "precio": "19.99",
+      "precio_anterior": null,
+      "disponible": true,
+      "destacado": false,
+      "alergenos": [],
+      "descripcion": "Delicadas esferas de masa choux, rellenos de crema de vainilla artesanal, terminados con una lluvia de chocolate fundido y azucar glass.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato09.glb",
+      "plato_base": "plate-b",
+      "plato_base_pos": "0 -0.1 0.1",
+      "plato_base_escala": "3.1 3.1 3.1",
+      "plato_comida_pos": "0 0.1 0.1",
+      "pos": "0 0 0.1",
+      "escala": "3 3 3",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 17000,
+      "anim_dur": 1600
+    }
+  ]
+}
