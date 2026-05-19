@@ -1019,6 +1019,38 @@ if (comidaOk) {
     }
 
     window.onload = init;
+
+
+        // --- LÓGICA DE AUDIO  ---
+let miAudio = null; // Aquí guardamos el audio que esté sonando
+
+const botonMusica = document.getElementById("btn-audio-mp3");
+
+botonMusica.addEventListener("click", () => {
+    // 1. Buscamos qué plato tienes en pantalla en este momento
+    const platoActual = platosActuales[indiceReal]; 
+    
+    // 2. Creamos la dirección de internet de tu audio
+    // Nota: El audio debe llamarse igual que el ID, por ejemplo: p001.mp3
+    const direccionAudio = `https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/${platoActual.id}.mp3`;
+
+    // 3. Si ya había un audio sonando, lo apagamos antes de empezar el nuevo
+    if (miAudio) {
+        miAudio.pause();
+        miAudio = null;
+    }
+
+    // 4. Intentamos reproducir el sonido
+    miAudio = new Audio(direccionAudio);
+    miAudio.play().catch(error => {
+        console.log("No encontré el audio o el navegador lo bloqueó");
+    });
+});
+
+// 5. Si el usuario toca "Regresar" o "Categorías", apagamos el audio
+document.getElementById("ar-back-menu").addEventListener("click", () => { if(miAudio) miAudio.pause(); });
+document.getElementById("ar-back-list").addEventListener("click", () => { if(miAudio) miAudio.pause(); });
+        
     </script>
 </body>
 </html>
