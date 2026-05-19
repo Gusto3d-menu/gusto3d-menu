@@ -24,6 +24,7 @@
       "alergenos": ["gluten", "mariscos"],
       "descripcion": "Fideos japoneses en caldo de pollo con huevo, cebollin, nori y lonchas de cerdo marinado. Autentico sabor del Japon.",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.glb",
+      "audio_activo": false,
       
       "plato_base": "",
       "plato_base_pos": "0 -0.15 0.1",
@@ -52,6 +53,8 @@
       "alergenos": ["pescado"],
       "descripcion": "Conserva premium de atun en aceite de oliva virgen extra. Perfecto para ensaladas, pastas o directo del envase.",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato02.glb",
+      "audio_activo": false,
+      
       "plato_base": "",
       "plato_base_pos": "0 0 0",
       "plato_base_escala": "0 0 0",
@@ -75,6 +78,8 @@
       "alergenos": ["gluten", "lacteos"],
       "descripcion": "Carne 100% Angus jugosa con cheddar derretido, bacon crujiente, lechuga, tomate y nuestra salsa secreta.",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato03.glb",
+      "audio_activo": true,
+      
       "plato_base": "plate-b",
       "plato_base_pos": "0 0 -0.01",
       "plato_base_escala": "1.5 1.5 1.5",
@@ -103,6 +108,8 @@
       "alergenos": ["gluten", "huevo"],
       "descripcion": "Pechuga de pollo empanizada con nuestra receta secreta coreana. Crujiente por fuera, jugosa por dentro.",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato04.glb",
+      "audio_activo": false,
+      
       "plato_base": "",
       "plato_base_pos": "0 0 0",
       "plato_base_escala": "0 0 0",
