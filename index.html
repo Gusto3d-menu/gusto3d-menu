@@ -1066,8 +1066,17 @@ updateModel = function(index) {
 };
 
 // 3. Apagar al salir
-document.getElementById("ar-back-menu").addEventListener("click", () => { if(miAudio) miAudio.pause(); });
-document.getElementById("ar-back-list").addEventListener("click", () => { if(miAudio) miAudio.pause(); });
+function detenerMusicaGusto3D() {
+        if (miAudio) {
+            miAudio.pause();
+            miAudio.currentTime = 0;
+            miAudio = null;
+        }
+    }
+    document.getElementById("ar-back-list").addEventListener("click", detenerMusicaGusto3D);
+    document.getElementById("ar-back-menu").addEventListener("click", detenerMusicaGusto3D);
+
+        
         
     </script>
 </body>
