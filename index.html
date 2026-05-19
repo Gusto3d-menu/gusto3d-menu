@@ -1021,11 +1021,11 @@ if (comidaOk) {
     window.onload = init;
 
 
-// --- LÓGICA DE AUDIO MEJORADA (CON CONTROL DE VISIBILIDAD) ---
+// --- LÓGICA DE AUDIO CON CIERRE DE SEGURIDAD ---
 let miAudio = null; 
 const botonMusica = document.getElementById("btn-audio-mp3");
 
-// 1. Función para reproducir el MP3
+// 1. Función para reproducir
 botonMusica.addEventListener("click", () => {
     const platoActual = platosActuales[indiceReal]; 
     const direccionAudio = `https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/${platoActual.id}.mp3`;
@@ -1037,19 +1037,27 @@ botonMusica.addEventListener("click", () => {
 
     miAudio = new Audio(direccionAudio);
     miAudio.play().catch(error => {
-        console.log("Audio no disponible o bloqueado por el navegador");
+        console.log("Audio no listo");
     });
 });
 
-// 2. PASO 2: Control automático de visibilidad
-// Este código revisa si el plato tiene "audio_activo: true" cada vez que cambias de modelo
+// 2. Control de visibilidad MEJORADO
 const originalUpdateModel = updateModel;
 updateModel = function(index) {
-    originalUpdateModel(index); // Ejecuta el cambio de modelo 3D normal
+    // Primero ejecutamos la función original para que cambie el plato 3D
+    originalUpdateModel(index); 
     
     const platoInfo = platosActuales[index];
-    
-    // Si en el JSON pusiste audio_activo: true, se muestra. Si no, se oculta.
+
+    // Forzamos el apagado de cualquier audio que esté sonando al cambiar de plato
+    if (miAudio) {
+        miAudio.pause();
+        miAudio = null;
+    }
+
+    // REVISIÓN DE SEGURIDAD:
+    // Si audio_activo es exactamente true, lo mostramos. 
+    // En cualquier otro caso (si es false, si no existe, o si es otra cosa), lo ocultamos.
     if (platoInfo && platoInfo.audio_activo === true) {
         botonMusica.style.display = "flex";
     } else {
@@ -1057,7 +1065,7 @@ updateModel = function(index) {
     }
 };
 
-// 3. Apagar audio al salir de la cámara
+// 3. Apagar al salir
 document.getElementById("ar-back-menu").addEventListener("click", () => { if(miAudio) miAudio.pause(); });
 document.getElementById("ar-back-list").addEventListener("click", () => { if(miAudio) miAudio.pause(); });
         
