@@ -362,11 +362,12 @@
       if (datos && datos.length > 0) {
         const restaurante = datos[0];
         
-        // Si el cliente no ha pagado o está inactivo, bloquear el menú
-        if (!restaurante.activo) {
-          document.body.innerHTML = "<h1 style='text-align:center; margin-top:20%; font-family:sans-serif;'>Menú temporalmente fuera de servicio.</h1>";
+        // Si el cliente no ha pagado o está inactivo, bloquear el menú por completo
+        if (restaurante.activo === false || restaurante.activo === "FALSE") {
+          window.stop(); // Detiene la carga de A-Frame y cualquier script viejo
+          document.documentElement.innerHTML = "<body style='background:#111; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif;'><h1>Menú temporalmente fuera de servicio.</h1></body>";
           return;
-        }
+            }
 
             console.log("Restaurante cargado con éxito:", restaurante.nombre);
             // Aquí tu código ya sabe qué restaurante es y qué 'plantilla_id' usar
