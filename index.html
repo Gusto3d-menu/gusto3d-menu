@@ -336,6 +336,56 @@
             animation: slideEntrada 0.38s ease forwards;
         }
     </style>
+
+  
+    
+    <script>
+      const SUPABASE_URL = "https://mzmspmyydmexiuygftvs.supabase.co/rest/v1/";
+      const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16bXNwbXl5ZG1leGl1eWdmdHZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0Njg2MzgsImV4cCI6MjA5NTA0NDYzOH0.ME8ZrivSoJVBI2SVP39qRhWSrGsOupwL-2kSKCOT3Lc";
+
+      // 1. Leer qué restaurante están visitando en la dirección web
+      const urlParams = new URLSearchParams(window.location.search);
+      const restauranteId = urlParams.get('restaurante') || 'cliente-prueba';
+
+      // 2. Ir a buscar los datos a Supabase de forma automática
+      async function cargarDatosRestaurante() {
+            try {
+      const respuesta = await fetch(`${SUPABASE_URL}/restor/v1/restaurantes?id=eq.${restauranteId}`, {
+        headers: {
+          "apikey": SUPABASE_KEY,
+          "Authorization": `Bearer ${SUPABASE_KEY}`
+        }
+      });
+      
+      const datos = await respuesta.json();
+      
+      if (datos && datos.length > 0) {
+        const restaurante = datos[0];
+        
+        // Si el cliente no ha pagado o está inactivo, bloquear el menú
+        if (!restaurante.activo) {
+          document.body.innerHTML = "<h1 style='text-align:center; margin-top:20%; font-family:sans-serif;'>Menú temporalmente fuera de servicio.</h1>";
+          return;
+        }
+
+            console.log("Restaurante cargado con éxito:", restaurante.nombre);
+            // Aquí tu código ya sabe qué restaurante es y qué 'plantilla_id' usar
+        
+          } else {
+        console.log("El restaurante no existe en la base de datos.");
+          }
+        } catch (error) {
+          console.error("Error conectando a Supabase:", error);
+        }
+      }
+
+      // Ejecutar la búsqueda al cargar la página
+      window.addEventListener('DOMContentLoaded', cargarDatosRestaurante);
+    </script>
+
+
+
+    
 </head>
 <body>
 
