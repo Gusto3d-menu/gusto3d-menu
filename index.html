@@ -345,7 +345,7 @@
 
   let menuData = null;
   const urlParams = new URLSearchParams(window.location.search);
-  const restauranteId = urlParams.get('restaurante') || 'cliente-prueba';
+  const restaurante_id = urlParams.get('restaurante') || 'cliente-prueba';
 
   const categoriaMap = {
     "Entradas": 0,
@@ -357,7 +357,7 @@
   async function cargarDatosRestaurante() {
     try {
       // 1. Verificar restaurante activo
-      const resRestaurante = await fetch(`${SUPABASE_URL}/rest/v1/restaurantes?id=eq.${restauranteId}`, {
+      const resRestaurante = await fetch(`${SUPABASE_URL}/rest/v1/restaurantes?id=eq.${restaurante_id}`, {
         headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
       });
       const datosRestaurante = await resRestaurante.json();
@@ -370,7 +370,7 @@
       }
 
       // 2. Traer platos reales
-      const resPlatos = await fetch(`${SUPABASE_URL}/rest/v1/platos?restaurante_id=eq.${restauranteId}`, {
+      const resPlatos = await fetch(`${SUPABASE_URL}/rest/v1/platos?restaurante_id=eq.${restaurante_id}`, {
         headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
       });
       const listaPlatos = await resPlatos.json();
