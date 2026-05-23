@@ -347,44 +347,61 @@
       const urlParams = new URLSearchParams(window.location.search);
       const restauranteId = urlParams.get('restaurante') || 'cliente-prueba';
 
-      // 2. Ir a buscar los datos a Supabase de forma automática
+      // Nueva función para traer el restaurante Y sus platos en una sola carga
       async function cargarDatosRestaurante() {
-            try {
-      const respuesta = await fetch(`${SUPABASE_URL}/rest/v1/restaurantes?id=eq.${restauranteId}`, {
-        headers: {
-          "apikey": SUPABASE_KEY,
-          "Authorization": `Bearer ${SUPABASE_KEY}`
-        }
+        try {
+      // 1. Verificar el estado del restaurante
+      const resRestaurante = await fetch(`${SUPABASE_URL}/rest/v1/restaurantes?id=eq.${restauranteId}`, {
+        headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
       });
+      const datosRestaurante = await resRestaurante.json();
       
-      const datos = await respuesta.json();
-      
-      if (datos && datos.length > 0) {
-        const restaurante = datos[0];
-        
-        // Si el cliente no ha pagado o está inactivo, bloquear el menú por completo
-        if (restaurante.activo === false || restaurante.activo === "FALSE") {
-          window.stop(); // Detiene la carga de A-Frame y cualquier script viejo
-          document.documentElement.innerHTML = "<body style='background:#111; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif;'><h1>Menú temporalmente fuera de servicio.</h1></body>";
-          return;
-            }
-
-            console.log("Restaurante cargado con éxito:", restaurante.nombre);
-            // Aquí tu código ya sabe qué restaurante es y qué 'plantilla_id' usar
-        
-          } else {
-        console.log("El restaurante no existe en la base de datos.");
-          }
-        } catch (error) {
-          console.error("Error conectando a Supabase:", error);
-        }
+      if (!datosRestaurante || datosRestaurante.length === 0) {
+        console.log("El restaurante no existe.");
+        return;
       }
+
+      const restaurante = datosRestaurante[0];
+      
+      // Si está inactivo, bloqueamos la pantalla de inmediato
+      if (restaurante.activo === false || restaurante.activo === "FALSE") {
+        window.stop();
+        document.documentElement.innerHTML = "<body style='background:#111; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif;'><h1>Menú temporalmente fuera de servicio.</h1></body>";
+        return;
+      }
+
+      console.log("Conectado con:", restaurante.nombre);
+
+      // 2. Traer los platos asociados a este restaurante
+      const resPlatos = await fetch(`${SUPABASE_URL}/rest/v1/platos?restaurante_id=eq.${restauranteId}`, {
+        headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
+      });
+      const listaPlatos = await resPlatos.json();
+      
+      console.log("Platos cargados desde Supabase:", listaPlatos);
+      
+      // Enviamos los platos a la función que los pintará en la pantalla
+      renderizarMenuDinamico(listaPlatos);
+
+    } catch (error) {
+      console.error("Error cargando datos desde Supabase:", error);
+    }
+  }
 
       // Ejecutar la búsqueda al cargar la página
       window.addEventListener('DOMContentLoaded', cargarDatosRestaurante);
     </script>
 
-
+function renderizarMenuDinamico(platos) {
+    // Esta función se encarga de acoplar tus platos dinámicos con el diseño actual
+    // Por ahora, imprimirá los platos en la consola para asegurar que la estructura es perfecta
+    console.log("Organizando menú interactivo de Gustó3D...");
+    
+    platos.forEach(plato => {
+      console.log(`Plato asignado: ${plato.nombre} [${plato.categoria}] -> $${plato.precio}`);
+      // Aquí conectaremos directamente tus contenedores visuales de A-Frame / HTML
+    });
+  }
 
     
 </head>
