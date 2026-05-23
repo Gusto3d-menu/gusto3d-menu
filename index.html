@@ -2,6 +2,450 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gustó 3D | El Menú del Futuro</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --neon-green: #76b82d;
+            --cyber-blue: #00f2fe;
+            --dark-bg: #0b0f19;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            background-image:
+                radial-gradient(circle at 50% 30%, rgba(20, 30, 55, 0.7), #05070c),
+                url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            color: white;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Efecto de líneas de circuito  */
+        .cyber-grid {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(0, 242, 254, 0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0, 242, 254, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: var(--neon-green);
+            transform: translateY(-8px);
+            box-shadow: 0 0 30px rgba(118, 184, 45, 0.25);
+        }
+
+        /* Contenedor con efecto de brillo holográfico */
+        .viewer-container {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        model-viewer {
+            width: 100%;
+            height: 480px;
+            margin: 0 auto;
+            --poster-color: transparent;
+            /* Transición suave para opacidad, escala y filtros de imagen */
+            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.5s ease;
+            transform: scale(1);
+            filter: drop-shadow(0 0 0px rgba(118, 184, 45, 0));
+        }
+
+        /* Estado de Carga/Escaneo cuando cambia el plato */
+        model-viewer.cambiando {
+            opacity: 0;
+            transform: scale(0.85); /* Se encoge sutilmente */
+            filter: drop-shadow(0 0 20px var(--neon-green)) brightness(1.5); /* Destello neón */
+        }
+
+        .neon-glow {
+            text-shadow: 0 0 15px rgba(118, 184, 45, 0.6);
+        }
+
+        /* Animación suave para detalles */
+        .plan-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+        }
+
+        .selected .plan-details {
+            max-height: 600px;
+            opacity: 1;
+            margin-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+        }
+
+        .selected {
+            border-color: var(--neon-green) !important;
+            background: rgba(118, 184, 45, 0.04) !important;
+            box-shadow: 0 0 40px rgba(118, 184, 45, 0.15);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cyber-grid"></div>
+
+    <nav class="relative flex justify-between items-center py-6 px-8 max-w-7xl mx-auto border-b border-white/10 bg-black/40 backdrop-blur-md sticky top-0 z-50 rounded-b-2xl shadow-lg shadow-black/50 h-20">
+       
+        <div class="absolute left-8 top-3 z-10">
+            <div class="bg-[#0f172a] p-3 rounded-2xl border border-white/10 shadow-2xl shadow-black/80 transition-all duration-300 hover:border-[#76b82d]/50 hover:scale-105">
+                <img src="logo.jpg" alt="Logo Gustó 3D" class="h-32 w-auto object-contain">
+            </div>
+        </div>
+
+        <div class="w-32 md:w-48"></div>
+
+        <div class="flex items-center gap-8">
+            <a href="https://instagram.com/" target="_blank" class="text-xs font-bold tracking-widest uppercase text-gray-400 hover:text-[#76b82d] transition-colors duration-300">Instagram</a>
+            <a href="https://wa.me/tu-numero-aqui?text=Hola%20Luis,%20quiero%20agendar%20una%20demostración%20para%20mi%20hotel/restaurante"
+               class="bg-[#76b82d] text-black font-black px-7 py-3 rounded-xl hover:bg-white hover:scale-105 transition-all duration-300 shadow-lg shadow-green-900/40 text-xs tracking-widest uppercase">
+                AGENDAR DEMO
+            </a>
+        </div>
+    </nav>
+
+    <header class="max-w-7xl mx-auto px-6 pt-16 pb-28 text-center relative">
+        <div class="grid md:grid-cols-2 gap-12 items-center text-left">
+            <div>
+                <span class="text-xs font-bold tracking-widest text-[#76b82d] uppercase bg-green-500/10 px-3 py-1 rounded-full">Tecnología de Vanguardia</span>
+                <h1 class="text-5xl md:text-6xl font-black mt-4 mb-6 leading-tight uppercase italic">
+                    Menús que <br><span class="text-[#76b82d] neon-glow">cobran vida.</span>
+                </h1>
+                <p class="text-xl text-gray-400 font-medium mb-4">
+                    El menú del futuro para huéspedes y comensales exigentes.
+                </p>
+                <div class="p-4 bg-white/5 rounded-xl border border-white/10 max-w-lg flex items-center gap-5">
+                    <div class="bg-white p-4 rounded-xl shrink-0">
+                        <img src="qr-code.png" alt="QR Demo Realidad Aumentada" class="w-40 h-40 object-contain">
+                    </div>
+                    <p class="text-sm text-gray-300">
+                    <strong class="text-white block mb-1">¿Imposible? Pruébalo ahora, lo hicimos realidad:</strong>
+                        Escanea este código QR con tu celular y mira cómo se materializa nuestra propuesta interactiva sobre tu escritorio.
+                    </p>
+                </div>
+            </div>
+           
+            <div class="relative bg-gradient-to-b from-white/5 to-transparent p-6 rounded-3xl border border-white/5 viewer-container">
+                <div class="absolute top-4 left-6 text-xs text-gray-500 uppercase tracking-widest z-10">Muestra Interactiva en Tiempo Real</div>
+                <model-viewer
+                    id="menuVisor"
+                    src="centro.glb"
+                    auto-rotate
+                    camera-controls
+                    shadow-intensity="1.5"
+                    environment-image="neutral"
+                    exposure="1.3"
+                    disable-zoom>
+                </model-viewer>
+                <p class="text-center text-xs text-gray-400 mt-2 uppercase tracking-widest">Usa tu mouse o dedo para rotar el plato</p>
+            </div>
+        </div>
+    </header>
+
+ <section class="border-t border-white/5 bg-black/30 py-24">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16 flex flex-col items-center justify-center">
+                <h2 class="text-xs font-bold tracking-widest text-[#76b82d] uppercase mb-3">Métricas Reales</h2>
+               
+                <div class="flex flex-col md:flex-row items-center justify-center gap-6 max-w-3xl mx-auto">
+                    <p class="text-3xl md:text-4xl font-black uppercase text-white text-center md:text-left leading-tight">
+                        Realidad Inmersiva <br>
+                        <span class="text-gray-400 text-2xl md:text-3xl font-medium normal-case block mt-2">
+                            Porque la realidad es otra, ¡ahora es mejor!
+                        </span>
+                    </p>
+                   
+                    <div class="shrink-0 p-4 bg-white/5 rounded-2xl border border-white/10 shadow-lg shadow-black/30 animate-pulse" style="animation-duration: 3s;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-16 h-16 text-white">
+                            <path d="M4 10c0-2.2 1.8-4 4-4h6c2.2 0 4 1.8 4 4v3c0 2.2-1.8 4-4 4H8c-2.2 0-4-1.8-4-4v-3z" />
+                            <path d="M6 10c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2v2c0 1.1-.9 2-2 2H8c-1.1 0-2-.9-2-2v-2z" />
+                            <path d="M4 11H2m16 0h2" />
+                            <path d="M18 7v7c0 1.66-1.34 3-3 3h-1" /> <path d="M18 7h1.5a.5.5 0 0 1 .5.5V9a2 2 0 0 1-2 2h0" /> </svg>
+                    </div>
+                </div>
+            </div>
+           
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="p-8 bg-white/[0.01] border border-white/5 rounded-2xl">
+                    <div class="text-4xl font-black text-[#76b82d] mb-4">+20%</div>
+                    <h4 class="text-lg font-bold mb-2 text-white uppercase">Aumento en Ticket Promedio</h4>
+                    <p class="text-sm text-gray-400 leading-relaxed">La comida entra por los ojos. Visualizar postres emplatados de alta gama o cortes premium directamente en la mesa dispara el deseo de compra del comensal de forma instantánea.</p>
+                </div>
+                <div class="p-8 bg-white/[0.01] border border-white/5 rounded-2xl">
+                    <div class="text-4xl font-black text-cyan-400 mb-4">0%</div>
+                    <h4 class="text-lg font-bold mb-2 text-white uppercase">Barreras de Idioma</h4>
+                    <p class="text-sm text-gray-400 leading-relaxed">Ideal para el turismo de hotel. Los huéspedes internacionales ordenan con total seguridad al ver las dimensiones, texturas e ingredientes reales en RA, eliminando fallos en la orden.</p>
+                </div>
+                <div class="p-8 bg-white/[0.01] border border-white/5 rounded-2xl">
+                    <div class="text-4xl font-black text-purple-400 mb-4">Revolución</div>
+                    <h4 class="text-lg font-bold mb-2 text-white uppercase">Room Service Optimizado</h4>
+                    <p class="text-sm text-gray-400 leading-relaxed">Transforma la aburrida carta física de la habitación. Al escanear el QR desde la cama, el huésped vive una experiencia interactiva de lujo que multiplica los pedidos al cuarto.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="max-w-7xl mx-auto px-6 py-24">
+        <div class="text-center mb-16">
+            <h2 class="text-xs font-bold tracking-widest text-[#76b82d] uppercase mb-3">Inversión y Licenciamiento</h2>
+            <p class="text-3xl md:text-4xl font-black uppercase">Planes diseñados a tu escala</p>
+            <p class="text-gray-400 mt-2 text-sm">Haz clic sobre cualquier plan para desplegar los detalles y beneficios exclusivos.</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8 items-start">
+           
+            <div class="glass-card p-8 cursor-pointer group" onclick="selectPlan(this)">
+                <span class="text-xs font-bold tracking-widest text-gray-500 block mb-2 uppercase">Pequeños Negocios / Cafés</span>
+                <h3 class="text-2xl font-black tracking-tight mb-4">GASTRO EXPRESS</h3>
+                <p class="text-sm text-gray-400 mb-6">Digitalización esencial. Ideal para validar el impacto de la realidad aumentada en tus platos bandera o barras de autor.</p>
+               
+                <div class="space-y-1 mb-6">
+                    <div class="text-sm text-gray-400">Setup Inicial (Único pago): <strong class="text-white">$150</strong></div>
+                    <div class="text-4xl font-black text-[#76b82d]">$29 <span class="text-xs font-normal text-gray-500 uppercase">/ Mes</span></div>
+                    <div class="text-xs text-gray-500 italic">Opcional: $280 todo el año completo</div>
+                </div>
+
+                <div class="plan-details">
+                    <h5 class="text-[#76b82d] text-xs font-bold tracking-wider mb-2 uppercase">¿Por qué es para ti?</h5>
+                    <p class="text-xs text-gray-300 leading-relaxed mb-6">Perfecto para marcas emergentes que quieren diferenciarse drásticamente de la competencia local rápido, aplicando innovación visual en sus productos de mayor rotación.</p>
+                   
+                    <h5 class="text-white text-xs font-bold tracking-wider mb-3 uppercase">¿Qué incluye exactamente?</h5>
+                    <ul class="space-y-2 text-xs text-gray-400">
+                        <li>• Hasta 5 platos/bebidas modelados en RA</li>
+                        <li>• Códigos QR dinámicos para mesas o barras</li>
+                        <li>• Despliegue web ultra optimizado y ligero</li>
+                        <li>• Soporte técnico estándar</li>
+                    </ul>
+                    <a href="https://wa.me/tu-numero-aqui?text=Hola%20Luis,%20me%20interesa%20el%20Plan%20Gastro%20Express" class="mt-6 block text-center w-full py-3 bg-white text-black font-black text-xs uppercase tracking-widest hover:bg-[#76b82d] transition-colors rounded">Solicitar Plan</a>
+                </div>
+            </div>
+
+            <div class="glass-card p-8 cursor-pointer group border-[#76b82d]/20" onclick="selectPlan(this)">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs font-bold tracking-widest text-[#76b82d] uppercase">Alta Cocina / Gourmet</span>
+                    <span class="bg-[#76b82d]/10 text-[#76b82d] text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Más Popular</span>
+                </div>
+                <h3 class="text-2xl font-black tracking-tight mb-4">GASTRO PREMIUM</h3>
+                <p class="text-sm text-gray-400 mb-6">El menú principal interactivo. Diseñado para restaurantes de alta etiqueta que transforman la gastronomía en un arte visual.</p>
+               
+                <div class="space-y-1 mb-6">
+                    <div class="text-sm text-gray-400">Setup Inicial (Único pago): <strong class="text-white">$350</strong></div>
+                    <div class="text-4xl font-black text-[#76b82d]">$59 <span class="text-xs font-normal text-gray-500 uppercase">/ Mes</span></div>
+                    <div class="text-xs text-gray-500 italic">Opcional: $580 todo el año completo</div>
+                </div>
+
+                <div class="plan-details">
+                    <h5 class="text-[#76b82d] text-xs font-bold tracking-wider mb-2 uppercase">¿Por qué es para ti?</h5>
+                    <p class="text-xs text-gray-300 leading-relaxed mb-6">Si tu menú es una propuesta conceptual donde el emplatado es sagrado, tus comensales merecen apreciarlo sin margen de duda. Aumenta la conversión en los platos de mayor costo de tu carta.</p>
+                   
+                    <h5 class="text-white text-xs font-bold tracking-wider mb-3 uppercase">¿Qué incluye exactamente?</h5>
+                    <ul class="space-y-2 text-xs text-gray-400">
+                        <li>• Hasta 15 platos modelados en Realidad Aumentada</li>
+                        <li>• <strong>Botón de Audio-Descripción integrado</strong> (Accesibilidad)</li>
+                        <li>• Soporte para traducción automática multi-idioma</li>
+                        <li>• 2 cambios/actualizaciones de platos gratis cada 6 meses</li>
+                    </ul>
+                    <a href="https://wa.me/tu-numero-aqui?text=Hola%20Luis,%20me%20interesa%20el%20Plan%20Gastro%20Premium" class="mt-6 block text-center w-full py-3 bg-[#76b82d] text-black font-black text-xs uppercase tracking-widest hover:bg-white transition-colors rounded">Solicitar Plan</a>
+                </div>
+            </div>
+
+            <div class="glass-card p-8 cursor-pointer group" onclick="selectPlan(this)">
+                <span class="text-xs font-bold tracking-widest text-cyan-400 block mb-2 uppercase">Cadenas & Hoteles Boutique</span>
+                <h3 class="text-2xl font-black tracking-tight mb-4">HOTEL EXECUTIVE</h3>
+                <p class="text-sm text-gray-400 mb-6">Infraestructura robusta de nivel corporativo para operaciones de hotelería complejas que combinan múltiples ambientes.</p>
+               
+                <div class="space-y-1 mb-6">
+                    <div class="text-sm text-gray-400">Setup Inicial (Único pago): <strong class="text-white">$750</strong></div>
+                    <div class="text-4xl font-black text-[#76b82d]">$129 <span class="text-xs font-normal text-gray-500 uppercase">/ Mes</span></div>
+                    <div class="text-xs text-gray-500 italic">Contrato mínimo requerido de un (1) año</div>
+                </div>
+
+                <div class="plan-details">
+                    <h5 class="text-[#76b82d] text-xs font-bold tracking-wider mb-2 uppercase">¿Por qué es para ti?</h5>
+                    <p class="text-xs text-gray-300 leading-relaxed mb-6">La solución definitiva para gerentes de alimentos y bebidas enfocados en la excelencia operativa. Ideal para unificar la oferta del restaurante central, el bar de la piscina y el Room Service bajo una sola suite interactiva de lujo.</p>
+                   
+                    <h5 class="text-white text-xs font-bold tracking-wider mb-3 uppercase">¿Qué incluye exactamente?</h5>
+                    <ul class="space-y-2 text-xs text-gray-400">
+                        <li>• Hasta 30 elementos en RA (Platos y alta coctelería)</li>
+                        <li>• Audio-Descripción bilingüe avanzada (Español/Inglés)</li>
+                        <li>• Interfaz 100% personalizada con el branding del hotel</li>
+                        <li>• Reportes trimestrales de analítica y métricas de escaneo</li>
+                        <li>• Soporte técnico prioritario 24/7 y servidor dedicado</li>
+                    </ul>
+                    <a href="https://wa.me/tu-numero-aqui?text=Hola%20Luis,%20quiero%20coordinar%20el%20Piloto%20Gratuito%20para%20mi%20Hotel" class="mt-6 block text-center w-full py-3 bg-cyan-500 text-black font-black text-xs uppercase tracking-widest hover:bg-white transition-colors rounded">Solicitar Piloto Hotel</a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="max-w-4xl mx-auto px-6 pb-28 text-center">
+        <div class="p-12 bg-gradient-to-r from-green-950/40 to-blue-950/40 rounded-3xl border border-white/5 relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-[#76b82d]/10 rounded-full blur-3xl"></div>
+            <h3 class="text-2xl md:text-3xl font-black uppercase mb-4">¿Listo para transformar la experiencia de tus huéspedes?</h3>
+            <p class="text-gray-400 max-w-xl mx-auto mb-8 text-sm">
+                No arriesgues presupuesto. Conversemos por 15 minutos en una videollamada para mostrarte cómo se integraría la identidad visual de tu hotel dentro de nuestra arquitectura de Realidad Aumentada.
+            </p>
+            <a href="https://wa.me/tu-numero-aqui?text=Hola%20Luis,%20quiero%20agendar%20la%20videollamada%20de%2015%20minutos%20para%20ver%20la%20demo%20en%20vivo."
+                class="inline-block bg-[#76b82d] text-black font-black px-8 py-4 rounded-xl hover:bg-white hover:scale-105 transition-all text-sm tracking-widest uppercase">
+                Agendar Demostración Gratuita
+            </a>
+        </div>
+    </section>
+
+    <footer class="p-8 text-center border-t border-white/5 bg-black/40 text-xs text-gray-500 tracking-widest uppercase">
+        © 2026 GUSTÓ 3D | CARACAS, VENEZUELA — TODOS LOS DERECHOS RESERVADOS.
+    </footer>
+
+    <script>
+        function selectPlan(el) {
+            const isSelected = el.classList.contains('selected');
+            document.querySelectorAll('.glass-card').forEach(p => p.classList.remove('selected'));
+           
+            if (!isSelected) {
+                el.classList.add('selected');
+            }
+        }
+
+        // --- CARRUSEL DE PLATOS 3D CON EFECTO HOLOGRÁFICO Y PRECARGA ---
+        const platos3D = [
+            "centro.glb",       // El plato inicial
+            "plato2.glb",       // Tu segundo escaneado
+            "plato3.glb"        // Tu tercer escaneado
+        ];
+
+        let indexActual = 0;
+        const visor = document.getElementById("menuVisor");
+
+        // Función para precargar los modelos en la caché del navegador
+        function precargarAssets() {
+            platos3D.forEach((url) => {
+                const link = document.createElement('link');
+                link.rel = 'preload';
+                link.href = url;
+                link.as = 'fetch';
+                link.crossOrigin = 'anonymous';
+                document.head.appendChild(link);
+            });
+        }
+
+        // Ejecutar la precarga apenas el sitio esté listo
+        precargarAssets();
+
+        // Función de rotación con transiciones cinematográficas
+        function rotarPlatos() {
+            indexActual = (indexActual + 1) % platos3D.length;
+           
+            // 1. Activamos el efecto visual de desvanecimiento y encogimiento neón
+            visor.classList.add("cambiando");
+           
+            // 2. Esperamos que termine la animación de salida (400ms) para cambiar el asset
+            setTimeout(() => {
+                visor.src = platos3D[indexActual];
+               
+                // 3. Una vez el nuevo modelo 3D esté procesado en escena, remueve la clase para expandirse suavemente
+                visor.addEventListener('load', () => {
+                    visor.classList.remove("cambiando");
+                }, { once: true });
+               
+            }, 400);
+        }
+
+        // Cambiar plato cada 7 segundos para dar tiempo de admirar el detalle
+        setInterval(rotarPlatos, 7000);
+    </script>
+</body>
+</html>
+
+camera:
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gustó 3D - Experiencia RA</title>
+    <!-- Mantenemos A-Frame 1.4.2 por su excelente estabilidad con MindAR -->
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+   
+    <style>
+        body { margin: 0; overflow: hidden; }
+        #ui-overlay {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; font-family: sans-serif; background: rgba(11, 15, 25, 0.85);
+            color: white; padding: 12px 24px; border-radius: 20px; pointer-events: none;
+            text-align: center; font-size: 14px; border: 1px solid #76b82d;
+            box-shadow: 0 0 15px rgba(118, 184, 45, 0.4);
+            letter-spacing: 1px; text-transform: uppercase; font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-overlay">Apunta tu cámara hacia el QR Gustó 3D</div>
+
+    <a-scene
+        mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 1;"
+        color-space="sRGB"
+        renderer="colorManagement: true;"
+        vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false">
+     
+        <a-assets>
+            <!-- Dejamos únicamente el único asset que vas a utilizar -->
+            <a-asset-item id="modeloCentro" src="centro.glb"></a-asset-item>
+        </a-assets>
+
+        <!-- Luces para asegurar que el modelo 3D esté bien iluminado -->
+        <a-entity light="type: ambient; intensity: 1.0;"></a-entity>
+        <a-entity light="type: directional; intensity: 0.5;" position="1 1 1"></a-entity>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <a-entity mindar-image-target="targetIndex: 0">
+            <!-- El modelo ahora está centrado (0 0 0) con una escala realista (0.5). -->
+            <!-- Si el modelo aparece "acostado", cambia la rotación inicial a "90 0 0" y el "to" de la animación a "90 360 0". -->
+            <a-gltf-model
+                src="#modeloCentro"
+                position="0 0 0"
+                rotation="0 0 0"
+                scale="5 5 5"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+            </a-gltf-model>
+        </a-entity>
+
+    </a-scene>
+
+</body>
+</html>
+
+
+
+index gastro:
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Gusto3D - Menu Interactivo</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
@@ -336,10 +780,6 @@
             animation: slideEntrada 0.38s ease forwards;
         }
     </style>
-
-     
-
-    
 </head>
 <body>
 
@@ -402,7 +842,7 @@
 
     <div id="ui-ar" style="display:none;">
     <button class="btn-ar" id="ar-back-list">VER LISTA</button>
-    
+   
     <button class="btn-ar" id="btn-audio-mp3" style="width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.6); border: 2px solid #fff; padding: 0;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -861,7 +1301,7 @@ async function mostrarPlatoAR(index) {
             // === ATRIBUTOS DEL PLATO BASE ===
             const posBase     = p.plato_base_pos || '0 0 0';
             const escalaBase  = p.plato_base_escala || '1 1 1';
-            
+           
             // === POSICION Y ESCALA ===
             contenBase.setAttribute('position', posBase);
             contenBase.setAttribute('scale', escalaBase);
@@ -933,9 +1373,9 @@ if (comidaOk) {
 
         // Limpiamos cualquier animación previa antes de asignar la nueva
         contenComida.removeAttribute('animation__rotar');
-        
+       
         contenComida.setAttribute('animation__rotar', {
-            property: 'rotation', 
+            property: 'rotation',
             from: rotFrom,
             to: rotTo,
             dur: rotDur,
@@ -946,7 +1386,7 @@ if (comidaOk) {
     }, { once: true });
 
     visorComida.setAttribute('gltf-model', urlComida);
-    
+   
     } else {
         info.textContent = 'En preparacion...';
         info.classList.add('en-preparacion');
@@ -1026,12 +1466,12 @@ if (comidaOk) {
 
 
 // --- LÓGICA DE AUDIO CON CIERRE DE SEGURIDAD ---
-let miAudio = null; 
+let miAudio = null;
 const botonMusica = document.getElementById("btn-audio-mp3");
 
 // 1. Función para reproducir
 botonMusica.addEventListener("click", () => {
-    const platoActual = platosActuales[indiceReal]; 
+    const platoActual = platosActuales[indiceReal];
     const direccionAudio = `https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/${platoActual.id}.mp3`;
 
     if (miAudio) {
@@ -1049,8 +1489,8 @@ botonMusica.addEventListener("click", () => {
 const originalUpdateModel = updateModel;
 updateModel = function(index) {
     // Primero ejecutamos la función original para que cambie el plato 3D
-    originalUpdateModel(index); 
-    
+    originalUpdateModel(index);
+   
     const platoInfo = platosActuales[index];
 
     // Forzamos el apagado de cualquier audio que esté sonando al cambiar de plato
@@ -1060,7 +1500,7 @@ updateModel = function(index) {
     }
 
     // REVISIÓN DE SEGURIDAD:
-    // Si audio_activo es exactamente true, lo mostramos. 
+    // Si audio_activo es exactamente true, lo mostramos.
     // En cualquier otro caso (si es false, si no existe, o si es otra cosa), lo ocultamos.
     if (platoInfo && platoInfo.audio_activo === true) {
         botonMusica.style.display = "flex";
@@ -1080,103 +1520,8 @@ function detenerMusicaGusto3D() {
     document.getElementById("ar-back-list").addEventListener("click", detenerMusicaGusto3D);
     document.getElementById("ar-back-menu").addEventListener("click", detenerMusicaGusto3D);
 
-        
-        
+       
+       
     </script>
-
-
-
-    <script>
-  const SUPABASE_URL = "https://mzmspmyydmexiuygftvs.supabase.co"; 
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16bXNwbXl5ZG1leGl1eWdmdHZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0Njg2MzgsImV4cCI6MjA5NTA0NDYzOH0.ME8ZrivSoJVBI2SVP39qRhWSrGsOupwL-2kSKCOT3Lc"; // Pega tu llave real aquí
-
-  let menuData = null;
-  const urlParams = new URLSearchParams(window.location.search);
-  const restauranteId = urlParams.get('restaurante') || 'cliente-prueba';
-
-  const categoriaMap = {
-    "Entradas": 0,
-    "Plato Fuerte": 1,
-    "Postres": 2,
-    "Bebidas": 3
-  };
-
-  async function cargarDatosRestaurante() {
-    try {
-      // 1. Verificar si el restaurante está activo
-      const resRestaurante = await fetch(`${SUPABASE_URL}/rest/v1/restaurantes?id=eq.${restauranteId}`, {
-        headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
-      });
-      const datosRestaurante = await resRestaurante.json();
-      
-      if (!datosRestaurante || datosRestaurante.length === 0) return;
-      if (datosRestaurante[0].activo === false || datosRestaurante[0].activo === "FALSE") {
-        window.stop();
-        document.documentElement.innerHTML = "<body style='background:#111; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif;'><h1>Menú temporalmente fuera de servicio.</h1></body>";
-        return;
-      }
-
-      console.log("Gustó3D conectado con:", datosRestaurante[0].nombre);
-
-      // 2. Traer platos de Supabase
-      const resPlatos = await fetch(`${SUPABASE_URL}/rest/v1/platos?restaurante_id=eq.${restauranteId}`, {
-        headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
-      });
-      const listaPlatos = await resPlatos.json();
-      
-      // 3. Empaquetar datos para tu diseño original
-      menuData = {
-        "platos": listaPlatos.map(p => ({
-          "id": String(p.id),
-          "nombre": p.nombre,
-          "categoria": categoriaMap[p.categoria] !== undefined ? categoriaMap[p.categoria] : 0,
-          "precio": p.precio,
-          "imagen": p.url_imagen || "https://via.placeholder.com/150", 
-          "archivo": p.url_modelo_3d || "",
-          "url_audio": p.url_audio || "",
-          "descripcion": p.descripcion || "",
-          "disponible": true,
-          // Parámetros por defecto para tu lona de Realidad Aumentada
-          "plato_base": "plate-n",
-          "plato_base_pos": "0 -0.1 0.1",
-          "plato_base_escala": "3.1 3.1 3.1",
-          "plato_comida_pos": "0 0.1 0.1",
-          "pos": "0 0 0.1",
-          "escala": "3 3 3",
-          "rot_inicial": "90 0 0",
-          "rot_final": "90 360 0",
-          "velocidad": 17000,
-          "anim_dur": 1600
-        }))
-      };
-
-      console.log("Datos acoplados listos abajo:", menuData);
-
-      // 4. 🔥 LLAMAMOS A TU FUNCIÓN ORIGINAL (que ya fue leída arriba)
-      if (typeof mostrarCategoria === "function") {
-         mostrarCategoria(0); 
-      } else {
-         console.error("La función mostrarCategoria sigue sin encontrarse.");
-      }
-
-      // 5. Quitar pantalla de carga
-      const loadingScreen = document.getElementById('loading-screen');
-      if (loadingScreen) {
-        loadingScreen.style.opacity = '0';
-        setTimeout(() => loadingScreen.remove(), 500);
-      }
-
-    } catch (error) {
-      console.error("Error en el proceso final:", error);
-    }
-  }
-
-  // Ejecución directa al final de la lectura
-  cargarDatosRestaurante();
-</script>
-
-
 </body>
-
-   
 </html>
