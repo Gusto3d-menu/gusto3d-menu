@@ -247,7 +247,7 @@
     {
       "id": "p012",
       "nombre": "Pizza",
-      "categoria": 1,
+      "categoria": 2,
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato12.jpg",
       "precio": "22.90",
       "precio_anterior": null,
@@ -256,7 +256,7 @@
       "alergenos": ["gluten", "lacteos"],
       "descripcion": "Carne 100% Angus jugosa con cheddar derretido, bacon crujiente, lechuga, tomate y nuestra salsa secreta.",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato12.glb",
-      "audio_activo": true,
+      "audio_activo": false,
       
       "plato_base": "plate-b",
       "plato_base_pos": "0 0 -0.01",
