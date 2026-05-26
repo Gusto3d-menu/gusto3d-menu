@@ -229,7 +229,7 @@
       "disponible": true,
       "destacado": false,
       "alergenos": [],
-      "descripcion": "Delicadas esferas de masa choux, rellenos de crema de vainilla artesanal, terminados con una lluvia de chocolate fundido y azucar glass.",
+      "descripcion": "Una base crujiente y dorada con salsa de la casa, una generosa capa de queso mozzarella y rodajas de pepperoni premium que se vuelven perfectamente crocantes al horno..",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato09.glb",
       "plato_base": "plate-b",
       "plato_base_pos": "0 -0.1 0.1",
@@ -241,6 +241,41 @@
       "rot_final": "90 360 0",
       "velocidad": 17000,
       "anim_dur": 1600
+    },
+
+
+    {
+      "id": "p012",
+      "nombre": "Pizza",
+      "categoria": 1,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato12.jpg",
+      "precio": "22.90",
+      "precio_anterior": null,
+      "disponible": true,
+      "destacado": true,
+      "alergenos": ["gluten", "lacteos"],
+      "descripcion": "Carne 100% Angus jugosa con cheddar derretido, bacon crujiente, lechuga, tomate y nuestra salsa secreta.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato12.glb",
+      "audio_activo": true,
+      
+      "plato_base": "plate-b",
+      "plato_base_pos": "0 0 -0.01",
+      "plato_base_escala": "1.5 1.5 1.5",
+
+      "base_rot_inicial": "90 0 0",
+      "base_rot_final": "90 0 0",
+      "base_velocidad": 2000,
+      
+      "plato_comida_pos": "0 0 0.36",
+      "pos": "0 0 0",
+      "escala": "1.1 1.1 1.1",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 20000,
+      "anim_dur": 1300
     }
+
+
+    
   ]
 }
