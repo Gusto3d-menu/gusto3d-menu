@@ -182,7 +182,7 @@
   
       "plato_base": "plate-b",
       "plato_base_pos": "0 0 -0.1",
-      "plato_base_escala": "1.5 1.5 1.5",
+      "plato_base_escala": "1 1 1",
 
       "base_rot_inicial": "90 0 0",
       "base_rot_final": "90 0 0",
