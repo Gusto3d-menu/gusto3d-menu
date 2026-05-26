@@ -189,7 +189,7 @@
       "base_velocidad": 2000,
       
       "plato_comida_pos": "0 1 0.1",
-      "pos": "0 0 0",
+      "pos": "0 0 1",
       "escala": "3 3 3",
       "rot_inicial": "90 0 0",
       "rot_final": "90 360 0",
