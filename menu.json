@@ -248,6 +248,58 @@
       "anim_dur": 1600
     },
 
+    {
+      "id": "p010",
+      "nombre": "Coca cola soda",
+      "categoria": 3,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/cococola_soda_can.jpg",
+      "precio": "12.50",
+      "precio_anterior": "15.00",
+      "disponible": true,
+      "destacado": false,
+      "alergenos": ["pescado"],
+      "descripcion": "Conserva premium de atun en aceite de oliva virgen extra. Perfecto para ensaladas, pastas o directo del envase.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/cococola_soda_can.glb",
+      "audio_activo": false,
+      
+      "plato_base": "",
+      "plato_base_pos": "0 0 0",
+      "plato_base_escala": "0 0 0",
+      "plato_comida_pos": "0 0.1 -0.1",
+      "pos": "0 0 0",
+      "escala": "4.5 4.5 4.5",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 14000,
+      "anim_dur": 1200
+    },
+
+    {
+      "id": "p011",
+      "nombre": "Energy drink soda beer",
+      "categoria": 3,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/cococola_soda_can.jpg",
+      "precio": "12.50",
+      "precio_anterior": "15.00",
+      "disponible": true,
+      "destacado": false,
+      "alergenos": ["pescado"],
+      "descripcion": "Conserva premium de atun en aceite de oliva virgen extra. Perfecto para ensaladas, pastas o directo del envase.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/energy_drink_soda_beer.glb",
+      "audio_activo": false,
+      
+      "plato_base": "",
+      "plato_base_pos": "0 0 0",
+      "plato_base_escala": "0 0 0",
+      "plato_comida_pos": "0 0.1 -0.1",
+      "pos": "0 0 0",
+      "escala": "4.5 4.5 4.5",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 14000,
+      "anim_dur": 1200
+    },
+
 
     {
       "id": "p012",
@@ -278,6 +330,59 @@
       "rot_final": "90 360 0",
       "velocidad": 20000,
       "anim_dur": 1300
+    },
+
+
+        {
+      "id": "p013",
+      "nombre": "Energy drink",
+      "categoria": 3,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/energydrink_-_psx.jpg",
+      "precio": "12.50",
+      "precio_anterior": "15.00",
+      "disponible": true,
+      "destacado": false,
+      "alergenos": ["pescado"],
+      "descripcion": "Conserva premium de atun en aceite de oliva virgen extra. Perfecto para ensaladas, pastas o directo del envase.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/energydrink_-_psx.glb",
+      "audio_activo": false,
+      
+      "plato_base": "",
+      "plato_base_pos": "0 0 0",
+      "plato_base_escala": "0 0 0",
+      "plato_comida_pos": "0 0.1 -0.1",
+      "pos": "0 0 0",
+      "escala": "4.5 4.5 4.5",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 14000,
+      "anim_dur": 1200
+    },
+
+            {
+      "id": "p014",
+      "nombre": "Soda",
+      "categoria": 3,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/fast_food_soda_cup.jpg",
+      "precio": "12.50",
+      "precio_anterior": "15.00",
+      "disponible": true,
+      "destacado": false,
+      "alergenos": ["pescado"],
+      "descripcion": "Conserva premium de atun en aceite de oliva virgen extra. Perfecto para ensaladas, pastas o directo del envase.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/fast_food_soda_cup.glb",
+      "audio_activo": false,
+      
+      "plato_base": "",
+      "plato_base_pos": "0 0 0",
+      "plato_base_escala": "0 0 0",
+      "plato_comida_pos": "0 0.1 -0.1",
+      "pos": "0 0 0",
+      "escala": "4.5 4.5 4.5",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 14000,
+      "anim_dur": 1200
     }
 
 
