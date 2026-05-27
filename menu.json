@@ -264,10 +264,10 @@
       
       "plato_base": "",
       "plato_base_pos": "0 0 0",
-      "plato_base_escala": "0 0 0",
+      "plato_base_escala": "0 2 -2",
       "plato_comida_pos": "0 0 0",
       "pos": "0 0 0",
-      "escala": "0.05 0.05 0.5",
+      "escala": "0.05 0.05 0.05",
       "rot_inicial": "90 0 0",
       "rot_final": "90 0 0",
       "velocidad": 14000,
