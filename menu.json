@@ -213,7 +213,7 @@
       "plato_base_escala": "0.5 0.5 0.5",
 
       "base_rot_inicial": "90 0 0",
-      "base_rot_final": "90 0 0",
+      "base_rot_final": "90 360 0",
       "base_velocidad": 2000,
       
       "plato_comida_pos": "0 0 -0.03",
