@@ -250,16 +250,16 @@
 
     {
       "id": "p010",
-      "nombre": "Coca cola soda",
+      "nombre": "Drink Bottle",
       "categoria": 3,
-      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/cococola_soda_can.jpg",
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/drinkbottle.jpg",
       "precio": "12.50",
       "precio_anterior": "15.00",
       "disponible": true,
       "destacado": false,
       "alergenos": ["pescado"],
       "descripcion": "Conserva premium de atun en aceite de oliva virgen extra. Perfecto para ensaladas, pastas o directo del envase.",
-      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/cococola_soda_can.glb",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/drinkbottle.glb",
       "audio_activo": false,
       
       "plato_base": "",
