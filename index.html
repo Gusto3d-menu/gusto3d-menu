@@ -1001,6 +1001,7 @@ if (comidaOk) {
 
     info.style.display = 'block';
     uiAr.style.display = 'flex';
+    actualizarBotonAudio(p);
 }
 
     /* ══════════════════════════════════════════
@@ -1072,60 +1073,47 @@ if (comidaOk) {
     window.onload = init;
 
 
-// --- LÓGICA DE AUDIO CON CIERRE DE SEGURIDAD ---
-let miAudio = null; 
+// --- LÓGICA DE AUDIO CORREGIDA ---
+let miAudio = null;
 const botonMusica = document.getElementById("btn-audio-mp3");
 
-// 1. Función para reproducir
+// 1. Reproducir / Pausar
 botonMusica.addEventListener("click", () => {
-    const platoActual = platosActuales[indiceReal]; 
+    const idx = window.platoSeleccionado;
+    if (idx === undefined) return;
+    
+    const platoActual = catalogo[idx];
     const direccionAudio = `https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/${platoActual.id}.mp3`;
 
     if (miAudio) {
         miAudio.pause();
         miAudio = null;
+        return;
     }
-
     miAudio = new Audio(direccionAudio);
-    miAudio.play().catch(error => {
-        console.log("Audio no listo");
-    });
+    miAudio.play().catch(e => console.log("Audio no listo"));
 });
 
-// 2. Control de visibilidad MEJORADO
-const originalUpdateModel = updateModel;
-updateModel = function(index) {
-    // Primero ejecutamos la función original para que cambie el plato 3D
-    originalUpdateModel(index); 
-    
-    const platoInfo = platosActuales[index];
-
-    // Forzamos el apagado de cualquier audio que esté sonando al cambiar de plato
-    if (miAudio) {
-        miAudio.pause();
-        miAudio = null;
-    }
-
-    // REVISIÓN DE SEGURIDAD:
-    // Si audio_activo es exactamente true, lo mostramos. 
-    // En cualquier otro caso (si es false, si no existe, o si es otra cosa), lo ocultamos.
-    if (platoInfo && platoInfo.audio_activo === true) {
+// 2. Control de visibilidad (Solo muestra si es estrictamente true)
+function actualizarBotonAudio(plato) {
+    if (plato && plato.audio_activo === true) {
         botonMusica.style.display = "flex";
     } else {
         botonMusica.style.display = "none";
     }
-};
+}
 
-// 3. Apagar al salir
+// 3. Apagar y limpiar al salir de AR
 function detenerMusicaGusto3D() {
-        if (miAudio) {
-            miAudio.pause();
-            miAudio.currentTime = 0;
-            miAudio = null;
-        }
+    if (miAudio) {
+        miAudio.pause();
+        miAudio.currentTime = 0;
+        miAudio = null;
     }
-    document.getElementById("ar-back-list").addEventListener("click", detenerMusicaGusto3D);
-    document.getElementById("ar-back-menu").addEventListener("click", detenerMusicaGusto3D);
+}
+
+document.getElementById("ar-back-list").addEventListener("click", detenerMusicaGusto3D);
+document.getElementById("ar-back-menu").addEventListener("click", detenerMusicaGusto3D);
 
         
         
