@@ -1092,29 +1092,47 @@ botonMusica.addEventListener("click", () => {
     });
 });
 
-// 2. Control de visibilidad MEJORADO
+// =========================================================================
+// 2. Control de visibilidad INDIVIDUAL por plato (CORREGIDO)
+// =========================================================================
 const originalUpdateModel = updateModel;
 updateModel = function(index) {
-    // Primero ejecutamos la función original para que cambie el plato 3D
+    // 1. Ejecutamos la lógica original de Gustó3D para mover/cambiar el modelo 3D
     originalUpdateModel(index); 
     
-    const platoInfo = platosActuales[index];
-
-    // Forzamos el apagado de cualquier audio que esté sonando al cambiar de plato
+    // 2. Apagamos inmediatamente cualquier audio activo al cambiar de plato
     if (miAudio) {
         miAudio.pause();
         miAudio = null;
     }
 
-    // REVISIÓN DE SEGURIDAD:
-    // Si audio_activo es exactamente true, lo mostramos. 
-    // En cualquier otro caso (si es false, si no existe, o si es otra cosa), lo ocultamos.
+    // 3. Validamos el JSON del plato actual en el carrusel
+    const platoInfo = platosActuales[index];
+    
     if (platoInfo && platoInfo.audio_activo === true) {
         botonMusica.style.display = "flex";
     } else {
         botonMusica.style.display = "none";
     }
 };
+
+// FUERZA EL CONTROL INDIVIDUAL AL CARGAR O CAMBIAR DE CATEGORÍA
+// Añadimos un observador para cuando cambie la lista de platosActuales
+const originalActualizarCarrusel = typeof actualizarCarrusel !== 'undefined' ? actualizarCarrusel : null;
+if (originalActualizarCarrusel) {
+    actualizarCarrusel = function() {
+        originalActualizarCarrusel();
+        // Forzamos a evaluar el primer plato visible del nuevo carrusel (índice 0)
+        if (platosActuales && platosActuales.length > 0) {
+            const primerPlato = platosActuales[0];
+            if (primerPlato && primerPlato.audio_activo === true) {
+                botonMusica.style.display = "flex";
+            } else {
+                botonMusica.style.display = "none";
+            }
+        }
+    };
+}
 
 // 3. Apagar al salir
 function detenerMusicaGusto3D() {
