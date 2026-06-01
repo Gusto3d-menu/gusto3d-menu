@@ -1073,54 +1073,42 @@ if (comidaOk) {
     window.onload = init;
 
 
-// --- LÓGICA DE AUDIO CORREGIDA Y ESTABLE ---
+// --- LÓGICA DE AUDIO CORREGIDA ---
 let miAudio = null;
 const botonMusica = document.getElementById("btn-audio-mp3");
 
-botonMusica.addEventListener("click", async () => {
-    // Usamos el índice global guardado al entrar a AR
+// 1. Reproducir / Pausar
+botonMusica.addEventListener("click", () => {
     const idx = window.platoSeleccionado;
-    if (idx === undefined || !catalogo[idx]) {
-        console.warn("⚠️ No hay plato seleccionado para reproducir audio.");
-        return;
-    }
-
+    if (idx === undefined) return;
+    
     const platoActual = catalogo[idx];
-    // ✅ URL debe coincidir EXACTAMENTE con el "id" del JSON + .mp3
-    const urlAudio = `https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/${platoActual.id}.mp3`;
+    const direccionAudio = `https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/${platoActual.id}.mp3`;
 
-    // Si ya hay audio sonando, pausar y reiniciar
     if (miAudio) {
         miAudio.pause();
-        miAudio.currentTime = 0;
         miAudio = null;
-        console.log("⏸️ Audio pausado");
         return;
     }
-
-    // Crear nuevo audio con CORS habilitado
-    miAudio = new Audio(urlAudio);
-    miAudio.crossOrigin = "anonymous"; // 🔑 Vital para GitHub
-    miAudio.preload = "auto";
-
-    try {
-        await miAudio.play();
-        console.log(`▶️ Reproduciendo: ${platoActual.nombre} | URL: ${urlAudio}`);
-    } catch (error) {
-        console.error("❌ Error al reproducir:", error);
-        // Fallback para móviles que bloquean autoplay
-        miAudio.load();
-        miAudio.play().catch(e => console.warn("Reintento fallido:", e));
-    }
+    miAudio = new Audio(direccionAudio);
+    miAudio.play().catch(e => console.log("Audio no listo"));
 });
 
-// Detener y limpiar al salir de AR
+// 2. Control de visibilidad (Solo muestra si es estrictamente true)
+function actualizarBotonAudio(plato) {
+    if (plato && plato.audio_activo === true) {
+        botonMusica.style.display = "flex";
+    } else {
+        botonMusica.style.display = "none";
+    }
+}
+
+// 3. Apagar y limpiar al salir de AR
 function detenerMusicaGusto3D() {
     if (miAudio) {
         miAudio.pause();
         miAudio.currentTime = 0;
         miAudio = null;
-        console.log("🔇 Audio detenido al salir de AR");
     }
 }
 
