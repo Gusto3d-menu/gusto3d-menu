@@ -24,7 +24,7 @@
       "alergenos": [],
       "descripcion": "Fideos japoneses en caldo de pollo con huevo, cebollin, nori y lonchas de cerdo marinado. Autentico sabor del Japon.",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato01.glb",
-      "audio_activo": true,
+      "audio_activo": false,
       
       "plato_base": "",
       "plato_base_pos": "0 -0.15 0.1",
@@ -42,7 +42,7 @@
       "anim_dur": 1100
     },
     {
-      "id": "p002",
+      "id": "p003",
       "nombre": "Hamburguesa Angus",
       "categoria": 1,
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato03.jpg",
@@ -72,7 +72,7 @@
       "anim_dur": 1300
     },
     {
-      "id": "p003",
+      "id": "p004",
       "nombre": "Pollo Broster",
       "categoria": 1,
       "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato04.jpg",
