@@ -437,7 +437,7 @@
       "destacado": true,
       "alergenos": ["gluten"],
       "descripcion": "Una irresistible combinación fundente de mozzarella, provolone, queso azul y parmesano sobre nuestra salsa de tomate artesanal y masa crujiente. Cremosa, aromática y llena de sabor.",
-      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/plato03.glb",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/Pizza-4-quesos.glb",
       "audio_activo": true,
       
       "plato_base": "plate-b",
