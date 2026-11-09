@@ -424,6 +424,32 @@
       "rot_final": "90 360 0",
       "velocidad": 14000,
       "anim_dur": 1200
+    },
+
+                {
+      "id": "p015",
+      "nombre": "Pizza 4 Quesos",
+      "categoria": 1,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/Pizza-4-quesos.jpg",
+      "precio": "9.50",
+      "precio_anterior": "11.00",
+      "disponible": true,
+      "destacado": true,
+      "alergenos": ["gluten"],
+      "descripcion": "Una irresistible combinación fundente de mozzarella, provolone, queso azul y parmesano sobre nuestra salsa de tomate artesanal y masa crujiente. Cremosa, aromática y llena de sabor.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/Pizza-4-quesos.glb",
+      "audio_activo": false,
+      
+      "plato_base": "",
+      "plato_base_pos": "0 0 0",
+      "plato_base_escala": "0 0 0",
+      "plato_comida_pos": "0 0.1 -0.1",
+      "pos": "0 0 0",
+      "escala": "4.5 4.5 4.5",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 14000,
+      "anim_dur": 1200
     }
 
 
