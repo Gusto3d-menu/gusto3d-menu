@@ -440,7 +440,7 @@
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/Pizza-4-quesos.glb",
       "audio_activo": false,
       
-      "plato_base": "",
+      "plato_base": "plate-b",
       "plato_base_pos": "0 0 0",
       "plato_base_escala": "0 0 0",
       "plato_comida_pos": "0 0.1 -0.1",
