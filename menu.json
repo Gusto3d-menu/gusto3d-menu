@@ -42,37 +42,7 @@
       "anim_dur": 1100
     },
 
-    {
-      "id": "p001",
-      "nombre": "nachos con aguacate",
-      "categoria": 1,
-      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/nachos.jpg",
-      "precio": "20.75",
-      "precio_anterior": null,
-      "disponible": true,
-      "destacado": true,
-      "alergenos": [],
-      "descripcion": "Guacamole fresco preparado al momento con aguacate laminado, cebolla morada y rábanos crujientes, acompañado de totopos de maíz dorados al horno. Un inicio fresco, cremoso y lleno de textura.",
-      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/Nachos and avocado San Francisco-compressed-compressed.glb",
-      "audio_activo": false,
-      
-      "plato_base": "",
-      "plato_base_pos": "0 0 -0.1",
-      "plato_base_escala": "1.5 1.5 1.5", 
-      "base_rot_inicial": "90 0 0",
-      "base_rot_final": "90 0 0",
-      "base_velocidad": 20000,
-      
-      "plato_comida_pos": "0 0.1 -0.2",
-      "pos": "0 0 0",
-      "escala": "6 6 6",
-      "rot_inicial": "90 0 0",
-      "rot_final": "90 360 0",
-      "velocidad": 20000,
-      "anim_dur": 1100
-    },
-
-
+   
     {
       "id": "p002",
       "nombre": "prueba",
@@ -102,8 +72,6 @@
       "velocidad": 20000,
       "anim_dur": 1100
     },
-
-
 
 
     
@@ -400,7 +368,7 @@
       "anim_dur": 1200
     },
 
-            {
+      {
       "id": "p014",
       "nombre": "Soda",
       "categoria": 3,
@@ -426,7 +394,7 @@
       "anim_dur": 1200
     },
 
-                {
+      {
       "id": "p015",
       "nombre": "Pizza 4 Quesos",
       "categoria": 1,
@@ -438,6 +406,38 @@
       "alergenos": ["gluten"],
       "descripcion": "Una irresistible combinación fundente de mozzarella, provolone, queso azul y parmesano sobre nuestra salsa de tomate artesanal y masa crujiente. Cremosa, aromática y llena de sabor.",
       "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/Pizza-4-quesos.glb",
+      "audio_activo": true,
+      
+      "plato_base": "plate-b",
+      "plato_base_pos": "0 0 -0.01",
+      "plato_base_escala": "1.5 1.5 1.5",
+
+      "base_rot_inicial": "90 0 0",
+      "base_rot_final": "90 0 0",
+      "base_velocidad": 2000,
+      
+      "plato_comida_pos": "0 0 0.36",
+      "pos": "0 0 0",
+      "escala": "6 6 6",
+      "rot_inicial": "90 0 0",
+      "rot_final": "90 360 0",
+      "velocidad": 20000,
+      "anim_dur": 1300
+    },
+
+
+     {
+      "id": "p01",
+      "nombre": "Vino",
+      "categoria": 3,
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/vino.jpg",
+      "precio": "9.50",
+      "precio_anterior": "11.00",
+      "disponible": true,
+      "destacado": true,
+      "alergenos": ["gluten"],
+      "descripcion": "Una irresistible combinación fundente de mozzarella, provolone, queso azul y parmesano sobre nuestra salsa de tomate artesanal y masa crujiente. Cremosa, aromática y llena de sabor.",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/vino.glb",
       "audio_activo": true,
       
       "plato_base": "plate-b",
