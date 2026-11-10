@@ -44,16 +44,16 @@
 
     {
       "id": "p001",
-      "nombre": "Hamburguesa doble",
+      "nombre": "nachos con aguacate",
       "categoria": 1,
-      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/hamburguesa doble filet.jpg",
+      "imagen": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/nachos.jpg",
       "precio": "20.75",
       "precio_anterior": null,
       "disponible": true,
       "destacado": true,
       "alergenos": [],
       "descripcion": "Hamburguesa con doble carne bañada en queso cheedar y la salsa de la casa.",
-      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/Hamburguesa doble filet-compressed.glb",
+      "archivo": "https://raw.githubusercontent.com/Gusto3d-menu/gusto3d-assets/main/Nachos and avocado San Francisco-compressed-compressed.glb",
       "audio_activo": false,
       
       "plato_base": "",
