@@ -466,7 +466,7 @@
            #visor-base  → plato/bandeja (estatico)
            #visor-comida → modelo de la comida (animado)
     ════════════════════════════════════════════ -->
-    <a-scene
+<a-scene
         mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;
                       uiLoading: no; uiScanning: no;
                       filterMinCF: 0.001; filterBeta: 0.01;"
@@ -474,14 +474,19 @@
         device-orientation-permission-ui="enabled: false"
         id="ar-scene">
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        
+        <!-- 💡 AGREGA LAS LUCES AQUÍ 👇 -->
+        <a-light type="ambient" intensity="1.2"></a-light>
+        <a-light type="directional" position="1 2 2" intensity="0.8"></a-light>
+
         <a-entity mindar-image-target="targetIndex: 0">
 
-            <!-- Plato / bandeja base: sin rotacion animada, solo posicion fija -->
+            <!-- Plato / bandeja base -->
             <a-entity id="contenedor-base" scale="0.01 0.01 0.01">
                 <a-gltf-model id="visor-base"></a-gltf-model>
             </a-entity>
 
-            <!-- Comida: emerge con escala y gira -->
+            <!-- Comida -->
             <a-entity id="contenedor-comida" scale="0.01 0.01 0.01">
                 <a-gltf-model id="visor-comida"></a-gltf-model>
             </a-entity>
